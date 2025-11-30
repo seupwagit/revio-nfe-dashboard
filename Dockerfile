@@ -15,14 +15,27 @@ COPY . .
 # Build da aplicação
 RUN npm run build
 
+# Verificar se o build foi criado
+RUN ls -la /app/dist
+
 # Production stage
 FROM nginx:alpine
 
 # Copiar arquivos do build
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+# Verificar arquivos copiados
+RUN ls -la /usr/share/nginx/html && \
+    test -f /usr/share/nginx/html/index.html || (echo "ERROR: index.html not found!" && exit 1)
+
 # Copiar configuração customizada do Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Remover configuração padrão do nginx se existir
+RUN rm -f /etc/nginx/conf.d/default.conf.dpkg-dist
+
+# Testar configuração do nginx
+RUN nginx -t
 
 # Expor porta 80
 EXPOSE 80
