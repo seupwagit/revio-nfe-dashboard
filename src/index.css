@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-revio-primary to-revio-secondary text-white font-semibold px-6 py-2.5 rounded-lg shadow-revio hover:shadow-revio-lg transform hover:-translate-y-0.5 transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-revio-primary border-2 border-revio-primary font-semibold px-6 py-2.5 rounded-lg hover:bg-revio-light transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-revio hover:shadow-revio-lg transition-all duration-300;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-2.5 border-2 border-revio-gray-200 rounded-lg focus:ring-2 focus:ring-revio-accent focus:border-revio-accent transition-all duration-200;
+  }
+}
