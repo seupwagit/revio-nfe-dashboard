@@ -16,33 +16,38 @@ COPY . .
 RUN npm run build
 
 # Verificar se o build foi criado
-RUN ls -la /app/dist
+RUN ls -la /app/dist && \
+    test -f /app/dist/index.html || (echo "ERROR: Build failed - index.html not found!" && exit 1)
 
 # Production stage
 FROM nginx:alpine
 
+# Instalar wget para healthcheck
+RUN apk add --no-cache wget
+
+# Remover configuração padrão do nginx
+RUN rm -f /etc/nginx/conf.d/default.conf
+
+# Copiar configuração customizada do Nginx ANTES dos arquivos
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copiar arquivos do build
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Verificar arquivos copiados
+# Verificar arquivos copiados e permissões
 RUN ls -la /usr/share/nginx/html && \
-    test -f /usr/share/nginx/html/index.html || (echo "ERROR: index.html not found!" && exit 1)
-
-# Copiar configuração customizada do Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Remover configuração padrão do nginx se existir
-RUN rm -f /etc/nginx/conf.d/default.conf.dpkg-dist
+    test -f /usr/share/nginx/html/index.html || (echo "ERROR: index.html not found in final image!" && exit 1) && \
+    chmod -R 755 /usr/share/nginx/html
 
 # Testar configuração do nginx
 RUN nginx -t
 
-# Expor porta 80
-EXPOSE 80
+# Expor porta 3000 (padrão do Coolify)
+EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1
+# Health check mais robusto
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider --timeout=5 http://127.0.0.1:3000/ || exit 1
 
 # Iniciar Nginx
 CMD ["nginx", "-g", "daemon off;"]
