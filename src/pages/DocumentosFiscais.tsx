@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNF } from '../contexts/NFContext'
-import { FileText, Receipt, Truck, Calendar, Building2, Filter, X } from 'lucide-react'
+import { FileText, Receipt, Truck, Calendar, Building2, Filter, X, AlertCircle } from 'lucide-react'
 import GridNFeSimples from './GridNFeSimples'
 import GridCFeSimples from './GridCFeSimples'
 import GridCTeSimples from './GridCTeSimples'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { validateDateRange } from '../utils/dateValidation'
 
 type CollectionType = 'tbl_nfe_100' | 'tbl_cfe_100' | 'tbl_cte_100'
 
@@ -18,6 +19,7 @@ export default function DocumentosFiscais() {
   const [dataFim, setDataFim] = useState(filtros.dataFim || getDefaultEndDate())
   const [cnpjEmit, setCnpjEmit] = useState(filtros.cnpjEmit || '')
   const [cnpjDest, setCnpjDest] = useState(filtros.cnpjDest || '')
+  const [erroData, setErroData] = useState<string | null>(null)
 
   const collections = [
     {
@@ -50,6 +52,15 @@ export default function DocumentosFiscais() {
   }
 
   const handleAplicarFiltros = () => {
+    // Validar período máximo de 1 ano
+    const validation = validateDateRange(dataInicio, dataFim, 365)
+    
+    if (!validation.valid) {
+      setErroData(validation.message || 'Período inválido')
+      return
+    }
+    
+    setErroData(null)
     setFiltros({
       dataInicio,
       dataFim,
@@ -65,6 +76,7 @@ export default function DocumentosFiscais() {
     setDataFim(fim)
     setCnpjEmit('')
     setCnpjDest('')
+    setErroData(null)
     setFiltros({
       dataInicio: inicio,
       dataFim: fim,
@@ -193,6 +205,14 @@ export default function DocumentosFiscais() {
                 />
               </div>
             </div>
+
+            {/* Mensagem de erro */}
+            {erroData && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                <span className="text-sm font-medium">{erroData}</span>
+              </div>
+            )}
 
             {/* Botões */}
             <div className="flex gap-3">

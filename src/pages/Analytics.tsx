@@ -4,8 +4,9 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts'
-import { Calendar, TrendingUp, DollarSign, FileText, Filter, RefreshCw } from 'lucide-react'
+import { Calendar, TrendingUp, DollarSign, FileText, Filter, RefreshCw, AlertCircle } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { validateDateRange } from '../utils/dateValidation'
 
 type PeriodoType = '7d' | '30d' | '90d' | '12m' | 'custom'
 type CollectionType = 'tbl_nfe_100' | 'tbl_cfe_100' | 'tbl_cte_100'
@@ -104,6 +105,7 @@ export default function Analytics() {
   const [loading, setLoading] = useState(false)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [serverDisponivel, setServerDisponivel] = useState(false)
+  const [erroData, setErroData] = useState<string | null>(null)
 
   // Verificar servidor de agregação
   useEffect(() => {
@@ -142,6 +144,16 @@ export default function Analytics() {
           break
         case 'custom':
           if (!dataInicio || !dataFim) return
+          
+          // Validar período máximo de 1 ano
+          const validation = validateDateRange(dataInicio, dataFim, 365)
+          if (!validation.valid) {
+            setErroData(validation.message || 'Período inválido')
+            setLoading(false)
+            return
+          }
+          
+          setErroData(null)
           inicio = new Date(dataInicio)
           break
       }
@@ -303,6 +315,14 @@ export default function Analytics() {
             </>
           )}
         </div>
+
+        {/* Mensagem de erro */}
+        {erroData && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{erroData}</span>
+          </div>
+        )}
 
         {/* Botão Aplicar (apenas para custom) */}
         {periodo === 'custom' && (

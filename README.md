@@ -285,6 +285,13 @@ Causa: Proxy não está rodando
 Solução: node proxy-server.cjs
 ```
 
+**❌ Timeout 504 em consultas grandes**
+```
+Causa: API externa demora mais de 5 minutos
+Solução: Reduzir tamanho da consulta (size=500 → size=100)
+Ver: docs/solucoes/SOLUCAO_TIMEOUT.md
+```
+
 **Mais soluções**: Ver **TROUBLESHOOTING.md**
 
 ---

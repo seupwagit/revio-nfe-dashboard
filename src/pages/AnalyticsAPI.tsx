@@ -4,8 +4,9 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts'
-import { Calendar, TrendingUp, DollarSign, FileText, Filter, RefreshCw } from 'lucide-react'
+import { Calendar, TrendingUp, DollarSign, FileText, Filter, RefreshCw, AlertCircle } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { validateDateRange } from '../utils/dateValidation'
 
 // Componentes de gráfico memoizados
 const FaturamentoDiarioChart = memo(({ data }: any) => (
@@ -107,6 +108,7 @@ export default function AnalyticsAPI() {
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [processando, setProcessando] = useState(false)
+  const [erroData, setErroData] = useState<string | null>(null)
 
   // Aplicar filtros automaticamente quando período ou collection mudar
   useEffect(() => {
@@ -134,6 +136,14 @@ export default function AnalyticsAPI() {
         break
       case 'custom':
         if (dataInicio && dataFim) {
+          // Validar período máximo de 1 ano
+          const validation = validateDateRange(dataInicio, dataFim, 365)
+          if (!validation.valid) {
+            setErroData(validation.message || 'Período inválido')
+            return
+          }
+          
+          setErroData(null)
           setFiltros({
             dataInicio,
             dataFim
@@ -375,6 +385,14 @@ export default function AnalyticsAPI() {
             </>
           )}
         </div>
+
+        {/* Mensagem de erro */}
+        {erroData && (
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{erroData}</span>
+          </div>
+        )}
 
         {periodo === 'custom' && (
           <div className="mt-4">

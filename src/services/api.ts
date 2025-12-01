@@ -15,6 +15,7 @@ if (!tokenValidation.valid) {
 // Configuração do axios - APENAS headers permitidos pela API Revio
 const api = axios.create({
   baseURL: env.api.baseUrl,
+  timeout: 300000, // 5 minutos (300000ms) para consultas grandes
   headers: {
     'Authorization': `Bearer ${env.api.bearerToken}`,
     'Content-Type': 'application/json',
@@ -124,50 +125,35 @@ export async function fetchNotasFiscais(filtros: Filtros): Promise<any[]> {
       return cachedData
     }
 
-    const pageSize = 500 // Máximo permitido pela API
-    let page = 1
-    let todasNotas: any[] = []
-    let temMaisRegistros = true
+    // PAGINAÇÃO SERVER-SIDE: busca apenas 1 página por vez
+    const pageSize = 100 // Reduzido de 500 para 100 para evitar timeout
+    const page = 1 // Sempre página 1 inicialmente
 
-    console.log('🔄 Iniciando busca paginada...')
+    console.log('🔄 Buscando primeira página...')
 
-    while (temMaisRegistros) {
-      const params: ConsultaParams = {
-        host: env.database.host,
-        collection: filtros.collection || env.database.collection,
-        database: env.database.database,
-        pg: page,
-        size: pageSize,
-        dtIni: filtros.dataInicio || getDefaultStartDate(),
-        dtFin: filtros.dataFim || getDefaultEndDate(),
-      }
-
-      if (filtros.cnpjEmit) params.cnpjEmit = filtros.cnpjEmit
-      if (filtros.cnpjDest) params.cnpjDest = filtros.cnpjDest
-
-      console.log(`📄 Buscando página ${page}...`)
-      const response = await api.get<any>('/WebView/Consultar', { params })
-      
-      const notasPagina = mapApiResponseToNotasFiscais(response.data)
-      console.log(`✅ Página ${page}: ${notasPagina.length} registros`)
-      
-      todasNotas = [...todasNotas, ...notasPagina]
-
-      // Se retornou menos que o tamanho da página, não há mais registros
-      if (notasPagina.length < pageSize) {
-        temMaisRegistros = false
-      } else {
-        page++
-        // Sem limite - busca todos os registros disponíveis
-      }
+    const params: ConsultaParams = {
+      host: env.database.host,
+      collection: filtros.collection || env.database.collection,
+      database: env.database.database,
+      pg: page,
+      size: pageSize,
+      dtIni: filtros.dataInicio || getDefaultStartDate(),
+      dtFin: filtros.dataFim || getDefaultEndDate(),
     }
+
+    if (filtros.cnpjEmit) params.cnpjEmit = filtros.cnpjEmit
+    if (filtros.cnpjDest) params.cnpjDest = filtros.cnpjDest
+
+    console.log(`📄 Buscando página ${page} (${pageSize} registros)...`)
+    const response = await api.get<any>('/WebView/Consultar', { params })
     
-    console.log('✅ Total de notas carregadas:', todasNotas.length)
+    const notas = mapApiResponseToNotasFiscais(response.data)
+    console.log(`✅ Carregados ${notas.length} registros`)
     
     // Salva no cache
-    saveToCache(cacheKey, todasNotas)
+    saveToCache(cacheKey, notas)
     
-    return todasNotas
+    return notas
   } catch (error: any) {
     logError('fetchNotasFiscais', error)
     return []
