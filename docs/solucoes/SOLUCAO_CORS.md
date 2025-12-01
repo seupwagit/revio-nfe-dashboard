@@ -54,7 +54,23 @@ location /api/ {
 VITE_API_BASE_URL=/api
 ```
 
-Isso faz com que a aplicação use o proxy local ao invés de chamar a API diretamente.
+**`src/config/env.ts`:**
+```typescript
+api: {
+  baseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
+  // ...
+}
+```
+
+**Dockerfile:**
+```dockerfile
+RUN NODE_ENV=production npm run build
+```
+
+Isso garante que:
+- O Vite use o `.env.production` durante o build
+- A aplicação use o proxy local (`/api`) ao invés de chamar a API diretamente
+- O fallback também seja `/api` caso a variável não esteja definida
 
 ### 3. Porta 3000
 

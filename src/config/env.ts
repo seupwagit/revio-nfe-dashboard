@@ -1,7 +1,8 @@
 // Configurações de ambiente centralizadas
 export const env = {
   api: {
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://apinfe.revio.digital/api',
+    // Em produção, usa /api (proxy do nginx). Em dev, pode usar a URL completa
+    baseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
     bearerToken: import.meta.env.VITE_API_BEARER_TOKEN || '',
   },
   database: {

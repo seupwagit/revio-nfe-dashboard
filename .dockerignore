@@ -7,6 +7,7 @@ docs
 .env.local
 .env.development
 .env.test
+# NÃO excluir .env.production - necessário para o build!
 .vscode
 .idea
 *.log

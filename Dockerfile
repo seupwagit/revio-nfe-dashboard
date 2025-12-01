@@ -12,8 +12,18 @@ RUN npm ci
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
+# Verificar se .env.production existe
+RUN ls -la .env* || echo "No .env files found"
+
+# Build da aplicação em modo production (usa .env.production)
+# O --mode production faz o Vite carregar .env.production automaticamente
+RUN npm run build -- --mode production
+
+# Debug: verificar se a baseURL foi aplicada corretamente
+RUN echo "=== Verificando build ===" && \
+    echo "Procurando por 'apinfe.revio.digital' no build (não deveria existir):" && \
+    (grep -r "apinfe.revio.digital" /app/dist/ && echo "❌ ERRO: URL direta da API encontrada no build!" && exit 1) || \
+    echo "✅ URL da API não encontrada no build (correto - deve usar /api)"
 
 # Verificar se o build foi criado
 RUN ls -la /app/dist && \
