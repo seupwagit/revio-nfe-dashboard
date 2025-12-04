@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNF } from '../contexts/NFContext'
 import { Calendar, Search, X, Info } from 'lucide-react'
+import PeriodPresets from './PeriodPresets'
 
-// Funções para datas padrão (último mês)
+// Funções para datas padrão (ÚLTIMO ANO - igual ao Analytics)
 const getDefaultStartDate = () => {
   const date = new Date()
-  date.setMonth(date.getMonth() - 1)
+  date.setFullYear(date.getFullYear() - 1)  // Último ano, não último mês
   return date.toISOString().split('T')[0]
 }
 
@@ -57,6 +58,30 @@ export default function FiltroNotas() {
     })
   }
 
+  const handlePeriodPreset = (days: number) => {
+    const fim = new Date()
+    const inicio = new Date()
+    
+    // Para "último ano" (365 dias), usar setFullYear para consistência com Analytics
+    if (days === 365) {
+      inicio.setFullYear(fim.getFullYear() - 1)
+    } else {
+      inicio.setDate(fim.getDate() - days)
+    }
+    
+    const dtIni = inicio.toISOString().split('T')[0]
+    const dtFim = fim.toISOString().split('T')[0]
+    
+    setDataInicio(dtIni)
+    setDataFim(dtFim)
+    
+    setFiltros({
+      ...filtros,
+      dataInicio: dtIni,
+      dataFim: dtFim
+    })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -66,8 +91,16 @@ export default function FiltroNotas() {
         </h3>
         <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
           <Info className="w-3 h-3" />
-          <span>Período padrão: Último mês</span>
+          <span>Período padrão: Último ano</span>
         </div>
+      </div>
+
+      {/* Preseleções de Período */}
+      <div className="mb-4">
+        <label className="block text-xs font-medium text-gray-700 mb-2">
+          Períodos Rápidos
+        </label>
+        <PeriodPresets onSelectPeriod={handlePeriodPreset} />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

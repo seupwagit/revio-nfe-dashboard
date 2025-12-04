@@ -4,12 +4,12 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ExportarExcel from '../components/ExportarExcel'
-import GridAvancada from '../components/GridAvancada'
+import GridPaginada from '../components/GridPaginada'
 
 const columnHelper = createColumnHelper<any>()
 
 export default function GridCTeSimples() {
-  const { notas, loading } = useNF()
+  const { notas, loading, usandoCache } = useNF()
 
   const columns = useMemo(() => [
     // Identificação
@@ -61,6 +61,7 @@ export default function GridCTeSimples() {
           return <span className="whitespace-nowrap">{date}</span>
         }
       },
+      filterFn: 'dateFilter' as any,
       size: 180
     }),
     columnHelper.accessor('status', {
@@ -106,30 +107,6 @@ export default function GridCTeSimples() {
       },
       size: 130
     }),
-    columnHelper.accessor('valores.receber', {
-      header: 'Valor a Receber',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 140
-    }),
-    columnHelper.accessor('valores.icms', {
-      header: 'ICMS',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 110
-    }),
-    columnHelper.accessor('valores.baseCalculo', {
-      header: 'Base Cálculo',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 130
-    }),
     
     // Emitente
     columnHelper.accessor('emitente.cnpj', {
@@ -142,18 +119,8 @@ export default function GridCTeSimples() {
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
     }),
-    columnHelper.accessor('emitente.ie', {
-      header: 'IE Emitente',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 130
-    }),
     
     // Tomador
-    columnHelper.accessor('tomador.tipo', {
-      header: 'Tipo Tomador',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 120
-    }),
     columnHelper.accessor('tomador.cnpj', {
       header: 'CNPJ Tomador',
       cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
@@ -163,11 +130,6 @@ export default function GridCTeSimples() {
       header: 'Razão Social Tomador',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
-    }),
-    columnHelper.accessor('tomador.ie', {
-      header: 'IE Tomador',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 130
     }),
     
     // Remetente
@@ -181,16 +143,6 @@ export default function GridCTeSimples() {
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
     }),
-    columnHelper.accessor('remetente.municipio', {
-      header: 'Município Remetente',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('remetente.uf', {
-      header: 'UF Remetente',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 80
-    }),
     
     // Destinatário
     columnHelper.accessor('destinatario.cnpj', {
@@ -202,91 +154,6 @@ export default function GridCTeSimples() {
       header: 'Razão Social Destinatário',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
-    }),
-    
-    // Expedidor
-    columnHelper.accessor('expedidor.cnpj', {
-      header: 'CNPJ Expedidor',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('expedidor.razaoSocial', {
-      header: 'Razão Social Expedidor',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
-    }),
-    
-    // Recebedor
-    columnHelper.accessor('recebedor.cnpj', {
-      header: 'CNPJ Recebedor',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('recebedor.razaoSocial', {
-      header: 'Razão Social Recebedor',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
-    }),
-    
-    // Carga
-    columnHelper.accessor('carga.produto', {
-      header: 'Produto',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 200
-    }),
-    columnHelper.accessor('carga.peso', {
-      header: 'Peso',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 100
-    }),
-    columnHelper.accessor('carga.volume', {
-      header: 'Volume',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 100
-    }),
-    columnHelper.accessor('carga.unidade', {
-      header: 'Unidade',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 100
-    }),
-    
-    // Rodoviário
-    columnHelper.accessor('rodoviario.rntrc', {
-      header: 'RNTRC',
-      cell: info => <span className="font-mono text-sm">{info.getValue() || '-'}</span>,
-      size: 120
-    }),
-    columnHelper.accessor('rodoviario.veiculo.placa', {
-      header: 'Placa Veículo',
-      cell: info => <span className="font-mono text-sm">{info.getValue() || '-'}</span>,
-      size: 120
-    }),
-    columnHelper.accessor('rodoviario.veiculo.uf', {
-      header: 'UF Veículo',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 80
-    }),
-    columnHelper.accessor('rodoviario.motorista.cpf', {
-      header: 'CPF Motorista',
-      cell: info => <span className="font-mono text-sm">{info.getValue() || '-'}</span>,
-      size: 130
-    }),
-    columnHelper.accessor('rodoviario.motorista.nome', {
-      header: 'Nome Motorista',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 200
-    }),
-    
-    // Informações Adicionais
-    columnHelper.accessor('tipo', {
-      header: 'Tipo',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 100
-    }),
-    columnHelper.accessor('origem', {
-      header: 'Origem',
-      cell: info => <span className="text-xs max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 200
     }),
   ], [])
 
@@ -308,9 +175,6 @@ export default function GridCTeSimples() {
         <p className="text-revio-gray-600 mb-4">
           Não há conhecimentos de transporte eletrônicos no período selecionado.
         </p>
-        <p className="text-sm text-revio-gray-500">
-          Esta collection pode não ter dados no banco de dados ou o período selecionado não possui movimentação.
-        </p>
       </div>
     )
   }
@@ -321,16 +185,21 @@ export default function GridCTeSimples() {
         <div>
           <h2 className="text-2xl font-bold text-revio-gray-800">Grid CT-e (Conhecimento de Transporte Eletrônico)</h2>
           <p className="text-sm text-revio-gray-600 mt-1">
-            {notas.length} {notas.length === 1 ? 'conhecimento encontrado' : 'conhecimentos encontrados'}
+            {notas.length.toLocaleString('pt-BR')} {notas.length === 1 ? 'conhecimento encontrado' : 'conhecimentos encontrados'}
+            {usandoCache && (
+              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                💾 Cache
+              </span>
+            )}
           </p>
         </div>
         <ExportarExcel dados={notas} nomeArquivo="conhecimentos-transporte-cte" />
       </div>
 
-      <GridAvancada
+      <GridPaginada
         data={notas}
         columns={columns}
-        pageSize={20}
+        pageSize={1000}
       />
     </div>
   )

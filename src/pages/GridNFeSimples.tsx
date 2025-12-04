@@ -4,12 +4,12 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ExportarExcel from '../components/ExportarExcel'
-import GridAvancada from '../components/GridAvancada'
+import GridPaginada from '../components/GridPaginada'
 
 const columnHelper = createColumnHelper<any>()
 
 export default function GridNFeSimples() {
-  const { notas, loading } = useNF()
+  const { notas, loading, usandoCache } = useNF()
 
   const columns = useMemo(() => [
     // Identificação
@@ -56,6 +56,7 @@ export default function GridNFeSimples() {
           return <span className="whitespace-nowrap">{date}</span>
         }
       },
+      filterFn: 'dateFilter' as any,
       size: 180
     }),
     columnHelper.accessor('status', {
@@ -126,6 +127,7 @@ export default function GridNFeSimples() {
           </span>
         )
       },
+      filterFn: 'numberFilter' as any,
       size: 130
     }),
     columnHelper.accessor('totais.baseCalculo', {
@@ -239,25 +241,17 @@ export default function GridNFeSimples() {
     }),
     
     // Destinatário
-    columnHelper.accessor('destinatario.cnpj', {
-      header: 'CNPJ Destinatário',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('destinatario.cpfCnpj', {
+    columnHelper.accessor(row => row.destinatario?.cnpj || row.destinatario?.cpfCnpj || '-', {
+      id: 'destinatario.documento',
       header: 'CPF/CNPJ Destinatário',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
+      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue()}</span>,
       size: 160
     }),
-    columnHelper.accessor('destinatario.razaoSocial', {
-      header: 'Razão Social Destinatário',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
-    }),
-    columnHelper.accessor('destinatario.nome', {
+    columnHelper.accessor(row => row.destinatario?.razaoSocial || row.destinatario?.nome || '-', {
+      id: 'destinatario.nomeCompleto',
       header: 'Nome Destinatário',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 250
+      cell: info => <span className="max-w-xs truncate block">{info.getValue()}</span>,
+      size: 300
     }),
     columnHelper.accessor('destinatario.ie', {
       header: 'IE Destinatário',
@@ -316,9 +310,6 @@ export default function GridNFeSimples() {
         <p className="text-revio-gray-600 mb-4">
           Não há notas fiscais eletrônicas no período selecionado.
         </p>
-        <p className="text-sm text-revio-gray-500">
-          Tente ajustar os filtros de data ou CNPJ para encontrar documentos.
-        </p>
       </div>
     )
   }
@@ -329,16 +320,21 @@ export default function GridNFeSimples() {
         <div>
           <h2 className="text-2xl font-bold text-revio-gray-800">Grid NF-e</h2>
           <p className="text-sm text-revio-gray-600 mt-1">
-            {notas.length} {notas.length === 1 ? 'nota fiscal encontrada' : 'notas fiscais encontradas'}
+            {notas.length.toLocaleString('pt-BR')} {notas.length === 1 ? 'nota fiscal encontrada' : 'notas fiscais encontradas'}
+            {usandoCache && (
+              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                💾 Cache
+              </span>
+            )}
           </p>
         </div>
         <ExportarExcel dados={notas} nomeArquivo="notas-fiscais-nfe" />
       </div>
 
-      <GridAvancada
+      <GridPaginada
         data={notas}
         columns={columns}
-        pageSize={20}
+        pageSize={50}
       />
     </div>
   )

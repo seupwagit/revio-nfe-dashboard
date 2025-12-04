@@ -1,0 +1,138 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Frontend (Vite)",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "showReuseMessage": false,
+        "group": "fullstack"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Start Backend (Backoffice)",
+      "type": "shell",
+      "command": "npx tsx --inspect=9229 server/backoffice/index.ts",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": false,
+        "showReuseMessage": false,
+        "group": "fullstack"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "🚀 Start Full Stack",
+      "dependsOn": ["Start Frontend (Vite)", "Start Backend (Backoffice)"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "fullstack"
+      }
+    },
+    {
+      "label": "npm: build",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Debug: Check Cache",
+      "type": "shell",
+      "command": "npm run debug:cache",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Debug: Full Cache Report",
+      "type": "shell",
+      "command": "npm run debug:cache:full",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Debug: Clear Cache",
+      "type": "shell",
+      "command": "npm run debug:cache:clear",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "🔌 Test MongoDB Connection",
+      "type": "shell",
+      "command": "npm run test-mongodb",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "group": "test"
+    },
+    {
+      "label": "📊 MongoDB: Check Collections",
+      "type": "shell",
+      "command": "echo 'Use MCP MongoDB tools to check collections'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "install",
+      "problemMatcher": [],
+      "label": "npm: install",
+      "detail": "install dependencies from package"
+    },
+    {
+      "label": "Kill Port 3000",
+      "type": "shell",
+      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Kill Port 3001",
+      "type": "shell",
+      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3001') DO taskkill /PID %P /F",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}

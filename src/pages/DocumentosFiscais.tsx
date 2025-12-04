@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { useNF } from '../contexts/NFContext'
-import { FileText, Receipt, Truck, Calendar, Building2, Filter, X, AlertCircle } from 'lucide-react'
+import { FileText, Receipt, Truck, Calendar, Building2, Filter, X } from 'lucide-react'
 import GridNFeSimples from './GridNFeSimples'
 import GridCFeSimples from './GridCFeSimples'
 import GridCTeSimples from './GridCTeSimples'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { validateDateRange } from '../utils/dateValidation'
+import StreamingProgress from '../components/StreamingProgress'
 
 type CollectionType = 'tbl_nfe_100' | 'tbl_cfe_100' | 'tbl_cte_100'
 
 export default function DocumentosFiscais() {
-  const { setFiltros, filtros, loading, collection, setCollection } = useNF()
+  const { setFiltros, filtros, loading, progress, currentPage, totalPages, notas, collection, setCollection } = useNF()
   const [collectionAtiva, setCollectionAtiva] = useState<CollectionType>(collection)
   const [mostrarFiltros, setMostrarFiltros] = useState(true)
   
@@ -19,7 +19,6 @@ export default function DocumentosFiscais() {
   const [dataFim, setDataFim] = useState(filtros.dataFim || getDefaultEndDate())
   const [cnpjEmit, setCnpjEmit] = useState(filtros.cnpjEmit || '')
   const [cnpjDest, setCnpjDest] = useState(filtros.cnpjDest || '')
-  const [erroData, setErroData] = useState<string | null>(null)
 
   const collections = [
     {
@@ -52,15 +51,6 @@ export default function DocumentosFiscais() {
   }
 
   const handleAplicarFiltros = () => {
-    // Validar período máximo de 1 ano
-    const validation = validateDateRange(dataInicio, dataFim, 365)
-    
-    if (!validation.valid) {
-      setErroData(validation.message || 'Período inválido')
-      return
-    }
-    
-    setErroData(null)
     setFiltros({
       dataInicio,
       dataFim,
@@ -76,7 +66,6 @@ export default function DocumentosFiscais() {
     setDataFim(fim)
     setCnpjEmit('')
     setCnpjDest('')
-    setErroData(null)
     setFiltros({
       dataInicio: inicio,
       dataFim: fim,
@@ -87,7 +76,7 @@ export default function DocumentosFiscais() {
 
   function getDefaultStartDate(): string {
     const date = new Date()
-    date.setMonth(date.getMonth() - 1)
+    date.setFullYear(date.getFullYear() - 1)  // Último ano, não último mês
     return date.toISOString().split('T')[0]
   }
 
@@ -146,6 +135,93 @@ export default function DocumentosFiscais() {
 
         {mostrarFiltros && (
           <div className="space-y-4">
+            {/* Preseleções Rápidas */}
+            <div>
+              <label className="block text-sm font-semibold text-revio-gray-700 mb-2">
+                Períodos Rápidos
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setDate(inicio.getDate() - 7)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  7 dias
+                </button>
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setDate(inicio.getDate() - 15)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-100 text-indigo-700 hover:bg-indigo-200 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  15 dias
+                </button>
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setDate(inicio.getDate() - 30)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-purple-100 text-purple-700 hover:bg-purple-200 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  30 dias
+                </button>
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setDate(inicio.getDate() - 60)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-pink-100 text-pink-700 hover:bg-pink-200 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  60 dias
+                </button>
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setDate(inicio.getDate() - 90)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-orange-100 text-orange-700 hover:bg-orange-200 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  90 dias
+                </button>
+                <button
+                  onClick={() => {
+                    const fim = new Date()
+                    const inicio = new Date()
+                    inicio.setFullYear(inicio.getFullYear() - 1)
+                    setDataInicio(inicio.toISOString().split('T')[0])
+                    setDataFim(fim.toISOString().split('T')[0])
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-green-100 text-green-700 hover:bg-green-200 border-2 border-green-300 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  Último ano
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Data Início */}
               <div>
@@ -206,14 +282,6 @@ export default function DocumentosFiscais() {
               </div>
             </div>
 
-            {/* Mensagem de erro */}
-            {erroData && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                <span className="text-sm font-medium">{erroData}</span>
-              </div>
-            )}
-
             {/* Botões */}
             <div className="flex gap-3">
               <button
@@ -253,6 +321,16 @@ export default function DocumentosFiscais() {
           </div>
         )}
       </div>
+
+      {/* Barra de Progresso */}
+      {loading && progress > 0 && progress < 100 && (
+        <StreamingProgress 
+          current={currentPage}
+          total={totalPages}
+          records={notas.length}
+          isComplete={false}
+        />
+      )}
 
       {/* Grid Correspondente */}
       <div className="card p-6">

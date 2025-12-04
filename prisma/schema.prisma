@@ -1,0 +1,35 @@
+// Prisma Schema for SQL Server
+// Document Download System - Scheduled Downloads
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+// CSV table - Parent record for scheduled downloads
+model CSV {
+  id          Int      @id @default(autoincrement()) @map("ID")
+  status      Int      @map("STATUS")
+  csv         Int      @map("CSV")
+  dataCriacao DateTime @default(now()) @map("DATA_CRIACAO")
+  usuario     String?  @map("USUARIO") @db.VarChar(100)
+  
+  detalhes    NfeDownloadDetail[]
+  
+  @@map("CSV")
+}
+
+// tbl_nfe_dow_det table - Detail records for each document in scheduled download
+model NfeDownloadDetail {
+  id      Int    @id @default(autoincrement()) @map("ID")
+  csvId   Int    @map("CSV_ID")
+  chave   String @map("CHAVE") @db.VarChar(44)
+  status  Int    @map("STATUS")
+  
+  csv     CSV    @relation(fields: [csvId], references: [id])
+  
+  @@map("tbl_nfe_dow_det")
+}

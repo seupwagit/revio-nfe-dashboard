@@ -1,0 +1,36 @@
+{
+  "recommendations": [
+    // Essenciais
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    
+    // React/TypeScript
+    "dsznajder.es7-react-js-snippets",
+    "styled-components.vscode-styled-components",
+    
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+    
+    // Git
+    "eamodio.gitlens",
+    
+    // Debug
+    "msjsdiag.debugger-for-chrome",
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode.js-debug",
+    
+    // MongoDB
+    "mongodb.mongodb-vscode",
+    
+    // Utilitários
+    "christian-kohler.path-intellisense",
+    "visualstudioexptteam.vscodeintellicode",
+    "usernamehw.errorlens",
+    
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    
+    // JSON
+    "zainchen.json"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  // Debug Settings
+  "debug.internalConsoleOptions": "neverOpen",
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.showInStatusBar": "always",
+  "debug.toolBarLocation": "docked",
+
+  // Terminal Settings
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+
+  // TypeScript Settings
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // Editor Settings
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Files to exclude from search
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.vscode/chrome-debug-profile": true,
+    "**/.vscode/edge-debug-profile": true
+  },
+
+  // Files to exclude from file explorer
+  "files.exclude": {
+    "**/.vscode/chrome-debug-profile": true,
+    "**/.vscode/edge-debug-profile": true
+  }
+}

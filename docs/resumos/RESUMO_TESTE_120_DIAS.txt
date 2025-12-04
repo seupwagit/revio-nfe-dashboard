@@ -1,0 +1,169 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🧪 TESTE 120 DIAS - SEM CACHE                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ OBJETIVO                                                                     │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Testar performance de 120 dias acumulando em memória SEM usar cache        │
+│  do streamingCache.ts para identificar se o gargalo é:                      │
+│                                                                              │
+│  ✅ A API (se o teste for lento)                                            │
+│  ✅ O cache (se o teste for rápido mas Analytics API for lento)             │
+│  ✅ O processamento (se ambos forem lentos)                                 │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ COMO ACESSAR                                                                 │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  URL: http://localhost:5173/analytics-teste-120dias                         │
+│                                                                              │
+│  1. Abra a URL no navegador                                                 │
+│  2. Clique em "Iniciar Teste 120 Dias"                                      │
+│  3. Observe o progresso em tempo real                                       │
+│  4. Aguarde a conclusão                                                     │
+│  5. Analise as métricas                                                     │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ CONFIGURAÇÃO DO TESTE                                                        │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Período:        120 dias (FIXO)                                            │
+│  PageSize:       10.000 registros/página                                    │
+│  Collection:     tbl_nfe_100 (pode trocar)                                  │
+│  Cache:          DESABILITADO                                               │
+│  Acumulação:     Array em memória                                           │
+│  Delay:          100ms entre páginas                                        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ MÉTRICAS EXIBIDAS                                                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Durante o teste:                                                           │
+│    • Página atual                                                           │
+│    • Registros acumulados                                                   │
+│    • Tempo decorrido                                                        │
+│    • Velocidade (registros/segundo)                                         │
+│                                                                              │
+│  Após conclusão:                                                            │
+│    • Tempo total                                                            │
+│    • Total de páginas                                                       │
+│    • Total de registros                                                     │
+│    • Velocidade média                                                       │
+│    • Gráficos de analytics                                                  │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ CENÁRIOS ESPERADOS                                                           │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  OTIMISTA (API rápida):                                                     │
+│    Tempo: 30-45s                                                            │
+│    Velocidade: 3.000-5.000 reg/s                                            │
+│    Conclusão: ✅ API está boa                                               │
+│                                                                              │
+│  REALISTA (API normal):                                                     │
+│    Tempo: 60-90s                                                            │
+│    Velocidade: 1.500-2.500 reg/s                                            │
+│    Conclusão: ⚠️ Aceitável, pode melhorar                                  │
+│                                                                              │
+│  PESSIMISTA (API lenta):                                                    │
+│    Tempo: 120-180s (2-3 minutos)                                            │
+│    Velocidade: 800-1.250 reg/s                                              │
+│    Conclusão: ❌ API é o gargalo                                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ DIFERENÇAS vs OUTRAS ABORDAGENS                                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  vs Analytics API:                                                          │
+│    ❌ Sem cache do streamingCache                                           │
+│    ❌ Não retoma de onde parou                                              │
+│    ✅ Mede performance pura                                                 │
+│    ✅ Simples e direto                                                      │
+│                                                                              │
+│  vs Analytics Agregado:                                                     │
+│    ❌ Sem cache persistente                                                 │
+│    ❌ Não divide em chunks                                                  │
+│    ❌ Processa após acumulação                                              │
+│    ✅ Sem overhead de otimização                                            │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ANÁLISE DOS RESULTADOS                                                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  SE O TESTE FOR RÁPIDO (< 60s):                                             │
+│    ✅ A API está boa                                                        │
+│    🔍 Investigar: Por que Analytics API está lento?                         │
+│    💡 Possível causa: Cache do streamingCache                               │
+│    📝 Ação: Otimizar ou remover cache                                       │
+│                                                                              │
+│  SE O TESTE FOR LENTO (> 120s):                                             │
+│    ❌ A API é o gargalo                                                     │
+│    🔍 Investigar: Latência da rede, servidor                                │
+│    💡 Solução: Usar Analytics Agregado com cache                            │
+│    📝 Ação: Limitar períodos a 60 dias máximo                               │
+│                                                                              │
+│  SE O TESTE FOR MÉDIO (60-120s):                                            │
+│    ⚠️ Aceitável mas pode melhorar                                           │
+│    🔍 Investigar: Otimizações possíveis                                     │
+│    💡 Solução: Cache persistente + chunks                                   │
+│    📝 Ação: Implementar melhorias incrementais                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ OBSERVAÇÕES IMPORTANTES                                                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ⚠️ Este é um TESTE, não use em produção                                    │
+│  ⚠️ Sempre busca tudo da API (sem cache)                                    │
+│  ⚠️ Pode usar muita RAM com muitos registros                                │
+│  ⚠️ Período fixo de 120 dias (não configurável)                             │
+│  ⚠️ Apenas para tbl_nfe_100 (pode trocar manualmente)                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ PRÓXIMOS PASSOS APÓS O TESTE                                                 │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  1. Execute o teste e anote os resultados                                   │
+│  2. Compare com Analytics API e Analytics Agregado                          │
+│  3. Identifique o gargalo (API, cache ou processamento)                     │
+│  4. Decida a melhor abordagem:                                              │
+│                                                                              │
+│     Se API rápida:                                                          │
+│       → Otimizar cache do streamingCache                                    │
+│       → Ou remover cache e usar acumulação simples                          │
+│                                                                              │
+│     Se API lenta:                                                           │
+│       → Usar Analytics Agregado com cache persistente                       │
+│       → Limitar períodos a 60 dias                                          │
+│       → Considerar pré-agregação no backend                                 │
+│                                                                              │
+│     Se médio:                                                               │
+│       → Implementar cache persistente melhor                                │
+│       → Dividir em chunks menores                                           │
+│       → Otimizar processamento                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           ✅ TESTE PRONTO!                                   ║
+║                                                                              ║
+║  Acesse: http://localhost:5173/analytics-teste-120dias                      ║
+║  Clique em "Iniciar Teste 120 Dias" e aguarde os resultados                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝

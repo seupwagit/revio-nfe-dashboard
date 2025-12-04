@@ -3,51 +3,54 @@
 ## 🏗️ Arquitetura
 
 ### Estrutura e Organização
-- [Estrutura do Projeto](./arquitetura/ESTRUTURA_PROJETO.md) - Organização de pastas e arquivos
-- [Stack Tecnológica](./arquitetura/STACK_TECNOLOGICA.md) - Tecnologias utilizadas e justificativas
-- [Design System](./arquitetura/DESIGN.md) - Cores, componentes e padrões visuais
+- [Arquitetura do Sistema](./arquitetura/ARCHITECTURE.md) - Visão geral da arquitetura
+- [Stack Tecnológica](./arquitetura/STACK.md) - Tecnologias utilizadas e justificativas
+- [API](./arquitetura/API.md) - Documentação da API
 
-## 🧠 Lógica de Negócio
+## 🧠 Implementações
 
-### Integração e Dados
-- [Integração com API](./logica/INTEGRACAO_API.md) - Como funciona a comunicação com a API Revio
-- [Mapeamento de Campos](../SOLUCAO_MAPEAMENTO_API.md) - Conversão de dados da API para o sistema
-- [Collections](../STATUS_COLLECTIONS.md) - Status e dados das collections (NF-e, CF-e, CT-e)
+### Funcionalidades
+- [Busca Natural com IA](./implementacoes/BUSCA_NATURAL_COM_IA_COMPLETA.md) - Sistema de busca inteligente
+- [Busca Natural com Voz](./implementacoes/BUSCA_NATURAL_VOZ_FILTROS_DATA.md) - 🆕 Busca por voz e filtros de data
+- [RAH - Assistente IA](./implementacoes/RAH_ASSISTENTE_IA.md) - Assistente virtual
+- [RAH - Google Gemini](./implementacoes/RAH_GOOGLE_GEMINI.md) - Integração com Gemini
+- [RAH - Implementação Completa](./implementacoes/RAH_IMPLEMENTACAO_COMPLETA.md) - Detalhes técnicos
+- [Botão Último Ano](./implementacoes/CONFIRMACAO_BOTAO_ULTIMO_ANO.md) - Filtro de período
 
 ## 🔧 Soluções e Troubleshooting
 
 ### Problemas Resolvidos
-- [Solução: Grid em Branco](./solucoes/SOLUCAO_MAPEAMENTO_API.md) - Como resolvemos o problema de mapeamento
-- [Status das Collections](./solucoes/STATUS_COLLECTIONS.md) - Análise de dados disponíveis
-- [Resumo da Solução](./solucoes/RESUMO_SOLUCAO.md) - Resumo executivo
-- [Troubleshooting](./solucoes/TROUBLESHOOTING.md) - Guia de resolução de problemas
+- [Conexão Direta MongoDB](./solucoes/SOLUCAO_CONEXAO_DIRETA_MONGODB.md) - Solução de performance
+- [Debug](./debug/DEBUG.md) - Guia de debug do sistema
+
+### Resumos de Correções
+- [Correção Diferença 199](./resumos/RESUMO_CORRECAO_DIFERENCA_199.md) - Correção de inconsistência
+- [Sessão Completa 01/Dez/2024](./resumos/RESUMO_SESSAO_COMPLETA_01_DEZ_2024.md) - Resumo da sessão
+- [Busca Voz e Filtros 04/Dez/2024](./resumos/RESUMO_BUSCA_VOZ_FILTROS_04_DEZ_2024.md) - 🆕 Última implementação
 
 ## 🚀 Guias de Uso
 
 ### Para Usuários
-- [Início Rápido](./guias/INICIO_RAPIDO.md) - Como começar em 5 minutos
-- [Exemplos de Uso](../EXEMPLOS_USO.md) - Casos de uso práticos
+- [Manual Completo do Usuário](./guias/MANUAL_COMPLETO_USUARIO.md) - Guia completo de uso
+- [Busca Natural com Voz](./implementacoes/BUSCA_NATURAL_VOZ_FILTROS_DATA.md) - 🆕 Busca por voz e filtros de data
 
-### Para Desenvolvedores
-- [Como Gerar Novo Token](../COMO_GERAR_NOVO_TOKEN.md) - Renovação de token de acesso
-- [Configuração](../CONFIGURACAO.md) - Configuração do ambiente
+### Outros
+- [Organização Completa](./outros/ORGANIZACAO_COMPLETA.md) - Estrutura organizacional
 
-## 📊 Documentos de Projeto
+## 📖 Sobre Este Índice
 
-### Planejamento e Execução
-- [Apresentação](../APRESENTACAO.md) - Visão geral do projeto
-- [Resumo do Projeto](../RESUMO_PROJETO.md) - Resumo executivo
-- [Resumo Executivo](../RESUMO_EXECUTIVO.md) - Para stakeholders
-- [Changelog](../CHANGELOG.md) - Histórico de mudanças
+Este índice organiza toda a documentação do projeto SpedRevio em categorias lógicas.
 
-### Documentos Técnicos
-- [Sobre Revio](../SOBRE_REVIO.md) - Informações sobre a plataforma
-- [Cores Revio](../CORES_REVIO.md) - Paleta de cores oficial
-- [FAQ](../FAQ.md) - Perguntas frequentes
+**Última atualização:** 04 de Dezembro de 2025
 
-## 🧪 Testes e Validação
+---
 
-### Scripts de Teste
+## 🔍 Navegação Rápida
+
+- 🏗️ **Arquitetura** - Estrutura técnica do sistema
+- 🧠 **Implementações** - Funcionalidades desenvolvidas
+- 🔧 **Soluções** - Problemas resolvidos e correções
+- 🚀 **Guias** - Manuais de uso e configuração
 - `test-nfe-raw.cjs` - Teste de consumo da API NF-e
 - `test-cfe-cte.cjs` - Teste das 3 collections
 - `test-all-collections-extended.cjs` - Teste completo com 6 meses

@@ -1,19 +1,69 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  nf-dashboard:
+  # Aplicação Fullstack (Frontend + Backend)
+  app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: nf-dashboard
+      dockerfile: Dockerfile.fullstack
+    container_name: nf-dashboard-fullstack
     ports:
-      - "3000:80"
+      - "3000:3000" # Frontend
+      - "3001:3001" # Backend API
     environment:
-      - NODE_ENV=production
+      # Node
+      NODE_ENV: production
+      PORT: 3000
+      BACKOFFICE_PORT: 3001
+
+      # API Configuration
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-https://apinfe.revio.digital}
+      VITE_API_BEARER_TOKEN: ${VITE_API_BEARER_TOKEN}
+
+      # Database
+      VITE_DB_HOST: ${VITE_DB_HOST:-10.0.0.8}
+      VITE_DB_DATABASE: ${VITE_DB_DATABASE:-C67624577000145}
+      VITE_DB_COLLECTION: ${VITE_DB_COLLECTION:-tbl_nfe_100}
+
+      # MongoDB
+      VITE_MONGODB_CONNECTION_STRING: ${VITE_MONGODB_CONNECTION_STRING}
+
+      # S3/Wasabi
+      VITE_S3_ENDPOINT: ${VITE_S3_ENDPOINT:-https://s3.wasabisys.com}
+      VITE_S3_ACCESS_KEY: ${VITE_S3_ACCESS_KEY}
+      VITE_S3_SECRET_KEY: ${VITE_S3_SECRET_KEY}
+      VITE_S3_BUCKET: ${VITE_S3_BUCKET:-revio-bucket}
+      VITE_S3_REGION: ${VITE_S3_REGION:-us-east-1}
+
+      # SQL Server
+      VITE_DB_SERVER: ${VITE_DB_SERVER:-10.0.0.4}
+      VITE_DB_USER: ${VITE_DB_USER:-sa}
+      VITE_DB_PASSWORD: ${VITE_DB_PASSWORD}
+
+      # Query Configuration
+      VITE_DEFAULT_PAGE_SIZE: ${VITE_DEFAULT_PAGE_SIZE:-10000}
+      VITE_DEFAULT_PAGE: ${VITE_DEFAULT_PAGE:-1}
+      VITE_MAX_DATE_RANGE_DAYS: ${VITE_MAX_DATE_RANGE_DAYS:-60}
+      VITE_DEFAULT_DATE_RANGE_DAYS: ${VITE_DEFAULT_DATE_RANGE_DAYS:-30}
+
     restart: unless-stopped
+
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
-      timeout: 3s
+      timeout: 10s
       retries: 3
-      start_period: 5s
+      start_period: 40s
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

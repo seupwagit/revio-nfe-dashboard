@@ -1,0 +1,179 @@
+{
+  // Configuração de Debug - VS Code
+  // Perfil padrão: 🚀 Full Stack Debug
+  //
+  // Para debugar:
+  // 1. Pressione F5 (inicia automaticamente o Full Stack Debug)
+  // 2. Ou use Ctrl+Shift+D e selecione o perfil desejado
+  //
+  // Perfis disponíveis:
+  // - 🚀 Full Stack Debug (PADRÃO): Frontend + Backend + MongoDB
+  // - 🚀 Launch Chrome: Apenas frontend no Chrome
+  // - 🌐 Launch Edge: Apenas frontend no Edge
+  // - 🔗 Attach to Chrome: Conecta a uma instância Chrome existente
+  // - 🐛 Debug Cache: Debug com foco no sistema de cache
+  // - 🧪 Debug Tests: Debug de testes unitários
+
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🚀 Launch Chrome (Dev)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMapPathOverrides": {
+        "/@fs/*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "${webRoot}/*"
+      },
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=IsolateOrigins,site-per-process",
+        "--remote-debugging-port=9222"
+      ],
+      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
+      "preLaunchTask": "npm: dev",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      }
+    },
+    {
+      "name": "🔗 Attach to Chrome",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMapPathOverrides": {
+        "/@fs/*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "${webRoot}/*"
+      },
+      "urlFilter": "http://localhost:3000/*"
+    },
+    {
+      "name": "🌐 Launch Edge (Dev)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMapPathOverrides": {
+        "/@fs/*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "${webRoot}/*"
+      },
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=IsolateOrigins,site-per-process"
+      ],
+      "userDataDir": "${workspaceFolder}/.vscode/edge-debug-profile"
+    },
+    {
+      "name": "🐛 Debug Cache (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMapPathOverrides": {
+        "/@fs/*": "${webRoot}/*",
+        "/src/*": "${webRoot}/src/*",
+        "/*": "${webRoot}/*"
+      },
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--remote-debugging-port=9222",
+        "--auto-open-devtools-for-tabs"
+      ],
+      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-cache",
+      "console": "integratedTerminal",
+      "trace": true
+    },
+    {
+      "name": "🧪 Debug Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "🔧 Backend (Node.js)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect=9229", "server/backoffice/index.ts"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "outputCapture": "std"
+    },
+    {
+      "name": "🔌 Attach Backend",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 Full Stack Debug",
+      "configurations": ["🔧 Backend (Node.js)", "🚀 Launch Chrome (Dev)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "1-main",
+        "order": 1
+      }
+    },
+    {
+      "name": "🚀 Full Stack Debug (Edge + Backend)",
+      "configurations": ["🔧 Backend (Node.js)", "🌐 Launch Edge (Dev)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "1-main",
+        "order": 2
+      }
+    },
+    {
+      "name": "🔌 Attach Full Stack",
+      "configurations": ["🔌 Attach Backend", "🔗 Attach to Chrome"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "2-attach",
+        "order": 1
+      }
+    }
+  ]
+}

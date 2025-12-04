@@ -4,12 +4,12 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ExportarExcel from '../components/ExportarExcel'
-import GridAvancada from '../components/GridAvancada'
+import GridPaginada from '../components/GridPaginada'
 
 const columnHelper = createColumnHelper<any>()
 
 export default function GridCFeSimples() {
-  const { notas, loading } = useNF()
+  const { notas, loading, usandoCache } = useNF()
 
   const columns = useMemo(() => [
     // Identificação
@@ -56,6 +56,7 @@ export default function GridCFeSimples() {
           return <span className="whitespace-nowrap">{date}</span>
         }
       },
+      filterFn: 'dateFilter' as any,
       size: 180
     }),
     columnHelper.accessor('status', {
@@ -117,22 +118,6 @@ export default function GridCFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.descontos', {
-      header: 'Descontos',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 110
-    }),
-    columnHelper.accessor('totais.acrescimos', {
-      header: 'Acréscimos',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 110
-    }),
     
     // Emitente
     columnHelper.accessor('emitente.cnpj', {
@@ -144,11 +129,6 @@ export default function GridCFeSimples() {
       header: 'Razão Social Emitente',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
-    }),
-    columnHelper.accessor('emitente.ie', {
-      header: 'IE Emitente',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 130
     }),
     
     // Destinatário
@@ -177,18 +157,6 @@ export default function GridCFeSimples() {
       },
       size: 120
     }),
-    
-    // Informações Adicionais
-    columnHelper.accessor('tipo', {
-      header: 'Tipo',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 100
-    }),
-    columnHelper.accessor('origem', {
-      header: 'Origem',
-      cell: info => <span className="text-xs max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 200
-    }),
   ], [])
 
   if (loading) {
@@ -209,9 +177,6 @@ export default function GridCFeSimples() {
         <p className="text-revio-gray-600 mb-4">
           Não há cupons fiscais eletrônicos no período selecionado.
         </p>
-        <p className="text-sm text-revio-gray-500">
-          Esta collection pode não ter dados no banco de dados ou o período selecionado não possui movimentação.
-        </p>
       </div>
     )
   }
@@ -222,16 +187,21 @@ export default function GridCFeSimples() {
         <div>
           <h2 className="text-2xl font-bold text-revio-gray-800">Grid CF-e (Cupom Fiscal Eletrônico)</h2>
           <p className="text-sm text-revio-gray-600 mt-1">
-            {notas.length} {notas.length === 1 ? 'cupom encontrado' : 'cupons encontrados'}
+            {notas.length.toLocaleString('pt-BR')} {notas.length === 1 ? 'cupom encontrado' : 'cupons encontrados'}
+            {usandoCache && (
+              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                💾 Cache
+              </span>
+            )}
           </p>
         </div>
         <ExportarExcel dados={notas} nomeArquivo="cupons-fiscais-cfe" />
       </div>
 
-      <GridAvancada
+      <GridPaginada
         data={notas}
         columns={columns}
-        pageSize={20}
+        pageSize={1000}
       />
     </div>
   )

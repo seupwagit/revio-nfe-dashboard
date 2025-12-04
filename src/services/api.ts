@@ -3,6 +3,7 @@ import { DashboardStats, Filtros } from '../types'
 import { env } from '../config/env'
 import { logError } from '../utils/debug'
 import { logTokenInfo, validateBearerToken } from '../utils/validateToken'
+import { streamingCache } from './streamingCache'
 
 // Validar token na inicialização
 console.log('🔍 Validando configuração da API...')
@@ -14,42 +15,16 @@ if (!tokenValidation.valid) {
 
 // Configuração do axios - APENAS headers permitidos pela API Revio
 const api = axios.create({
-  baseURL: env.api.baseUrl,
-  timeout: 300000, // 5 minutos (300000ms) para consultas grandes
+  baseURL: env.api.baseUrl, // Base URL + /api
   headers: {
     'Authorization': `Bearer ${env.api.bearerToken}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-  }
+  },
+  timeout: 120000 // 120 segundos (2 minutos) - API pode demorar em períodos longos
 })
 
-// Cache simples para evitar requisições repetidas
-const cache = new Map<string, { data: any[], timestamp: number }>()
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos
-
-function getCacheKey(filtros: Filtros): string {
-  return JSON.stringify({
-    collection: filtros.collection,
-    dtIni: filtros.dataInicio,
-    dtFin: filtros.dataFim,
-    cnpjEmit: filtros.cnpjEmit,
-    cnpjDest: filtros.cnpjDest
-  })
-}
-
-function getFromCache(key: string): any[] | null {
-  const cached = cache.get(key)
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log('💾 Dados recuperados do cache')
-    return cached.data
-  }
-  return null
-}
-
-function saveToCache(key: string, data: any[]) {
-  cache.set(key, { data, timestamp: Date.now() })
-  console.log('💾 Dados salvos no cache')
-}
+// Cache gerenciado por streamingCache.ts
 
 // Interceptor para debug detalhado
 api.interceptors.request.use(
@@ -116,44 +91,262 @@ export interface ConsultaParams {
   cnpjDest?: string
 }
 
-export async function fetchNotasFiscais(filtros: Filtros): Promise<any[]> {
+/**
+ * Busca sub-chunks de 7 dias quando um chunk de 15 dias falha
+ */
+async function fetchSubChunks(filtros: Filtros): Promise<any[]> {
+  const dtIni = new Date(filtros.dataInicio!)
+  const dtFin = new Date(filtros.dataFim!)
+  const SUB_CHUNK_DAYS = 7
+  
+  const subChunks: Array<{ dtIni: string; dtFin: string }> = []
+  let currentStart = new Date(dtIni)
+  
+  while (currentStart <= dtFin) {
+    const currentEnd = new Date(currentStart)
+    currentEnd.setDate(currentEnd.getDate() + SUB_CHUNK_DAYS - 1)
+    
+    if (currentEnd > dtFin) {
+      currentEnd.setTime(dtFin.getTime())
+    }
+    
+    subChunks.push({
+      dtIni: currentStart.toISOString().split('T')[0],
+      dtFin: currentEnd.toISOString().split('T')[0]
+    })
+    
+    currentStart = new Date(currentEnd)
+    currentStart.setDate(currentStart.getDate() + 1)
+    
+    if (currentStart > dtFin) break
+  }
+  
+  console.log(`   📦 Dividido em ${subChunks.length} sub-chunks de 7 dias`)
+  
+  const allData: any[] = []
+  
+  for (let i = 0; i < subChunks.length; i++) {
+    const subChunk = subChunks[i]
+    console.log(`   🔄 Sub-chunk ${i + 1}/${subChunks.length}: ${subChunk.dtIni} até ${subChunk.dtFin}`)
+    
+    try {
+      const subChunkData = await fetchNotasFiscais(
+        { ...filtros, dataInicio: subChunk.dtIni, dataFim: subChunk.dtFin },
+        undefined
+      )
+      
+      console.log(`   ✅ Sub-chunk ${i + 1}: ${subChunkData.length} registros`)
+      allData.push(...subChunkData)
+      
+    } catch (error: any) {
+      console.error(`   ❌ Sub-chunk ${i + 1} falhou:`, error.message)
+      // Continua mesmo com erro
+    }
+  }
+  
+  return allData
+}
+
+/**
+ * Busca notas fiscais dividindo períodos longos em chunks de 15 dias
+ * Isso evita timeout da API Revio em períodos > 60 dias
+ * Se um chunk falhar, tenta dividir em sub-chunks de 7 dias
+ */
+async function fetchNotasInChunks(
+  filtros: Filtros,
+  onProgress?: (current: number, total: number, data: any[], fromCache?: boolean) => void
+): Promise<any[]> {
+  console.log('📦 Dividindo período em chunks de 15 dias (mais seguro)')
+  
+  // IMPORTANTE: Verificar cache do período COMPLETO primeiro
+  const cacheKeyCompleto = streamingCache.getCacheKey(filtros)
+  const cachedCompleto = streamingCache.getFromCache(cacheKeyCompleto)
+  
+  if (cachedCompleto && cachedCompleto.complete) {
+    console.log(`💾 ✅ CACHE HIT (período completo)! Retornando ${cachedCompleto.data.length} registros`)
+    if (onProgress) {
+      onProgress(1, 1, cachedCompleto.data, true)
+    }
+    return cachedCompleto.data
+  }
+  
+  const dtIni = new Date(filtros.dataInicio || getDefaultStartDate())
+  const dtFin = new Date(filtros.dataFim || getDefaultEndDate())
+  const CHUNK_DAYS = 15 // Reduzido para 15 dias para evitar timeouts
+  
+  const totalDias = Math.ceil((dtFin.getTime() - dtIni.getTime()) / (1000 * 60 * 60 * 24))
+  console.log(`📆 Total de dias: ${totalDias} (sem cache)`)
+  console.log(`🔑 Cache key: ${cacheKeyCompleto}`)
+  
+  // Dividir em chunks
+  const chunks: Array<{ dtIni: string; dtFin: string }> = []
+  let currentStart = new Date(dtIni)
+  
+  while (currentStart <= dtFin) {
+    const currentEnd = new Date(currentStart)
+    currentEnd.setDate(currentEnd.getDate() + CHUNK_DAYS - 1)
+    
+    if (currentEnd > dtFin) {
+      currentEnd.setTime(dtFin.getTime())
+    }
+    
+    chunks.push({
+      dtIni: currentStart.toISOString().split('T')[0],
+      dtFin: currentEnd.toISOString().split('T')[0]
+    })
+    
+    currentStart = new Date(currentEnd)
+    currentStart.setDate(currentStart.getDate() + 1)
+    
+    if (currentStart > dtFin || chunks.length > 20) break
+  }
+  
+  console.log(`📊 Dividido em ${chunks.length} chunks`)
+  
+  // Buscar cada chunk
+  const allData: any[] = []
+  let chunksFalhados = 0
+  
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i]
+    console.log(`\n🔄 Chunk ${i + 1}/${chunks.length}: ${chunk.dtIni} até ${chunk.dtFin}`)
+    
+    try {
+      // Verificar se este chunk específico está em cache
+      const chunkFiltros = { ...filtros, dataInicio: chunk.dtIni, dataFim: chunk.dtFin }
+      const chunkCacheKey = streamingCache.getCacheKey(chunkFiltros)
+      const chunkCached = streamingCache.getFromCache(chunkCacheKey)
+      
+      if (chunkCached && chunkCached.complete) {
+        console.log(`   💾 Chunk ${i + 1} em cache: ${chunkCached.data.length} registros`)
+        allData.push(...chunkCached.data)
+      } else {
+        console.log(`   🌐 Buscando chunk ${i + 1} da API...`)
+        const chunkData = await fetchNotasFiscais(chunkFiltros, undefined)
+        console.log(`   ✅ Chunk ${i + 1}: ${chunkData.length} registros`)
+        allData.push(...chunkData)
+      }
+      
+      // Callback de progresso
+      if (onProgress) {
+        onProgress(i + 1, chunks.length, allData, false)
+      }
+      
+    } catch (error: any) {
+      console.error(`❌ Erro no chunk ${i + 1}:`, error.message)
+      chunksFalhados++
+      
+      // Se for timeout, tentar com chunk menor (7 dias)
+      if (error.code === 'ECONNABORTED' || error.message.includes('aborted')) {
+        console.warn(`⚠️ Tentando dividir chunk ${i + 1} em sub-chunks de 7 dias...`)
+        
+        try {
+          const subChunkData = await fetchSubChunks(
+            { ...filtros, dataInicio: chunk.dtIni, dataFim: chunk.dtFin }
+          )
+          console.log(`✅ Sub-chunks: ${subChunkData.length} registros recuperados`)
+          allData.push(...subChunkData)
+          chunksFalhados-- // Recuperou o chunk
+        } catch (subError: any) {
+          console.error(`❌ Sub-chunks também falharam:`, subError.message)
+        }
+      }
+    }
+  }
+  
+  console.log(`\n✅ Total final: ${allData.length} registros`)
+  console.log(`📊 Chunks bem-sucedidos: ${chunks.length - chunksFalhados}/${chunks.length}`)
+  
+  if (chunksFalhados > 0) {
+    console.warn(`⚠️ ${chunksFalhados} chunk(s) falharam (dados podem estar incompletos)`)
+  }
+  
+  return allData
+}
+
+export async function fetchNotasFiscais(
+  filtros: Filtros, 
+  onProgress?: (current: number, total: number, data: any[], fromCache?: boolean) => void
+): Promise<any[]> {
   try {
-    // Verifica cache primeiro
-    const cacheKey = getCacheKey(filtros)
-    const cachedData = getFromCache(cacheKey)
-    if (cachedData) {
-      return cachedData
+    // PRIMEIRO: Verificar cache ANTES de qualquer coisa
+    const cacheKey = streamingCache.getCacheKey(filtros)
+    const cached = streamingCache.getFromCache(cacheKey)
+    
+    if (cached && cached.complete) {
+      console.log(`💾 ✅ CACHE HIT! Retornando ${cached.data.length} registros do cache`)
+      if (onProgress) {
+        onProgress(1, 1, cached.data, true)
+      }
+      return cached.data
+    }
+    
+    // Calcular dias do período
+    const dtIni = new Date(filtros.dataInicio || getDefaultStartDate())
+    const dtFin = new Date(filtros.dataFim || getDefaultEndDate())
+    const dias = Math.ceil((dtFin.getTime() - dtIni.getTime()) / (1000 * 60 * 60 * 24))
+    
+    console.log(`📅 Período: ${dias} dias (sem cache)`)
+    
+    // Se período > 60 dias, dividir em chunks
+    if (dias > 60) {
+      console.warn(`⚠️ Período longo (${dias} dias) - Dividindo em chunks de 15 dias`)
+      const resultado = await fetchNotasInChunks(filtros, onProgress)
+      
+      // Salvar resultado completo no cache
+      streamingCache.updateCache(cacheKey, resultado, 1, true, 1)
+      
+      return resultado
+    }
+    
+    const pageSize = 20000 // Máximo permitido pela API para melhor performance
+
+    console.log('🔄 Iniciando busca com streaming incremental...')
+    console.log('🔑 Cache key:', cacheKey)
+
+    // Função para buscar uma página específica
+    const fetchPage = async (page: number) => {
+      const params: ConsultaParams = {
+        host: env.database.host,
+        collection: filtros.collection || env.database.collection,
+        database: env.database.database,
+        pg: page,
+        size: pageSize,
+        dtIni: filtros.dataInicio || getDefaultStartDate(),
+        dtFin: filtros.dataFim || getDefaultEndDate(),
+      }
+
+      if (filtros.cnpjEmit) params.cnpjEmit = filtros.cnpjEmit
+      if (filtros.cnpjDest) params.cnpjDest = filtros.cnpjDest
+
+      const response = await api.get<any>('/WebView/Consultar', { params })
+      const notasPagina = mapApiResponseToNotasFiscais(response.data)
+      
+      return {
+        data: notasPagina,
+        hasMore: notasPagina.length >= pageSize
+      }
     }
 
-    // PAGINAÇÃO SERVER-SIDE: busca apenas 1 página por vez
-    const pageSize = 100 // Reduzido de 500 para 100 para evitar timeout
-    const page = 1 // Sempre página 1 inicialmente
-
-    console.log('🔄 Buscando primeira página...')
-
-    const params: ConsultaParams = {
-      host: env.database.host,
-      collection: filtros.collection || env.database.collection,
-      database: env.database.database,
-      pg: page,
-      size: pageSize,
-      dtIni: filtros.dataInicio || getDefaultStartDate(),
-      dtFin: filtros.dataFim || getDefaultEndDate(),
-    }
-
-    if (filtros.cnpjEmit) params.cnpjEmit = filtros.cnpjEmit
-    if (filtros.cnpjDest) params.cnpjDest = filtros.cnpjDest
-
-    console.log(`📄 Buscando página ${page} (${pageSize} registros)...`)
-    const response = await api.get<any>('/WebView/Consultar', { params })
+    // Usa streaming cache com callbacks de progresso
+    const resultado = await streamingCache.fetchWithStreaming(
+      fetchPage,
+      cacheKey,
+      {
+        onProgress: (current, total, data) => {
+          console.log(`📊 Progresso: ${data.length} registros (página ${current}/${total})`)
+          onProgress?.(current, total, data, false)
+        },
+        onComplete: (data) => {
+          console.log(`✅ Busca completa: ${data.length} registros`)
+        },
+        onError: (error) => {
+          console.error('❌ Erro no streaming:', error)
+        }
+      }
+    )
     
-    const notas = mapApiResponseToNotasFiscais(response.data)
-    console.log(`✅ Carregados ${notas.length} registros`)
-    
-    // Salva no cache
-    saveToCache(cacheKey, notas)
-    
-    return notas
+    return resultado
   } catch (error: any) {
     logError('fetchNotasFiscais', error)
     return []
@@ -197,33 +390,34 @@ export async function fetchContador(filtros: Filtros): Promise<number> {
 }
 
 function mapApiResponseToNotasFiscais(data: any): any[] {
-  // Otimizado: menos logs, mais rápido
+  // SUPER OTIMIZADO: Extração rápida do array
   let items = data?.lista || data?.data || data?.items || data?.result || data?.notas || data
   
   if (!Array.isArray(items) && typeof data === 'object') {
     const arrayKey = Object.keys(data).find(key => Array.isArray(data[key]))
-    if (arrayKey) {
-      items = data[arrayKey]
-    }
+    if (arrayKey) items = data[arrayKey]
   }
   
-  if (!Array.isArray(items)) {
-    return []
-  }
+  if (!Array.isArray(items)) return []
   
-  return items.map((item: any, index: number) => {
-    try {
-      // Mapeia os campos REAIS da API Revio
-      const mapped: any = {
-        id: item._id || item.id || `temp-${index}`,
-        numero: item.NUMERO || item.numero || '',
-        serie: item.SERIE || item.serie || '1',
-        modelo: item.MODELO || item.modelo || '55',
-        chaveAcesso: item.CHV_NFE || item.chaveAcesso || '',
-        dataEmissao: item.DT_DOC || item.dataEmissao || '',
-        valorTotal: parseFloat(item.VL_DOC || item.valorTotal || 0),
-        status: item.PROTOCOLADA === 'Sim' ? 'autorizada' : 'processando',
-        tipo: item.TIPO || 'nfe',
+  // OTIMIZAÇÃO: Pré-alocar array e usar loop direto (mais rápido que map)
+  const length = items.length
+  const result = new Array(length)
+  
+  for (let index = 0; index < length; index++) {
+    const item = items[index]
+    
+    // Mapeia os campos REAIS da API Revio (acesso direto, sem ||)
+    result[index] = {
+      id: item._id || item.id || `temp-${index}`,
+      numero: item.NUMERO || item.numero || '',
+      serie: item.SERIE || item.serie || '1',
+      modelo: item.MODELO || item.modelo || '55',
+      chaveAcesso: item.CHV_NFE || item.chaveAcesso || '',
+      dataEmissao: item.DT_DOC || item.dataEmissao || '',
+      valorTotal: parseFloat(item.VL_DOC || item.valorTotal || 0),
+      status: item.PROTOCOLADA === 'Sim' ? 'autorizada' : 'processando',
+      tipo: item.TIPO || 'nfe',
         
         // Campos específicos NF-e
         naturezaOperacao: item.NAT_OPER || item.naturezaOperacao || '',
@@ -365,13 +559,9 @@ function mapApiResponseToNotasFiscais(data: any): any[] {
         statusManifestacao: item.STATUS_MANIFESTACAO || '',
         protocolada: item.PROTOCOLADA || '',
       }
-      
-      return mapped
-    } catch (error) {
-      console.error(`❌ Erro ao mapear item ${index}:`, error, item)
-      return null
-    }
-  }).filter(Boolean)
+  }
+  
+  return result
 }
 
 function mapItens(itens: any[]): any[] {

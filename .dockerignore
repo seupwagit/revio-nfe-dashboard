@@ -1,24 +1,69 @@
+# Node
 node_modules
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+
+# Build
 dist
-docs
-.git
-.gitignore
+.vite
+.cache
+
+# Environment
 .env
 .env.local
-.env.development
-.env.test
-# NÃO excluir .env.production - necessário para o build!
+.env.*.local
+
+# IDE
 .vscode
 .idea
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.DS_Store
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Tests
 coverage
 .nyc_output
+tests
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Documentation
+docs
 *.md
 !README.md
-deploy.sh
-deploy-nginx.md
-nginx.conf.example
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+backup_*
+bkp_*
+
+# Scripts de desenvolvimento
+scripts/auto-monitor.mjs
+scripts/kill-ports.bat
+iniciar-*.bat
+testar-*.bat
+
+# Debug
+.vscode/chrome-debug-profile
+.vscode/edge-debug-profile
+
+# Temporary
+tmp
+temp
+*.tmp

@@ -1,0 +1,57 @@
+# Dockerfile Fullstack - Frontend + Backend
+# Para deploy no Coolify com ambos os serviços no mesmo container
+
+# Estágio 1: Build do Frontend
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar todas as dependências (incluindo devDependencies para build)
+RUN npm ci
+
+# Copiar código fonte
+COPY . .
+
+# Build do frontend
+RUN npm run build
+
+# Estágio 2: Produção Fullstack
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar dependências de produção
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copiar build do frontend
+COPY --from=frontend-builder /app/dist ./dist
+
+# Copiar código do backend
+COPY server ./server
+COPY prisma ./prisma
+
+# Instalar dependências globais
+RUN npm install -g tsx serve
+
+# Copiar script de inicialização
+COPY start-fullstack.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Expor portas
+EXPOSE 3000 3001
+
+# Variáveis de ambiente
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV BACKOFFICE_PORT=3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Comando para iniciar ambos os serviços
+CMD ["/app/start.sh"]

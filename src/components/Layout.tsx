@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, FileText, Menu, X, LogOut, Settings, User } from 'lucide-react'
 import { useState } from 'react'
+import RAHAssistant from './RAHAssistant'
 
 export default function Layout() {
   const location = useLocation()
@@ -124,30 +125,7 @@ export default function Layout() {
                 </div>
                 <div className="flex flex-col">
                   <span className="font-semibold">Analytics</span>
-                  <span className="text-xs opacity-70">MongoDB</span>
-                </div>
-              </Link>
-
-              <Link
-                to="/analytics-api"
-                className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                  isActive('/analytics-api')
-                    ? 'bg-gradient-to-r from-revio-primary to-revio-secondary text-white shadow-revio'
-                    : 'text-revio-gray-700 hover:bg-revio-light hover:text-revio-primary'
-                }`}
-              >
-                <div className={`p-2 rounded-lg mr-3 ${
-                  isActive('/analytics-api')
-                    ? 'bg-white/20'
-                    : 'bg-revio-light group-hover:bg-white'
-                }`}>
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold">Analytics API</span>
-                  <span className="text-xs opacity-70">REST API</span>
+                  <span className="text-xs opacity-70">MongoDB Direto</span>
                 </div>
               </Link>
 
@@ -203,6 +181,9 @@ export default function Layout() {
           </div>
         </div>
       </footer>
+
+      {/* RAH - Assistente IA */}
+      <RAHAssistant />
     </div>
   )
 }
