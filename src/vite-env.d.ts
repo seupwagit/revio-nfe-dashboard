@@ -2,6 +2,32 @@
 /// <reference types="react" />
 /// <reference types="react-dom" />
 
+// Declaração de módulo para react-dom/client
+declare module 'react-dom/client' {
+  import { ReactNode } from 'react'
+  
+  export interface Root {
+    render(children: ReactNode): void
+    unmount(): void
+  }
+  
+  export interface RootOptions {
+    identifierPrefix?: string
+    onRecoverableError?: (error: Error) => void
+  }
+  
+  export function createRoot(
+    container: Element | DocumentFragment,
+    options?: RootOptions
+  ): Root
+  
+  export function hydrateRoot(
+    container: Element | Document,
+    initialChildren: ReactNode,
+    options?: RootOptions
+  ): Root
+}
+
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
   readonly VITE_API_BEARER_TOKEN: string
