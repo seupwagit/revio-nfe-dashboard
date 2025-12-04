@@ -1,142 +1,97 @@
-# 📚 Documentação SpedRevio
+# 📚 Documentação do Projeto
 
-Bem-vindo à documentação completa do sistema SpedRevio!
+Documentação completa do SpedRevio Dashboard.
 
----
+## 📂 Estrutura de Documentação
 
-## 🚀 Início Rápido
+### 🚀 [Deploy](deploy/)
+Documentação completa para deploy no Coolify e outros ambientes.
+- Guias rápidos e completos
+- Configuração de Dockerfiles
+- Troubleshooting de build
 
-- **Novo por aqui?** Comece pelo [Manual Completo do Usuário](./guias/MANUAL_COMPLETO_USUARIO.md)
-- **Busca por voz?** Veja [Busca Natural com Voz](./implementacoes/BUSCA_NATURAL_VOZ_FILTROS_DATA.md) 🆕
-- **Quer ver tudo?** Acesse o [Índice Completo](./INDICE_COMPLETO.md)
+### 🐛 [Debug](debug/)
+Documentação para debug fullstack no VS Code.
+- Guia rápido de debug
+- Monitoramento automático
+- Configuração de breakpoints
 
----
+### 🔧 [Troubleshooting](troubleshooting/)
+Solução de problemas comuns.
+- Erros de build
+- Problemas de conexão
+- Correções aplicadas
 
-## 📂 Estrutura da Documentação
+### 📖 [Guias](guias/)
+Guias de uso e configuração.
+- Configuração de ambiente
+- Uso de funcionalidades
+- Boas práticas
 
-```
-docs/
-├── 📁 arquitetura/          # Estrutura técnica do sistema
-│   ├── ARCHITECTURE.md      # Visão geral da arquitetura
-│   ├── STACK.md            # Stack tecnológica
-│   └── API.md              # Documentação da API
-│
-├── 📁 implementacoes/       # Funcionalidades desenvolvidas
-│   ├── BUSCA_NATURAL_VOZ_FILTROS_DATA.md  🆕
-│   ├── BUSCA_NATURAL_COM_IA_COMPLETA.md
-│   ├── RAH_ASSISTENTE_IA.md
-│   ├── RAH_GOOGLE_GEMINI.md
-│   ├── RAH_IMPLEMENTACAO_COMPLETA.md
-│   └── CONFIRMACAO_BOTAO_ULTIMO_ANO.md
-│
-├── 📁 solucoes/             # Problemas resolvidos
-│   └── SOLUCAO_CONEXAO_DIRETA_MONGODB.md
-│
-├── 📁 resumos/              # Resumos de sessões e correções
-│   ├── RESUMO_BUSCA_VOZ_FILTROS_04_DEZ_2024.md  🆕
-│   ├── RESUMO_CORRECAO_DIFERENCA_199.md
-│   └── RESUMO_SESSAO_COMPLETA_01_DEZ_2024.md
-│
-├── 📁 guias/                # Manuais de uso
-│   └── MANUAL_COMPLETO_USUARIO.md
-│
-├── 📁 debug/                # Guias de debug
-│   └── DEBUG.md
-│
-├── 📁 outros/               # Documentos diversos
-│   └── ORGANIZACAO_COMPLETA.md
-│
-├── 📄 INDICE_COMPLETO.md    # Índice de toda documentação
-└── 📄 README.md             # Este arquivo
-```
+### 🏗️ [Implementações](implementacoes/)
+Documentação de implementações específicas.
+- Busca natural com LLM
+- RAH (Assistente IA)
+- Integrações
 
----
+### 📊 [Auditoria](auditoria/)
+Documentação de testes e validações.
+- Testes de funcionalidades
+- Validações de dados
+- Relatórios de qualidade
 
-## 🆕 Últimas Atualizações
+### ⚙️ [Configuração](configuracao/)
+Configurações do sistema.
+- Variáveis de ambiente
+- Configuração de serviços
+- Integrações externas
 
-### 04 de Dezembro de 2025
-- ✅ **Busca Natural com Voz** - Reconhecimento de voz em português
-- ✅ **Filtros de Data Aprimorados** - Suporte a formato brasileiro (dd/mm/aaaa)
-- ✅ **Filtros Nativos da Grid** - Operadores (>, <) e tooltips informativos
-- 📚 **Documentação Reorganizada** - Estrutura de pastas otimizada
+### 🔄 [Correções](correcoes/)
+Histórico de correções e melhorias.
+- Bugs corrigidos
+- Melhorias implementadas
+- Changelog
 
-Ver: [Resumo Completo](./resumos/RESUMO_BUSCA_VOZ_FILTROS_04_DEZ_2024.md)
+## 🎯 Início Rápido
 
----
+### Para Desenvolvimento
+1. Leia [README.md](../README.md) na raiz do projeto
+2. Configure ambiente seguindo [guias/](guias/)
+3. Use [debug/DEBUG_QUICKSTART.md](debug/DEBUG_QUICKSTART.md) para debug
 
-## 🎯 Principais Funcionalidades
-
-### 🎤 Busca por Voz
-Busque documentos fiscais usando sua voz! Clique no microfone e fale:
-- "data um de dezembro"
-- "notas acima de mil reais"
-- "série oitocentos e oitenta"
-
-[Saiba mais →](./implementacoes/BUSCA_NATURAL_VOZ_FILTROS_DATA.md)
-
-### 🔍 Busca Natural com IA
-Digite em linguagem natural:
-- "01/12/2025"
-- "entradas acima de 5000"
-- "notas canceladas de SP"
-
-[Saiba mais →](./implementacoes/BUSCA_NATURAL_COM_IA_COMPLETA.md)
-
-### 🤖 RAH - Assistente IA
-Assistente virtual que conhece todo o sistema e pode responder suas dúvidas.
-
-[Saiba mais →](./implementacoes/RAH_ASSISTENTE_IA.md)
-
----
-
-## 📖 Como Usar Esta Documentação
-
-### Por Perfil:
-
-**👤 Usuário Final:**
-1. Leia o [Manual Completo do Usuário](./guias/MANUAL_COMPLETO_USUARIO.md)
-2. Aprenda sobre [Busca por Voz](./implementacoes/BUSCA_NATURAL_VOZ_FILTROS_DATA.md)
-3. Explore a [Busca Natural](./implementacoes/BUSCA_NATURAL_COM_IA_COMPLETA.md)
-
-**👨‍💻 Desenvolvedor:**
-1. Entenda a [Arquitetura](./arquitetura/ARCHITECTURE.md)
-2. Veja a [Stack Tecnológica](./arquitetura/STACK.md)
-3. Consulte a [API](./arquitetura/API.md)
-4. Use o [Guia de Debug](./debug/DEBUG.md)
-
-**📊 Gestor/Stakeholder:**
-1. Veja os [Resumos de Sessões](./resumos/)
-2. Entenda as [Soluções Implementadas](./solucoes/)
-
----
+### Para Deploy
+1. Leia [deploy/DEPLOY_NOW.md](deploy/DEPLOY_NOW.md)
+2. Configure seguindo [deploy/DEPLOY_COOLIFY.md](deploy/DEPLOY_COOLIFY.md)
+3. Se tiver problemas, veja [troubleshooting/](troubleshooting/)
 
 ## 🔗 Links Úteis
 
-- [Índice Completo](./INDICE_COMPLETO.md) - Todos os documentos organizados
-- [Última Implementação](./resumos/RESUMO_BUSCA_VOZ_FILTROS_04_DEZ_2024.md) - O que há de novo
-- [Conexão MongoDB](./solucoes/SOLUCAO_CONEXAO_DIRETA_MONGODB.md) - Performance otimizada
-
----
+- [Scripts](../scripts/) - Scripts auxiliares organizados
+- [Testes](../tests/) - Testes automatizados
+- [Código Fonte](../src/) - Código da aplicação
 
 ## 📝 Convenções
 
-- 🆕 = Novo/Recente
-- ✅ = Implementado e testado
-- 🔧 = Em desenvolvimento
-- 📚 = Documentação
-- 🎯 = Importante
+### Nomenclatura de Arquivos
+- `README.md` - Índice do diretório
+- `NOME_MAIUSCULO.md` - Documentação principal
+- `nome-minusculo.md` - Documentação secundária
+
+### Estrutura de Documentos
+1. Título e descrição
+2. Índice (se necessário)
+3. Conteúdo principal
+4. Links relacionados
+5. Recursos adicionais
+
+## 🆘 Precisa de Ajuda?
+
+1. **Problemas de Build?** → [troubleshooting/TROUBLESHOOTING_BUILD.md](troubleshooting/TROUBLESHOOTING_BUILD.md)
+2. **Dúvidas sobre Deploy?** → [deploy/DEPLOY_COOLIFY.md](deploy/DEPLOY_COOLIFY.md)
+3. **Erros de Debug?** → [debug/](debug/)
+4. **Outros problemas?** → Abra uma issue no GitHub
 
 ---
 
-## 🤝 Contribuindo
-
-Para adicionar ou atualizar documentação:
-
-1. Coloque o arquivo na pasta apropriada
-2. Atualize o [INDICE_COMPLETO.md](./INDICE_COMPLETO.md)
-3. Se for uma implementação nova, crie um resumo em `resumos/`
-
----
-
-**Última atualização:** 04 de Dezembro de 2025  
-**Versão da Documentação:** 2.0
+**Última atualização:** 2025-12-04
+**Versão:** 1.0.0

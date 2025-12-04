@@ -15,7 +15,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, Lock, U
 import BuscaNatural from './BuscaNatural'
 
 // Função de filtro customizada para datas no formato brasileiro
-const dateFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
+const dateFilterFn: FilterFn<any> = (row, columnId, filterValue, addMeta) => {
   if (!filterValue) return true
   
   const cellValue = row.getValue(columnId) as string
@@ -57,7 +57,7 @@ const dateFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
 }
 
 // Função de filtro customizada para valores numéricos
-const numberFilterFn: FilterFn<any> = (row, columnId, filterValue) => {
+const numberFilterFn: FilterFn<any> = (row, columnId, filterValue, addMeta) => {
   if (!filterValue) return true
   
   const cellValue = row.getValue(columnId)
@@ -448,10 +448,10 @@ export default function GridPaginada({ data, columns, pageSize = 50 }: GridPagin
     globalFilterFn: (row, columnId, filterValue) => {
       // Aplicar filtro customizado baseado no tipo de coluna
       if (columnId === 'dataEmissao') {
-        return dateFilterFn(row, columnId, filterValue)
+        return dateFilterFn(row, columnId, filterValue, {} as any)
       }
       if (columnId === 'valorTotal' || columnId.includes('valor')) {
-        return numberFilterFn(row, columnId, filterValue)
+        return numberFilterFn(row, columnId, filterValue, {} as any)
       }
       // Filtro padrão para texto
       const cellValue = row.getValue(columnId)
