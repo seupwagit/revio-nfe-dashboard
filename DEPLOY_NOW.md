@@ -46,6 +46,9 @@ VITE_DEFAULT_DATE_RANGE_DAYS=30
 
 3. Build Configuration:
    - Build Pack: **Dockerfile**
+   - Dockerfile: **Dockerfile** (deixe em branco para usar o padrão)
+   
+   **OU** para fullstack (frontend + backend):
    - Dockerfile: **Dockerfile.fullstack**
 
 ### 3️⃣ Deploy (5 minutos)
@@ -111,7 +114,7 @@ Antes de clicar em Deploy:
 
 - [ ] Código commitado e pushed
 - [ ] Variáveis configuradas no Coolify
-- [ ] Dockerfile selecionado: `Dockerfile.fullstack`
+- [ ] Dockerfile selecionado: `Dockerfile` (padrão) ou `Dockerfile.fullstack`
 - [ ] Build Pack: Dockerfile
 - [ ] Portas: 3000 (frontend), 3001 (backend)
 

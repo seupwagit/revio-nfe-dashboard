@@ -6,17 +6,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copiar arquivos de dependências e configuração TypeScript
 COPY package*.json ./
+COPY tsconfig*.json ./
 
-# Instalar dependências
-RUN npm ci --only=production && npm cache clean --force
+# Instalar TODAS as dependências (incluindo devDependencies para build)
+RUN npm ci
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
+# Build da aplicação usando tsconfig.prod.json
+RUN npm run build:prod
 
 # Estágio 2: Produção
 FROM node:20-alpine
