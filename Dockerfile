@@ -11,7 +11,8 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 
 # Instalar TODAS as dependências (incluindo devDependencies para build)
-RUN npm ci
+# Força reinstalação completa sem usar cache corrompido
+RUN npm ci --include=dev
 
 # Copiar código fonte
 COPY . .
