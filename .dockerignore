@@ -27,14 +27,9 @@ dist
 .gitignore
 .gitattributes
 
-# Tests
+# Tests (mantém arquivos .test.ts para build passar)
 coverage
 .nyc_output
-tests
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
 
 # Documentation
 docs
