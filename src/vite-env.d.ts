@@ -2,10 +2,6 @@
 /// <reference types="react" />
 /// <reference types="react-dom" />
 
-declare module 'react-dom/client' {
-  export * from 'react-dom/client'
-}
-
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
   readonly VITE_API_BEARER_TOKEN: string

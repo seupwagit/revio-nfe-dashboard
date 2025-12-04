@@ -15,7 +15,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, Lock, U
 import BuscaNatural from './BuscaNatural'
 
 // Função de filtro customizada para datas no formato brasileiro
-const dateFilterFn: FilterFn<any> = (row, columnId, filterValue, addMeta) => {
+const dateFilterFn: FilterFn<any> = (row, columnId, filterValue, _addMeta) => {
   if (!filterValue) return true
   
   const cellValue = row.getValue(columnId) as string
@@ -57,13 +57,13 @@ const dateFilterFn: FilterFn<any> = (row, columnId, filterValue, addMeta) => {
 }
 
 // Função de filtro customizada para valores numéricos
-const numberFilterFn: FilterFn<any> = (row, columnId, filterValue, addMeta) => {
+const numberFilterFn: FilterFn<any> = (row, columnId, filterValue, _addMeta) => {
   if (!filterValue) return true
   
   const cellValue = row.getValue(columnId)
   if (cellValue === null || cellValue === undefined) return false
   
-  const numValue = typeof cellValue === 'number' ? cellValue : parseFloat(cellValue)
+  const numValue = typeof cellValue === 'number' ? cellValue : parseFloat(String(cellValue))
   if (isNaN(numValue)) return false
   
   // Suporta operadores: >1000, <5000, ou 1000 (exato)
