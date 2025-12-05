@@ -52,8 +52,6 @@ echo ""
 # Configurações
 BACKEND_PORT=${BACKOFFICE_PORT:-3001}
 FRONTEND_PORT=${PORT:-3000}
-BACKEND_LOG="/tmp/backend.log"
-FRONTEND_LOG="/tmp/frontend.log"
 
 # Função para cleanup
 cleanup() {
@@ -78,7 +76,16 @@ trap cleanup SIGTERM SIGINT SIGQUIT
 
 # Iniciar Backend
 log_info "Iniciando Backend na porta $BACKEND_PORT..."
-tsx server/backoffice/index.ts > "$BACKEND_LOG" 2>&1 &
+echo ""
+echo "=========================================="
+echo "  📊 BACKEND LOGS"
+echo "=========================================="
+echo ""
+
+# Iniciar backend com logs no stdout (prefixados) e também em arquivo
+tsx server/backoffice/index.ts 2>&1 | while IFS= read -r line; do
+    echo "[BACKEND] $line"
+done &
 BACKEND_PID=$!
 
 log_success "Backend iniciado (PID: $BACKEND_PID)"
@@ -91,8 +98,6 @@ sleep 5
 # Verificar se backend está rodando
 if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
     log_error "Backend falhou ao iniciar!"
-    log_info "Últimas linhas do log:"
-    tail -n 20 "$BACKEND_LOG"
     exit 1
 fi
 
@@ -118,7 +123,14 @@ echo ""
 
 # Iniciar Frontend
 log_info "Iniciando Frontend na porta $FRONTEND_PORT..."
-npx serve -s dist -l "$FRONTEND_PORT" > "$FRONTEND_LOG" 2>&1 &
+echo ""
+echo "=========================================="
+echo "  🌐 FRONTEND LOGS"
+echo "=========================================="
+echo ""
+
+# Iniciar frontend com logs no stdout (prefixados)
+npx serve -s dist -l "$FRONTEND_PORT" 2>&1 | sed 's/^/[FRONTEND] /' &
 FRONTEND_PID=$!
 
 log_success "Frontend iniciado (PID: $FRONTEND_PID)"
@@ -131,8 +143,6 @@ sleep 3
 # Verificar se frontend está rodando
 if ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
     log_error "Frontend falhou ao iniciar!"
-    log_info "Últimas linhas do log:"
-    tail -n 20 "$FRONTEND_LOG"
     exit 1
 fi
 
@@ -146,11 +156,16 @@ log_info "  Frontend: http://localhost:$FRONTEND_PORT"
 log_info "  Backend:  http://localhost:$BACKEND_PORT"
 log_info "  Health:   http://localhost:$BACKEND_PORT/api/health"
 echo ""
-log_info "Logs:"
-log_info "  Backend:  $BACKEND_LOG"
-log_info "  Frontend: $FRONTEND_LOG"
+log_info "PIDs dos processos:"
+log_info "  Backend:  $BACKEND_PID"
+log_info "  Frontend: $FRONTEND_PID"
 echo ""
+log_info "Logs serão exibidos abaixo com prefixos [BACKEND] e [FRONTEND]"
 log_info "Pressione Ctrl+C para parar"
+echo ""
+echo "=========================================="
+echo "  📋 LOGS EM TEMPO REAL"
+echo "=========================================="
 echo ""
 
 # Monitorar processos
@@ -158,8 +173,6 @@ while true; do
     # Verificar se backend ainda está rodando
     if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
         log_error "Backend parou inesperadamente!"
-        log_info "Últimas linhas do log:"
-        tail -n 20 "$BACKEND_LOG"
         cleanup
         exit 1
     fi
@@ -167,8 +180,6 @@ while true; do
     # Verificar se frontend ainda está rodando
     if ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
         log_error "Frontend parou inesperadamente!"
-        log_info "Últimas linhas do log:"
-        tail -n 20 "$FRONTEND_LOG"
         cleanup
         exit 1
     fi

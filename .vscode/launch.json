@@ -95,7 +95,6 @@
         "--auto-open-devtools-for-tabs"
       ],
       "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-cache",
-      "console": "integratedTerminal",
       "trace": true
     },
     {
