@@ -19,7 +19,50 @@ dotenv.config()
 
 const app = express()
 
-// Middlewares
+// Middleware de logging de requisições
+app.use((req, res, next) => {
+  const start = Date.now()
+  const timestamp = new Date().toISOString()
+  
+  console.log(`📥 ${timestamp} ${req.method} ${req.path}`)
+  if (Object.keys(req.query).length > 0) {
+    console.log('   📋 Query:', JSON.stringify(req.query))
+  }
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('   📦 Body:', JSON.stringify(req.body))
+  }
+  
+  // Interceptar resposta para logar resultado
+  const originalSend = res.send
+  res.send = function(data: any) {
+    const duration = Date.now() - start
+    const status = res.statusCode
+    const statusIcon = status >= 400 ? '❌' : status >= 300 ? '⚠️' : '✅'
+    
+    console.log(`📤 ${statusIcon} ${req.method} ${req.path} - ${status} (${duration}ms)`)
+    
+    if (status >= 400) {
+      try {
+        const errorData = typeof data === 'string' ? JSON.parse(data) : data
+        console.error('   🔍 Erro:', errorData.error || errorData.message)
+        if (errorData.errorType) {
+          console.error('   📋 Tipo:', errorData.errorType)
+        }
+        if (errorData.errorCode) {
+          console.error('   🔢 Código:', errorData.errorCode)
+        }
+      } catch (e) {
+        console.error('   🔍 Erro:', data)
+      }
+    }
+    
+    return originalSend.call(this, data)
+  }
+  
+  next()
+})
+
+// Middlewares CORS e JSON
 app.use(cors({
   origin: [
     'http://localhost:3000',

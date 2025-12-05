@@ -136,10 +136,42 @@ router.get('/', async (req, res) => {
     })
     
   } catch (error: any) {
-    console.error('❌ Erro ao buscar documentos:', error)
+    console.error('❌ Erro ao buscar documentos:', error.message)
+    console.error('📋 Detalhes do erro:', {
+      name: error.name,
+      code: error.code,
+      codeName: error.codeName,
+      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+    })
+    
+    // Logs específicos por tipo de erro
+    if (error.name === 'MongoNetworkError' || error.code === 'ECONNREFUSED') {
+      console.error('🔌 Erro de Conectividade MongoDB:')
+      console.error('   - MongoDB pode estar offline')
+      console.error('   - Verifique se o host está acessível')
+      console.error('   - Verifique firewall e regras de rede')
+      console.error('   - Host configurado:', process.env.VITE_DB_HOST)
+    } else if (error.name === 'MongoServerError' && error.code === 18) {
+      console.error('🔐 Erro de Autenticação MongoDB:')
+      console.error('   - Credenciais inválidas')
+      console.error('   - Verifique usuário e senha no .env')
+      console.error('   - Verifique authSource na connection string')
+    } else if (error.name === 'MongoServerError' && error.code === 13) {
+      console.error('🚫 Erro de Permissão MongoDB:')
+      console.error('   - Usuário não tem permissão na collection')
+      console.error('   - Verifique roles do usuário no MongoDB')
+    } else if (error.message.includes('Topology is closed')) {
+      console.error('💔 Conexão MongoDB foi fechada:')
+      console.error('   - Conexão perdida durante a operação')
+      console.error('   - MongoDB pode ter reiniciado')
+      console.error('   - Verifique logs do MongoDB')
+    }
+    
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      errorType: error.name,
+      errorCode: error.code
     })
   }
 })
@@ -174,10 +206,21 @@ router.get('/count', async (req, res) => {
     })
     
   } catch (error: any) {
-    console.error('❌ Erro ao contar:', error)
+    console.error('❌ Erro ao contar documentos:', error.message)
+    console.error('📋 Detalhes:', {
+      name: error.name,
+      code: error.code,
+      collection: req.query.collection
+    })
+    
+    if (error.name === 'MongoNetworkError') {
+      console.error('🔌 Erro de rede ao contar documentos')
+    }
+    
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      errorType: error.name
     })
   }
 })

@@ -187,10 +187,48 @@ router.post('/aggregate', async (req, res) => {
     })
     
   } catch (error: any) {
-    console.error('❌ Erro na agregação:', error)
+    console.error('❌ Erro na agregação:', error.message)
+    console.error('📊 Detalhes do erro analytics:', {
+      name: error.name,
+      code: error.code,
+      collection: req.body.collection,
+      pipeline: 'aggregation',
+      timestamp: new Date().toISOString()
+    })
+    
+    // Logs específicos para analytics
+    if (error.name === 'MongoNetworkError' || error.code === 'ECONNREFUSED') {
+      console.error('🔌 Erro de conectividade durante agregação:')
+      console.error('   - MongoDB pode estar offline')
+      console.error('   - Conexão foi perdida durante a operação')
+      console.error('   - Verifique logs de conexão do MongoDB')
+    } else if (error.code === 16389 || error.message.includes('exceeded time limit')) {
+      console.error('⏱️ Timeout na agregação MongoDB:')
+      console.error('   - Query muito complexa ou dados grandes')
+      console.error('   - Considere adicionar índices')
+      console.error('   - Considere limitar período de dados')
+      console.error('   - Período solicitado:', req.body.dtIni, 'até', req.body.dtFin)
+    } else if (error.message.includes('$group') || error.message.includes('$facet')) {
+      console.error('📊 Erro na operação de agrupamento:')
+      console.error('   - Verifique se os campos existem')
+      console.error('   - Verifique tipos de dados')
+      console.error('   - Collection:', req.body.collection)
+    } else if (error.message.includes('Topology is closed')) {
+      console.error('💔 Conexão MongoDB foi fechada durante agregação:')
+      console.error('   - Conexão perdida durante a operação')
+      console.error('   - MongoDB pode ter reiniciado')
+      console.error('   - Verifique logs do MongoDB')
+    } else if (error.code === 13) {
+      console.error('🚫 Erro de permissão na agregação:')
+      console.error('   - Usuário não tem permissão para agregação')
+      console.error('   - Verifique roles do usuário no MongoDB')
+    }
+    
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      errorType: error.name,
+      errorCode: error.code
     })
   }
 })
