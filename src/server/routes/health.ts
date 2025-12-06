@@ -11,7 +11,7 @@ import { mongoose } from '../database/mongodb'
 const router = Router()
 
 // Health check geral
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res) => {
   try {
     const mongoState = mongoose.connection.readyState
     const mongoStates = {
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
       3: 'disconnecting'
     }
     
-    const health = {
+    const health: any = {
       status: mongoState === 1 ? 'ok' : 'error',
       timestamp: new Date().toISOString(),
       mongodb: {
@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
     }
     
     // Teste de conectividade real
-    if (mongoState === 1) {
+    if (mongoState === 1 && mongoose.connection.db) {
       try {
         const pingStart = Date.now()
         await mongoose.connection.db.admin().ping()
@@ -87,7 +87,7 @@ router.get('/', async (req, res) => {
 })
 
 // Testar conexão MongoDB
-router.get('/mongodb', async (req, res) => {
+router.get('/mongodb', async (_req, res) => {
   try {
     const mongoState = mongoose.connection.readyState
     const isConnected = mongoState === 1
@@ -107,6 +107,10 @@ router.get('/mongodb', async (req, res) => {
         host: process.env.VITE_DB_HOST,
         database: process.env.VITE_DB_DATABASE
       })
+    }
+    
+    if (!mongoose.connection.db) {
+      throw new Error('MongoDB database não disponível')
     }
     
     // Testar ping
@@ -147,7 +151,7 @@ router.get('/mongodb', async (req, res) => {
 })
 
 // Testar conexão Prisma
-router.get('/prisma', async (req, res) => {
+router.get('/prisma', async (_req, res) => {
   res.status(503).json({
     status: 'disabled',
     message: 'Prisma temporariamente desabilitado'

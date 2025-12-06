@@ -25,6 +25,10 @@ router.post('/aggregate', async (req, res) => {
       cnpjDest 
     })
     
+    if (!mongoose.connection.db) {
+      throw new Error('MongoDB não conectado')
+    }
+    
     const coll = mongoose.connection.db.collection(collection)
     
     // Criar filtro usando utilitário centralizado
@@ -63,7 +67,7 @@ router.post('/aggregate', async (req, res) => {
                 quantidade: { $sum: 1 }
               }
             },
-            { $match: { _id: { $ne: null, $ne: '' } } },
+            { $match: { _id: { $nin: [null, ''] } } },
             { $sort: { valor: -1 } },
             { $limit: 10 },
             { $project: { _id: 0, nome: '$_id', valor: 1, quantidade: 1 } }
@@ -114,7 +118,7 @@ router.post('/aggregate', async (req, res) => {
                     else: 'Não Protocolada'
                   }
                 },
-                value: 1
+                count: '$value'
               }
             }
           ],

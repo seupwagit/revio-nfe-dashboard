@@ -5,33 +5,13 @@
  * Usado para configurações e metadados
  */
 
-import { PrismaClient } from '@prisma/client'
+// import { PrismaClient } from '@prisma/client'
 
-let prisma: PrismaClient | null = null
+let prisma: any = null
 
 export async function connectPrisma(): Promise<void> {
-  try {
-    console.log('🗄️  Conectando ao SQL Server (Prisma)...')
-    
-    if (!process.env.DATABASE_URL) {
-      console.warn('⚠️  DATABASE_URL não configurado - Prisma desabilitado')
-      return
-    }
-    
-    prisma = new PrismaClient({
-      log: ['error', 'warn'],
-    })
-    
-    // Testar conexão
-    await prisma.$connect()
-    
-    console.log('✅ SQL Server conectado com sucesso!')
-    
-  } catch (error: any) {
-    console.error('❌ Erro ao conectar SQL Server:', error.message)
-    console.warn('⚠️  Continuando sem Prisma (apenas MongoDB)')
-    prisma = null
-  }
+  console.warn('⚠️  Prisma desabilitado - usando apenas MongoDB')
+  prisma = null
 }
 
 export async function disconnectPrisma(): Promise<void> {
@@ -45,7 +25,7 @@ export async function disconnectPrisma(): Promise<void> {
   }
 }
 
-export function getPrismaClient(): PrismaClient | null {
+export function getPrismaClient(): any {
   return prisma
 }
 

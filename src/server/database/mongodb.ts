@@ -50,11 +50,13 @@ export async function connectMongoDB(): Promise<void> {
     console.log('   ReadyState:', mongoose.connection.readyState)
     
     // Listar collections
-    const collections = await mongoose.connection.db.listCollections().toArray()
-    console.log(`   Collections: ${collections.length} encontradas`)
-    collections.forEach(col => {
-      console.log(`     - ${col.name}`)
-    })
+    if (mongoose.connection.db) {
+      const collections = await mongoose.connection.db.listCollections().toArray()
+      console.log(`   Collections: ${collections.length} encontradas`)
+      collections.forEach(col => {
+        console.log(`     - ${col.name}`)
+      })
+    }
     
     // Configurar event listeners para monitorar conexão
     setupConnectionMonitoring()

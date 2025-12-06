@@ -33,6 +33,10 @@ router.get('/', async (req, res) => {
       size 
     })
     
+    if (!mongoose.connection.db) {
+      throw new Error('MongoDB não conectado')
+    }
+    
     const coll = mongoose.connection.db.collection(collection as string)
     
     // Criar filtro usando utilitário centralizado
@@ -183,6 +187,10 @@ router.get('/count', async (req, res) => {
     
     // Validar datas
     validateDates(dtIni as string, dtFin as string)
+    
+    if (!mongoose.connection.db) {
+      throw new Error('MongoDB não conectado')
+    }
     
     const coll = mongoose.connection.db.collection(collection as string)
     
