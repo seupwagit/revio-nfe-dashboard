@@ -56,6 +56,7 @@ interface ImportMetaEnv {
   readonly VITE_PORT: string
   readonly VITE_AGGREGATION_PORT: string
   readonly VITE_PUBLIC_BUILDER_KEY: string
+  
 }
 
 interface ImportMeta {

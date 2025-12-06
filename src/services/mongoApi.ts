@@ -149,7 +149,7 @@ export class MongoApiService {
     if (options.cnpjEmit) params.cnpjEmit = options.cnpjEmit
     if (options.cnpjDest) params.cnpjDest = options.cnpjDest
     
-    const response = await this.client.get<DocumentsResponse>('/api/documents', { params });
+    const response = await this.client.get<DocumentsResponse>(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}/api/documents`, { params });
     
     return response.data;
   }
@@ -171,7 +171,7 @@ export class MongoApiService {
     if (options.cnpjEmit) params.cnpjEmit = options.cnpjEmit
     if (options.cnpjDest) params.cnpjDest = options.cnpjDest
     
-    const response = await this.client.get<CountResponse>('/api/documents/count', { params });
+    const response = await this.client.get<CountResponse>(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}/api/documents/count`, { params });
     
     return response.data.count;
   }
@@ -183,7 +183,7 @@ export class MongoApiService {
    * @returns Dados agregados para analytics
    */
   async aggregateAnalytics(options: AggregateAnalyticsOptions): Promise<AnalyticsResponse> {
-    const response = await this.client.post<AnalyticsResponse>('/api/aggregate/analytics', {
+    const response = await this.client.post<AnalyticsResponse>(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}/api/aggregate/analytics`, {
       collection: options.collection,
       dtIni: options.dtIni,
       dtFim: options.dtFim,
@@ -211,5 +211,5 @@ export class MongoApiService {
  * Configurada com a URL do servidor proxy a partir das variáveis de ambiente.
  */
 export const mongoApiService = new MongoApiService({
-  baseURL: `http://localhost:${import.meta.env.VITE_MONGODB_PROXY_PORT || 3001}`
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}`
 });

@@ -9,7 +9,7 @@ import axios from 'axios'
 
 // Usar MongoDB Proxy (conexão direta ao MongoDB)
 const aggregationApi = axios.create({
-  baseURL: '/api',
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}/api`,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -122,7 +122,7 @@ async function fetchAnalyticsViaAPI(params: AggregationParams): Promise<Analytic
  */
 export async function checkAggregationServer(): Promise<boolean> {
   try {
-    const response = await axios.get('http://localhost:3001/health')
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_MONGODB_PROXY_PORT!=''?':':''}${import.meta.env.VITE_MONGODB_PROXY_PORT}/health`)
     return response.data.status === 'ok'
   } catch {
     return false
