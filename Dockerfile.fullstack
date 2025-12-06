@@ -77,8 +77,8 @@ RUN npm ci --only=production
 # Copiar build do frontend
 COPY --from=frontend-builder /app/dist ./dist
 
-# Copiar código do backend
-COPY server ./server
+# Copiar código do backend (agora em src/server)
+COPY src/server ./src/server
 COPY prisma ./prisma
 
 # Instalar dependências globais

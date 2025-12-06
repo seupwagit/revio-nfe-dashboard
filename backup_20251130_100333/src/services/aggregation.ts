@@ -8,7 +8,7 @@
 import axios from 'axios'
 
 const aggregationApi = axios.create({
-  baseURL: 'http://localhost:3002/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -101,7 +101,7 @@ export async function fetchAnalyticsAggregation(
  */
 export async function checkAggregationServer(): Promise<boolean> {
   try {
-    const response = await axios.get('http://localhost:3002/health')
+    const response = await axios.get('/health')
     return response.data.status === 'ok'
   } catch {
     return false

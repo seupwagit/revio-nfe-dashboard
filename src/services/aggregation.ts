@@ -9,7 +9,7 @@ import axios from 'axios'
 
 // Usar MongoDB Proxy (conexão direta ao MongoDB)
 const aggregationApi = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }

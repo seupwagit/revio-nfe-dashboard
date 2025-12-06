@@ -23,7 +23,7 @@ export default function DebugAPI() {
   const testDirectAPI = async () => {
     setLoading(true)
     try {
-      const url = 'http://apinfe.revio.digital/api/WebView/Consultar'
+      const url = '/api/WebView/Consultar'
       const params = new URLSearchParams({
         host: env.database.host,
         collection: env.database.collection,

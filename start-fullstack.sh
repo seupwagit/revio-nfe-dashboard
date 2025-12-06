@@ -83,7 +83,7 @@ echo "=========================================="
 echo ""
 
 # Iniciar backend com logs no stdout (prefixados) e também em arquivo
-tsx server/backoffice/index.ts 2>&1 | while IFS= read -r line; do
+tsx src/server/index.ts 2>&1 | while IFS= read -r line; do
     echo "[BACKEND] $line"
 done &
 BACKEND_PID=$!

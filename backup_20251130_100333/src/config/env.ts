@@ -1,7 +1,7 @@
 // Configurações de ambiente centralizadas
 export const env = {
   api: {
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://apinfe.revio.digital/api',
+    baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://nf-dashboard-homologacao.sistemasflow.com.br/api',
     bearerToken: import.meta.env.VITE_API_BEARER_TOKEN || '',
   },
   database: {

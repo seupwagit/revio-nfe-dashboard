@@ -155,7 +155,7 @@ function validateFileStructure() {
     'Dockerfile.fullstack',
     'docker-compose.yml',
     'start-fullstack.sh',
-    'server/backoffice/index.ts',
+    'src/server/index.ts',
     'src/main.tsx'
   ]
   

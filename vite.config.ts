@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       strictPort: false,
     proxy: {
       '/api': {
-        target: 'https://apinfe.revio.digital',
+        target: 'https://nf-dashboard-homologacao.sistemasflow.com.br',
         changeOrigin: true,
         secure: true,
        // rewrite: (path) => path.replace(/^\/api/, '/api'),

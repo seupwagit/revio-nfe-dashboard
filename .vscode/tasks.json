@@ -3,73 +3,55 @@
   "tasks": [
     {
       "label": "npm: dev",
-      "type": "npm",
-      "script": "dev",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
       "isBackground": true,
       "problemMatcher": {
         "owner": "vite",
         "pattern": {
-          "regexp": "^([^\\s].*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "message": 5
+          "regexp": "."
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "^.*VITE.*preparing.*$",
-          "endsPattern": "^.*Local:.*http://localhost:3000.*$"
+          "beginsPattern": "VITE",
+          "endsPattern": "Local:.*http://localhost"
         }
       },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "focus": false,
-        "showReuseMessage": false,
         "group": "fullstack"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
-      }
-    },
-    {
-      "label": "Start Frontend (Vite)",
-      "type": "npm",
-      "script": "dev",
-      "problemMatcher": [],
-      "isBackground": true,
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "focus": false,
-        "showReuseMessage": false,
-        "group": "fullstack"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
       }
     },
     {
       "label": "Start Backend (Backoffice)",
       "type": "shell",
-      "command": "npx tsx --inspect=9229 server/backoffice/index.ts",
-      "problemMatcher": [],
+      "command": "npx",
+      "args": ["tsx", "--inspect=9229", "src/server/index.ts"],
       "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": {
+          "regexp": "."
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Iniciando",
+          "endsPattern": "Backoffice Server rodando"
+        }
+      },
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",
         "focus": false,
-        "showReuseMessage": false,
         "group": "fullstack"
-      },
-      "options": {
-        "cwd": "${workspaceFolder}"
       }
     },
     {
       "label": "🚀 Start Full Stack",
-      "dependsOn": ["Start Frontend (Vite)", "Start Backend (Backoffice)"],
+      "dependsOn": ["npm: dev", "Start Backend (Backoffice)"],
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
