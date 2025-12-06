@@ -74,6 +74,17 @@ app.use(cors({
 }))
 app.use(express.json())
 
+// Endpoint de debug de variáveis de ambiente
+app.get('/api/debug/env', (_req, res) => {
+  res.json({
+    VITE_DB_HOST: process.env.VITE_DB_HOST || 'NÃO DEFINIDO',
+    VITE_DB_DATABASE: process.env.VITE_DB_DATABASE || 'NÃO DEFINIDO',
+    VITE_MONGODB_CONNECTION_STRING: process.env.VITE_MONGODB_CONNECTION_STRING ? 'DEFINIDO' : 'NÃO DEFINIDO',
+    BACKOFFICE_PORT: process.env.BACKOFFICE_PORT || '3001',
+    NODE_ENV: process.env.NODE_ENV || 'development'
+  })
+})
+
 // Rotas
 app.use('/api/health', healthRoutes)
 app.use('/api/analytics', analyticsRoutes)

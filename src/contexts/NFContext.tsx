@@ -80,6 +80,27 @@ export function NFProvider({ children }: { children: ReactNode }) {
         size: 999999  // Sem limite - busca todos os documentos
       })
       
+      // Validar resposta da API
+      if (!response) {
+        throw new Error('Resposta vazia da API')
+      }
+      
+      // Verificar se houve erro no backend
+      if (response.success === false) {
+        const errorMsg = (response as any).error || 'Erro desconhecido no servidor'
+        console.error('❌ Erro retornado pelo backend:', errorMsg)
+        throw new Error(errorMsg)
+      }
+      
+      if (!response.data) {
+        throw new Error('Resposta inválida da API: dados não encontrados')
+      }
+      
+      if (!response.pagination) {
+        console.error('❌ Resposta da API sem paginação:', response)
+        throw new Error('Resposta inválida da API: paginação não encontrada')
+      }
+      
       const dados = response.data
       const { totalPages } = response.pagination
       

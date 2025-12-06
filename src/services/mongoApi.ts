@@ -128,6 +128,26 @@ export class MongoApiService {
         'Content-Type': 'application/json'
       }
     });
+    
+    // Interceptor para tratar erros HTTP
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        console.error('❌ Erro HTTP na API MongoDB:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message
+        })
+        
+        // Se o backend retornou um erro estruturado, propagar
+        if (error.response?.data) {
+          throw new Error(error.response.data.error || error.response.data.message || error.message)
+        }
+        
+        throw error
+      }
+    )
   }
 
   /**
