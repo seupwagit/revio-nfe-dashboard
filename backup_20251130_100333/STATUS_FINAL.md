@@ -4,7 +4,7 @@
 
 ### 🚀 Servidores Ativos
 ```
-✅ Proxy Node.js (porta 3001) - RODANDO
+✅ Proxy Node.js (porta 3000) - RODANDO
 ✅ Vite Dev Server - RODANDO
 ✅ Acesso: http://localhost:5173
 ```

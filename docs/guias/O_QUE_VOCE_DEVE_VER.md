@@ -217,7 +217,7 @@
 🚀 REQUISIÇÃO API
 Method: GET
 URL: /WebView/Consultar
-Full URL: http://localhost:3001/api/WebView/Consultar?collection=tbl_nfe_100...
+Full URL: http://localhost:3000/api/WebView/Consultar?collection=tbl_nfe_100...
 Params: {host: "10.0.0.8", database: "C67624577000145", ...}
 
 ✅ RESPOSTA API

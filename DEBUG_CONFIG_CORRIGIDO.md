@@ -191,7 +191,7 @@ router.get('/', async (req, res) => {
 
 ## 🚨 Problemas Comuns
 
-### 1. Porta 3000 ou 3001 ocupada
+### 1. Porta 3000 ou 3000 ocupada
 
 **Solução:**
 ```bash
@@ -202,7 +202,7 @@ Ou manualmente:
 ```bash
 # Windows
 FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
-FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3001') DO taskkill /PID %P /F
+FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
 ```
 
 ### 2. Breakpoints não funcionam
@@ -270,7 +270,7 @@ Antes de debugar:
 
 - [ ] `.env` configurado
 - [ ] MongoDB acessível
-- [ ] Portas 3000 e 3001 livres
+- [ ] Portas 3000 e 3000 livres
 - [ ] `npm install` executado
 - [ ] VS Code atualizado
 

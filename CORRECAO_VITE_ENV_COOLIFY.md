@@ -1,7 +1,7 @@
 # 🔧 Correção: Variáveis de Ambiente Vite no Coolify
 
 **Data:** 2025-12-05  
-**Problema:** Frontend conectando em `localhost:3001` em produção  
+**Problema:** Frontend conectando em `localhost:3000` em produção  
 **Status:** ✅ Corrigido
 
 ---
@@ -10,10 +10,10 @@
 
 ### Sintomas
 
-O frontend em produção (Coolify) estava tentando conectar em `http://localhost:3001` ao invés da URL correta do backend:
+O frontend em produção (Coolify) estava tentando conectar em `http://localhost:3000` ao invés da URL correta do backend:
 
 ```
-GET http://localhost:3001/api/documents?collection=tbl_nfe_100&page=1&size=999999 
+GET http://localhost:3000/api/documents?collection=tbl_nfe_100&page=1&size=999999 
 net::ERR_CONNECTION_REFUSED
 ```
 
@@ -41,7 +41,7 @@ Se `VITE_API_BASE_URL` não estiver disponível durante o build, o Vite usa o va
 
 1. **Build no Dockerfile:** Variáveis não disponíveis
 2. **Vite compila:** Usa valor padrão ou `undefined`
-3. **JavaScript gerado:** Tem `localhost:3001` hardcoded
+3. **JavaScript gerado:** Tem `localhost:3000` hardcoded
 4. **Runtime no Coolify:** Variáveis de ambiente não têm efeito (tarde demais!)
 
 ---
@@ -143,7 +143,7 @@ VITE_DB_COLLECTION=tbl_nfe_100
 VITE_MONGODB_CONNECTION_STRING=mongodb://user:pass@10.0.0.8:27017/?authMechanism=SCRAM-SHA-256&authSource=admin
 
 # Backend Port
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 ```
 
 ### 3. Importante
@@ -171,7 +171,7 @@ Abra o console do navegador (F12) e procure por:
 
 ```javascript
 // ANTES (ERRADO)
-GET http://localhost:3001/api/documents
+GET http://localhost:3000/api/documents
 
 // DEPOIS (CORRETO)
 GET https://seu-dominio.com/api/documents

@@ -39,7 +39,7 @@ Sistema de Dashboard SpedRevio está **100% funcional** e consumindo dados das *
 ## 🚀 Servidores Ativos
 
 ```bash
-✅ Proxy Node.js (porta 3001) - RODANDO
+✅ Proxy Node.js (porta 3000) - RODANDO
 ✅ Vite Dev Server - RODANDO
 ✅ URL: http://localhost:5173
 ```

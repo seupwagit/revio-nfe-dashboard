@@ -110,7 +110,7 @@ export function NFProvider({ children }: { children: ReactNode }) {
         setError({
           status: 503,
           message: 'Servidor MongoDB Proxy não está rodando. Execute: npm run mongodb-proxy',
-          data: { hint: 'Verifique se o servidor proxy está ativo na porta 3001' }
+          data: { hint: 'Verifique se o servidor proxy está ativo na porta 3000' }
         })
       } else {
         setError({

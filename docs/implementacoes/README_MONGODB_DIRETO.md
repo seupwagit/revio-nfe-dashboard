@@ -6,7 +6,7 @@ Implementei a **conexão direta ao MongoDB** conforme solicitado:
 
 ### 1. Servidor MongoDB Proxy
 - **Arquivo**: `server/mongodb-proxy.cjs`
-- **Porta**: 3001
+- **Porta**: 3000
 - **Função**: Conecta ao MongoDB e expõe endpoints REST
 
 ### 2. Telas Atualizadas
@@ -107,7 +107,7 @@ npm run mongodb-proxy
 
 ```bash
 # Health check
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 
 # Deve retornar:
 # {"status":"ok","mongodb":"connected",...}
@@ -124,7 +124,7 @@ http://localhost:3000/analytics
 ```
 ┌─────────────────┐      ┌──────────────────┐      ┌─────────────┐
 │   React App     │─────▶│  MongoDB Proxy   │─────▶│   MongoDB   │
-│  (porta 3000)   │      │   (porta 3001)   │      │ (10.0.0.8)  │
+│  (porta 3000)   │      │   (porta 3000)   │      │ (10.0.0.8)  │
 └─────────────────┘      └──────────────────┘      └─────────────┘
      Frontend              Servidor Node.js         Banco de Dados
 ```
@@ -147,7 +147,7 @@ http://localhost:3000/analytics
 ### Modificados
 1. `package.json` - Adicionado script `mongodb-proxy`
 2. `.env` - Adicionada porta do proxy
-3. `src/services/aggregation.ts` - Usa porta 3001
+3. `src/services/aggregation.ts` - Usa porta 3000
 4. `src/components/Layout.tsx` - Desativadas telas API
 
 ## 🎯 Status Atual

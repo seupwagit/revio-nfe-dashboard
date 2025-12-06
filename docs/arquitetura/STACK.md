@@ -122,7 +122,7 @@ project/
 | Serviço | Porta | Descrição |
 |---------|-------|-----------|
 | Frontend (Vite) | 3000 | Dev server React |
-| Backoffice | 3001 | API Node.js |
+| Backoffice | 3000 | API Node.js |
 | MongoDB | 27017 | Banco de documentos |
 | SQL Server | 1433 | Banco de configurações |
 
@@ -139,7 +139,7 @@ project/
 ┌─────────────┐
 │  Backoffice │
 │  (Node.js)  │
-│  Porta 3001 │
+│  Porta 3000 │
 └──────┬──────┘
        │
        ├─────────────┐
@@ -162,7 +162,7 @@ project/
 - **Autenticação**: Bearer Token (JWT)
 
 ### Backoffice API (Interna)
-- **Base URL**: `http://localhost:3001/api`
+- **Base URL**: `http://localhost:3000/api`
 - **Endpoints**:
   - `GET /health` - Status geral
   - `GET /health/mongodb` - Status MongoDB

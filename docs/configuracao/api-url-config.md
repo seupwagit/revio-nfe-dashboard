@@ -49,7 +49,7 @@ VITE_API_BASE_URL=http://apinfe.revio.digital
 ### 3. Proxy Local
 
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 **Vantagens:**
@@ -87,7 +87,7 @@ VITE_API_BASE_URL=https://apinfe.revio.digital
 
 **Para Desenvolvimento com Proxy:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 ### Passo 3: Reiniciar Servidor
@@ -136,7 +136,7 @@ Peça ao Kiro:
 
 ## 🐛 Troubleshooting
 
-### Problema: Ainda usa localhost:3001
+### Problema: Ainda usa localhost:3000
 
 **Causa:** Servidor não foi reiniciado após mudar .env
 
@@ -158,7 +158,7 @@ from origin 'http://localhost:5173' has been blocked by CORS policy
 
 **Solução 1: Usar Proxy Local**
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 ```bash
@@ -234,7 +234,7 @@ VITE_API_BASE_URL=https://apinfe.revio.digital
 
 **Opção 2: Proxy Local (se CORS problema)**
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 ### Para Produção
@@ -248,7 +248,7 @@ VITE_API_BASE_URL=https://apinfe.revio.digital
 
 **Usar proxy para debug:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 ---

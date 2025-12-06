@@ -32,7 +32,7 @@ O sistema é composto por 3 camadas principais:
 ┌─────────────────────────────────────────────────────────────┐
 │                      BACKOFFICE API                          │
 │                   Node.js + Express                          │
-│                        Porta 3001                            │
+│                        Porta 3000                            │
 │                                                              │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │                  Routes Layer                       │    │

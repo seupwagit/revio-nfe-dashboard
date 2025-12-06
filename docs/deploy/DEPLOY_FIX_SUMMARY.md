@@ -148,7 +148,7 @@ No Coolify, adicione TODAS as variáveis de ambiente:
 ```bash
 NODE_ENV=production
 PORT=3000
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 VITE_MONGODB_CONNECTION_STRING=mongodb://revio:zaqwsx2001@10.0.0.8:27017/?authMechanism=SCRAM-SHA-256&authSource=admin&directConnection=true
 VITE_API_BASE_URL=https://apinfe.revio.digital
 VITE_API_BEARER_TOKEN=seu_token_aqui

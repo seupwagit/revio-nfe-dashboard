@@ -4,7 +4,7 @@
 
 ### Erro 1: CORS Bloqueado
 ```
-Access to XMLHttpRequest at 'http://localhost:3001/api/documents' 
+Access to XMLHttpRequest at 'http://localhost:3000/api/documents' 
 from origin 'http://localhost:3002' has been blocked by CORS policy: 
 The 'Access-Control-Allow-Origin' header has a value 
 'https://nf-dashboard-homologacao.sistemasflow.com.br' 
@@ -13,7 +13,7 @@ that is not equal to the supplied origin.
 
 ### Erro 2: 404 Not Found
 ```
-GET http://localhost:3001/api/documents?collection=tbl_nfe_100&page=1&size=5000 
+GET http://localhost:3000/api/documents?collection=tbl_nfe_100&page=1&size=5000 
 net::ERR_FAILED 404 (Not Found)
 ```
 
@@ -35,7 +35,7 @@ app.use(cors()) // Sem configuração específica
 
 ### 2. Servidor Não Reiniciado
 - Mudanças no código não foram aplicadas
-- Servidor antigo ainda rodando na porta 3001
+- Servidor antigo ainda rodando na porta 3000
 
 ---
 
@@ -68,7 +68,7 @@ app.use(cors({
 ### 2. Servidor Reiniciado
 
 **Passos:**
-1. Parar processo antigo na porta 3001
+1. Parar processo antigo na porta 3000
 2. Iniciar novo servidor com CORS atualizado
 3. Verificar conexão MongoDB
 4. Testar endpoints
@@ -85,10 +85,10 @@ app.use(cors({
    Collections: 14 encontradas
 
 ✅ Backoffice Server rodando!
-   URL: http://localhost:3001
-   Health: http://localhost:3001/api/health
-   Analytics: http://localhost:3001/api/analytics
-   Documents: http://localhost:3001/api/documents
+   URL: http://localhost:3000
+   Health: http://localhost:3000/api/health
+   Analytics: http://localhost:3000/api/analytics
+   Documents: http://localhost:3000/api/documents
 
 📄 Buscando documentos: {
   collection: 'tbl_nfe_100',
@@ -139,8 +139,8 @@ app.use(cors({
 
 ### 1. Verificar Servidor
 ```bash
-# Deve estar rodando na porta 3001
-curl http://localhost:3001/api/health
+# Deve estar rodando na porta 3000
+curl http://localhost:3000/api/health
 ```
 
 ### 2. Testar Dashboard
@@ -188,11 +188,11 @@ curl http://localhost:3001/api/health
    npx tsx server/backoffice/index.ts
    ```
 
-### Se porta 3001 estiver em uso:
+### Se porta 3000 estiver em uso:
 
 ```powershell
-# Matar processo na porta 3001
-Get-NetTCPConnection -LocalPort 3001 | 
+# Matar processo na porta 3000
+Get-NetTCPConnection -LocalPort 3000 | 
   Select-Object -ExpandProperty OwningProcess | 
   ForEach-Object { Stop-Process -Id $_ -Force }
 ```

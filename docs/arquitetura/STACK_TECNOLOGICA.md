@@ -115,7 +115,7 @@ colors: {
 **Configuração:**
 ```typescript
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: 'http://localhost:3000/api',
   headers: {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
@@ -195,7 +195,7 @@ XLSX.writeFile(wb, 'notas-fiscais.xlsx')
 ### Environment Variables
 **.env**
 ```bash
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 VITE_API_BEARER_TOKEN=eyJhbGc...
 VITE_DB_HOST=10.0.0.8
 VITE_DB_DATABASE=C67624577000145

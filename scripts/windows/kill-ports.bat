@@ -11,9 +11,9 @@ FOR /F "tokens=5" %%P IN ('netstat -ano ^| findstr :3000') DO (
 )
 
 echo.
-echo Verificando porta 3001 (Backend)...
-FOR /F "tokens=5" %%P IN ('netstat -ano ^| findstr :3001') DO (
-    echo Matando processo %%P na porta 3001
+echo Verificando porta 3000 (Backend)...
+FOR /F "tokens=5" %%P IN ('netstat -ano ^| findstr :3000') DO (
+    echo Matando processo %%P na porta 3000
     taskkill /PID %%P /F
 )
 

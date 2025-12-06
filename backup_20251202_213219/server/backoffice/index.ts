@@ -29,7 +29,7 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/documents', documentsRoutes)
 
 // Porta
-const PORT = process.env.BACKOFFICE_PORT || 3001
+const PORT = process.env.BACKOFFICE_PORT || 3000
 
 // Iniciar servidor
 async function startServer() {

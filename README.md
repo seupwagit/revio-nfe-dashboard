@@ -119,7 +119,7 @@ Edite o arquivo `.env`:
 
 ```env
 # API Revio
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 VITE_API_BEARER_TOKEN=seu-token-aqui
 
 # Database

@@ -139,9 +139,9 @@
       }
     },
     {
-      "label": "Kill Port 3001",
+      "label": "Kill Port 3000",
       "type": "shell",
-      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3001') DO taskkill /PID %P /F",
+      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F",
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",

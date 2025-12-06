@@ -91,7 +91,7 @@ https://apinfe.revio.digital/api/WebView/Consultar?host=10.0.0.8&collection=tbl_
 
 **Configuração:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 **Código:**
@@ -101,7 +101,7 @@ api.get('/WebView/Consultar', { params })
 
 **URL Gerada:**
 ```
-http://localhost:3001/api/WebView/Consultar?params...
+http://localhost:3000/api/WebView/Consultar?params...
 ```
 
 **Proxy redireciona para:**
@@ -188,17 +188,17 @@ const api = axios.create({
 
 **Problema:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 ```
 
 **Resultado:**
 ```
-http://localhost:3001/api/api/WebView/Consultar ❌
+http://localhost:3000/api/api/WebView/Consultar ❌
 ```
 
 **Solução:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ## 🔍 Como Verificar

@@ -68,7 +68,7 @@
 - [ ] Repositório Git conectado
 - [ ] Branch configurado (main)
 - [ ] Dockerfile selecionado (Dockerfile.fullstack)
-- [ ] Portas configuradas (3000, 3001)
+- [ ] Portas configuradas (3000, 3000)
 - [ ] Variáveis de ambiente adicionadas
 - [ ] Domínio configurado
 - [ ] SSL habilitado
@@ -92,7 +92,7 @@
 # Essenciais (OBRIGATÓRIAS)
 NODE_ENV=production
 PORT=3000
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 VITE_MONGODB_CONNECTION_STRING=mongodb://...
 VITE_API_BASE_URL=https://apinfe.revio.digital
 VITE_DB_HOST=10.0.0.8
@@ -181,7 +181,7 @@ npm run kill-ports
 │  │  ┌──────────────┐  ┌──────────────────┐ │ │
 │  │  │   Frontend   │  │     Backend      │ │ │
 │  │  │   (Serve)    │  │   (Node.js)      │ │ │
-│  │  │   Port 3000  │  │   Port 3001      │ │ │
+│  │  │   Port 3000  │  │   Port 3000      │ │ │
 │  │  └──────────────┘  └──────────────────┘ │ │
 │  │                                           │ │
 │  └───────────────────────────────────────────┘ │
@@ -189,7 +189,7 @@ npm run kill-ports
 │  ┌───────────────────────────────────────────┐ │
 │  │         Nginx Proxy                       │ │
 │  │  ├─ / → Frontend (3000)                  │ │
-│  │  ├─ /api → Backend (3001)                │ │
+│  │  ├─ /api → Backend (3000)                │ │
 │  │  └─ SSL/TLS (Let's Encrypt)              │ │
 │  └───────────────────────────────────────────┘ │
 │                                                 │
@@ -242,7 +242,7 @@ docker exec container_name ping 10.0.0.8
 docker exec container_name tail -f /tmp/backend.log
 
 # Testar endpoint
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 ```
 
 ### Frontend não carrega

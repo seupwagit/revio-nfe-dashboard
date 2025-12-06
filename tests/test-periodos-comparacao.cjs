@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: 'http://localhost:3000/api',
   headers: {
     'Authorization': `Bearer ${process.env.VITE_API_BEARER_TOKEN}`,
     'Content-Type': 'application/json',

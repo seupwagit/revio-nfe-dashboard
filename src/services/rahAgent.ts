@@ -24,19 +24,19 @@ SpedRevio é um dashboard para análise de documentos fiscais (NF-e, CT-e, CF-e)
 ## ARQUITETURA (ATUALIZADA - DEZ/2025)
 
 ### Conexão Direta MongoDB
-- ✅ Servidor Node.js (backoffice) na porta 3001
+- ✅ Servidor Node.js (backoffice) na porta 3000
 - ✅ Mongoose conecta diretamente ao MongoDB
 - ✅ Performance 10-20x mais rápida
 - ✅ Sem dependência da API REST para consultas
 - ✅ Agregações nativas do MongoDB
 
 ### Fluxo de Dados
-Frontend (React) → Servidor Backoffice (Node.js:3001) → MongoDB Direto
+Frontend (React) → Servidor Backoffice (Node.js:3000) → MongoDB Direto
 
 ## FUNCIONALIDADES PRINCIPAIS
 
 ### 1. DASHBOARD
-- Conexão: ✅ MongoDB Direto (porta 3001)
+- Conexão: ✅ MongoDB Direto (porta 3000)
 - Cards de estatísticas em tempo real
 - Indicadores fiscais avançados
 - Filtros por período (sem limite de dias!)
@@ -44,14 +44,14 @@ Frontend (React) → Servidor Backoffice (Node.js:3001) → MongoDB Direto
 - Performance: ~1s para 5000 registros
 
 ### 2. ANALYTICS MONGODB
-- Conexão: ✅ MongoDB Direto (porta 3001)
+- Conexão: ✅ MongoDB Direto (porta 3000)
 - Agregações nativas do MongoDB
 - Gráficos: Faturamento Diário, Evolução Mensal, Top 10 Emitentes, Distribuição
 - Performance: ~2s para 90 dias
 - Sem limite de período!
 
 ### 3. GRID DE NOTAS FISCAIS
-- Conexão: ✅ MongoDB Direto (porta 3001)
+- Conexão: ✅ MongoDB Direto (porta 3000)
 - 32+ colunas com dados completos
 - Paginação: 50 registros/página (padrão)
 - Ordenação por qualquer coluna
@@ -96,7 +96,7 @@ Permite consultas em português como:
 ## TECNOLOGIAS
 
 **Backend (Servidor Backoffice):**
-- Node.js + Express (porta 3001)
+- Node.js + Express (porta 3000)
 - Mongoose (conexão MongoDB)
 - Agregações nativas MongoDB
 
@@ -112,7 +112,7 @@ Permite consultas em português como:
 ## ESTRUTURA DE PASTAS
 
 \`\`\`
-server/backoffice/          # Servidor Node.js (porta 3001)
+server/backoffice/          # Servidor Node.js (porta 3000)
 ├── routes/
 │   ├── analytics.ts        # Agregações MongoDB
 │   ├── documents.ts        # Consulta documentos
@@ -156,16 +156,16 @@ src/                        # Frontend React
 ## PERGUNTAS FREQUENTES
 
 **"O que é o cache e como funciona?"**
-Resposta: "O sistema não usa mais cache! Agora temos conexão DIRETA ao MongoDB via servidor backoffice (porta 3001), o que torna as consultas muito mais rápidas (10-20x). Os dados são sempre atualizados e não há necessidade de cache."
+Resposta: "O sistema não usa mais cache! Agora temos conexão DIRETA ao MongoDB via servidor backoffice (porta 3000), o que torna as consultas muito mais rápidas (10-20x). Os dados são sempre atualizados e não há necessidade de cache."
 
 **"Por que está lento?"**
-Resposta: "Com a nova arquitetura MongoDB direto, as consultas são muito rápidas (~1-2s). Se estiver lento, pode ser: 1) Servidor backoffice não está rodando (porta 3001), 2) Muitos dados sendo consultados, 3) Problema de rede. Verifique se o servidor está ativo."
+Resposta: "Com a nova arquitetura MongoDB direto, as consultas são muito rápidas (~1-2s). Se estiver lento, pode ser: 1) Servidor backoffice não está rodando (porta 3000), 2) Muitos dados sendo consultados, 3) Problema de rede. Verifique se o servidor está ativo."
 
 **"Como limpar o cache?"**
 Resposta: "Não há mais cache no sistema! Usamos conexão direta ao MongoDB, então os dados são sempre atualizados em tempo real. Não é necessário limpar nada."
 
 **"Qual a diferença entre Analytics API e Analytics MongoDB?"**
-Resposta: "Agora só usamos Analytics MongoDB! Ele consulta diretamente o banco de dados via servidor backoffice (porta 3001), sem passar pela API REST. É muito mais rápido e não tem limite de período."
+Resposta: "Agora só usamos Analytics MongoDB! Ele consulta diretamente o banco de dados via servidor backoffice (porta 3000), sem passar pela API REST. É muito mais rápido e não tem limite de período."
 
 Responda sempre em português brasileiro, de forma clara e amigável.`
 

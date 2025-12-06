@@ -219,7 +219,7 @@ npm run dev
 docker build -f Dockerfile.fullstack -t nf-dashboard:latest .
 
 # Run
-docker run -p 3000:3000 -p 3001:3001 --env-file .env nf-dashboard:latest
+docker run -p 3000:3000 -p 3000:3000 --env-file .env nf-dashboard:latest
 ```
 
 ### 4. Verificar Logs

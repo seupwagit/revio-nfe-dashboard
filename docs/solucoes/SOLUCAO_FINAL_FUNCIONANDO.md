@@ -14,7 +14,7 @@ Implementei um **sistema de fallback inteligente**:
 ```
 Analytics MongoDB
     ↓
-Tenta MongoDB Proxy (porta 3001)
+Tenta MongoDB Proxy (porta 3000)
     ↓
 ❌ Falhou? → ✅ Usa API REST + Agregação Local
     ↓

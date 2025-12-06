@@ -213,7 +213,7 @@ function validatePorts(env) {
   logSection('Validando Configuração de Portas')
   
   const frontendPort = env.PORT || env.VITE_PORT || '3000'
-  const backendPort = env.BACKOFFICE_PORT || '3001'
+  const backendPort = env.BACKOFFICE_PORT || '3000'
   
   logInfo(`Frontend: ${frontendPort}`)
   logInfo(`Backend: ${backendPort}`)

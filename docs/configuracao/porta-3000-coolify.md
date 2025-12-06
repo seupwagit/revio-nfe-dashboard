@@ -155,10 +155,10 @@ kill -9 <PID>
 **Solução 2: Usar outra porta**
 ```bash
 # Temporário
-npm run dev -- --port 3001
+npm run dev -- --port 3000
 
 # Permanente (.env)
-VITE_PORT=3001
+VITE_PORT=3000
 ```
 
 **Solução 3: strictPort false**

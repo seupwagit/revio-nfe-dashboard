@@ -46,7 +46,7 @@ copy .env.example .env
 
 Configure no arquivo `.env`:
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 VITE_API_BEARER_TOKEN=seu_token_aqui
 VITE_DB_HOST=10.0.0.8
 VITE_DB_DATABASE=C67624577000145
@@ -55,7 +55,7 @@ VITE_DB_COLLECTION=tbl_nfe_100
 
 ### 3. Iniciar Servidores
 ```bash
-# Terminal 1 - Proxy Node.js (porta 3001)
+# Terminal 1 - Proxy Node.js (porta 3000)
 node proxy-server.cjs
 
 # Terminal 2 - Frontend Vite (porta 5173)
@@ -210,7 +210,7 @@ src/
 ```bash
 # Desenvolvimento
 npm run dev              # Iniciar frontend (porta 5173)
-node proxy-server.cjs    # Iniciar proxy (porta 3001)
+node proxy-server.cjs    # Iniciar proxy (porta 3000)
 
 # Build
 npm run build           # Build para produção

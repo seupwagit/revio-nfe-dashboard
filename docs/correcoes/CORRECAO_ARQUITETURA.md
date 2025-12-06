@@ -101,7 +101,7 @@ npm run dev
 As portas estão configuradas no arquivo `.env`:
 ```env
 VITE_PORT=3000                    # Frontend
-VITE_MONGODB_PROXY_PORT=3001      # Backend
+VITE_MONGODB_PROXY_PORT=3000      # Backend
 ```
 
 ## ✅ Resultado
@@ -127,7 +127,7 @@ VITE_MONGODB_PROXY_PORT=3001      # Backend
 ✅ Conectado ao MongoDB
 📊 Database: C67624577000145
 ⚡ Modo: Conexão Direta
-🚀 MongoDB Proxy rodando na porta 3001
+🚀 MongoDB Proxy rodando na porta 3000
 ```
 
 ## 🔐 Segurança

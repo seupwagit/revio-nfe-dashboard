@@ -51,7 +51,7 @@ Token expirado (válido até 20/12/2024)
 ### Solução
 Verificar configuração no `.env`:
 ```env
-VITE_API_BASE_URL=http://localhost:3001/api
+VITE_API_BASE_URL=http://localhost:3000/api
 VITE_DB_HOST=10.0.0.8
 VITE_DB_DATABASE=C67624577000145
 ```
@@ -61,7 +61,7 @@ VITE_DB_DATABASE=C67624577000145
 ## ❌ Problema: Proxy não está rodando
 
 ### Sintomas
-- Erro: "ECONNREFUSED localhost:3001"
+- Erro: "ECONNREFUSED localhost:3000"
 - Console mostra erro de conexão
 
 ### Solução
@@ -70,7 +70,7 @@ VITE_DB_DATABASE=C67624577000145
 node proxy-server.cjs
 
 # Deve mostrar:
-# 🚀 Proxy server rodando na porta 3001
+# 🚀 Proxy server rodando na porta 3000
 # 🎯 Redirecionando para: https://apinfe.revio.digital/api
 ```
 
@@ -122,7 +122,7 @@ Usar o proxy Node.js (já configurado):
 node proxy-server.cjs
 
 # Verificar .env
-VITE_API_BASE_URL=http://localhost:3001/api  # ✅ Correto
+VITE_API_BASE_URL=http://localhost:3000/api  # ✅ Correto
 # NÃO usar:
 # VITE_API_BASE_URL=https://apinfe.revio.digital/api  # ❌ Errado
 ```
@@ -234,7 +234,7 @@ console.log('Authorization:',
 ### Verificar se servidores estão rodando
 ```bash
 # Windows
-netstat -ano | findstr :3001  # Proxy
+netstat -ano | findstr :3000  # Proxy
 netstat -ano | findstr :5173  # Vite
 
 # Deve mostrar LISTENING
@@ -263,7 +263,7 @@ $headers = @{
     "Authorization" = "Bearer SEU_TOKEN_AQUI"
     "Content-Type" = "application/json"
 }
-Invoke-RestMethod -Uri "http://localhost:3001/api/WebView/Consultar?host=10.0.0.8&database=C67624577000145&collection=tbl_nfe_100&dtIni=2024-11-01&dtFin=2024-11-27&pg=1&size=10" -Headers $headers
+Invoke-RestMethod -Uri "http://localhost:3000/api/WebView/Consultar?host=10.0.0.8&database=C67624577000145&collection=tbl_nfe_100&dtIni=2024-11-01&dtFin=2024-11-27&pg=1&size=10" -Headers $headers
 ```
 
 ---

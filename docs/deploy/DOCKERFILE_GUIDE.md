@@ -25,7 +25,7 @@ Este projeto tem 2 Dockerfiles diferentes:
 **Características:**
 - ✅ Frontend (React + Vite)
 - ✅ Backend (Node.js + Express)
-- ✅ Portas 3000 (frontend) e 3001 (backend)
+- ✅ Portas 3000 (frontend) e 3000 (backend)
 - ✅ Script de inicialização robusto
 - ✅ Health check integrado
 - ⚠️ Mais pesado (2 processos)
@@ -102,11 +102,11 @@ RUN npm run build:prod  # ← Usa tsconfig.prod.json
 **No Coolify:**
 1. Build Pack: **Dockerfile**
 2. Dockerfile: **Dockerfile.fullstack**
-3. Ports: **3000** (frontend), **3001** (backend)
+3. Ports: **3000** (frontend), **3000** (backend)
 
 **Resultado:**
 - Frontend em `https://seu-dominio.com`
-- Backend em `https://seu-dominio.com:3001` ou via proxy
+- Backend em `https://seu-dominio.com:3000` ou via proxy
 
 ---
 
@@ -117,7 +117,7 @@ RUN npm run build:prod  # ← Usa tsconfig.prod.json
 | **Tamanho** | ~150MB | ~250MB |
 | **Build Time** | ~2 min | ~3 min |
 | **Processos** | 1 (serve) | 2 (serve + tsx) |
-| **Portas** | 3000 | 3000, 3001 |
+| **Portas** | 3000 | 3000, 3000 |
 | **Complexidade** | Simples | Média |
 | **Uso de CPU** | Baixo | Médio |
 | **Uso de RAM** | ~50MB | ~150MB |
@@ -138,7 +138,7 @@ RUN npm run build:prod  # ← Usa tsconfig.prod.json
 - [ ] Variáveis de ambiente configuradas
 - [ ] `npm run build:prod` funciona localmente
 - [ ] `npm run backend` funciona localmente
-- [ ] Portas 3000 e 3001 configuradas
+- [ ] Portas 3000 e 3000 configuradas
 - [ ] MongoDB acessível
 - [ ] Script `start-fullstack.sh` existe
 

@@ -127,7 +127,7 @@ curl https://seu-dominio.com
 | Arquivo | Uso | Portas | Processos |
 |---------|-----|--------|-----------|
 | `Dockerfile` | Frontend only | 3000 | 1 (serve) |
-| `Dockerfile.fullstack` | Frontend + Backend | 3000, 3001 | 2 (serve + tsx) |
+| `Dockerfile.fullstack` | Frontend + Backend | 3000, 3000 | 2 (serve + tsx) |
 
 **Recomendação:** Use `Dockerfile` (mais simples) e deixe o campo "Dockerfile" em branco no Coolify.
 

@@ -115,7 +115,7 @@ function startServers() {
   log("", "reset");
   log("📊 URLs disponíveis:", "cyan");
   log("   Frontend: http://localhost:3000", "blue");
-  log("   Backend:  http://localhost:3001", "blue");
+  log("   Backend:  http://localhost:3000", "blue");
   log("", "reset");
   log("💡 Pressione Ctrl+C para parar todos os servidores", "yellow");
   log("", "reset");

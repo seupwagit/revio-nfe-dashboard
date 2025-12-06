@@ -19,7 +19,7 @@
 
 **Portas:**
 - Frontend: `http://localhost:3000`
-- Backend: `http://localhost:3001`
+- Backend: `http://localhost:3000`
 - Debug Backend: `9229`
 - Debug Chrome: `9222`
 
@@ -144,10 +144,10 @@ Pressione **Ctrl+Shift+P** → Digite "Tasks: Run Task"
 
 #### Start Backend (Backoffice)
 - Inicia apenas o backend com debug
-- Porta: 3001
+- Porta: 3000
 
-#### Kill Port 3000 / 3001
-- Mata processos nas portas 3000 ou 3001
+#### Kill Port 3000 / 3000
+- Mata processos nas portas 3000 ou 3000
 - Útil quando a porta está ocupada
 
 #### 🔌 Test MongoDB Connection
@@ -233,7 +233,7 @@ npm run kill-ports
 
 # Ou manualmente
 FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
-FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3001') DO taskkill /PID %P /F
+FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
 ```
 
 ### 2. "preLaunchTask 'npm: dev' not found"
@@ -346,7 +346,7 @@ Antes de começar a debugar:
 
 - [ ] `.env` configurado com variáveis corretas
 - [ ] MongoDB acessível (teste com `npm run test-mongodb`)
-- [ ] Portas 3000 e 3001 livres
+- [ ] Portas 3000 e 3000 livres
 - [ ] Dependências instaladas (`npm install`)
 - [ ] VS Code atualizado
 - [ ] Extensões recomendadas instaladas

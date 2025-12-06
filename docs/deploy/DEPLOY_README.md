@@ -116,7 +116,7 @@ npm run docker:run
 curl http://localhost:3000
 
 # Backend
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 
 # Resposta esperada:
 # {"status":"ok","mongodb":"connected","timestamp":"..."}

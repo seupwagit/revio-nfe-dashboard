@@ -19,7 +19,7 @@ Guia completo para deploy da aplicação SpedRevio (Frontend + Backend) no Cooli
 │  ┌──────────────┐  ┌─────────────────┐ │
 │  │   Frontend   │  │    Backend      │ │
 │  │   (Serve)    │  │   (Node.js)     │ │
-│  │   Port 3000  │  │   Port 3001     │ │
+│  │   Port 3000  │  │   Port 3000     │ │
 │  └──────────────┘  └─────────────────┘ │
 │                                         │
 └─────────────────────────────────────────┘
@@ -60,7 +60,7 @@ Dockerfile: Dockerfile.fullstack
 **Portas Expostas:**
 ```
 3000 → Frontend (HTTP)
-3001 → Backend API (HTTP)
+3000 → Backend API (HTTP)
 ```
 
 **Port Mapping:**
@@ -78,7 +78,7 @@ Adicione as seguintes variáveis no Coolify:
 # Node Environment
 NODE_ENV=production
 PORT=3000
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 
 # MongoDB (OBRIGATÓRIO)
 VITE_MONGODB_CONNECTION_STRING=mongodb://revio:zaqwsx2001@10.0.0.8:27017/?authMechanism=SCRAM-SHA-256&authSource=admin&directConnection=true
@@ -132,7 +132,7 @@ Domain: app-xxxxx.coolify.io
 
 ```yaml
 Health Check Path: /api/health
-Health Check Port: 3001
+Health Check Port: 3000
 Interval: 30s
 Timeout: 10s
 Retries: 3
@@ -175,7 +175,7 @@ docker-compose up --build
 
 # 4. Acessar
 # Frontend: http://localhost:3000
-# Backend: http://localhost:3001
+# Backend: http://localhost:3000
 ```
 
 ## 📊 Monitoramento
@@ -207,7 +207,7 @@ docker exec container_name tail -f /tmp/frontend.log
 curl http://seu-dominio.com
 
 # Backend
-curl http://seu-dominio.com:3001/api/health
+curl http://seu-dominio.com:3000/api/health
 
 # Ou se estiver usando proxy reverso
 curl http://seu-dominio.com/api/health
@@ -279,10 +279,10 @@ docker exec container_name wget -O- http://localhost:3000
 docker exec container_name ps aux | grep tsx
 
 # 2. Verificar porta do backend
-docker exec container_name netstat -tlnp | grep 3001
+docker exec container_name netstat -tlnp | grep 3000
 
 # 3. Testar endpoint
-docker exec container_name wget -O- http://localhost:3001/api/health
+docker exec container_name wget -O- http://localhost:3000/api/health
 ```
 
 ## 🔄 Atualizações
@@ -370,7 +370,7 @@ Certificate: Let's Encrypt (auto-renew)
 Configure regras no Coolify:
 ```
 Allow: 80, 443 (HTTP/HTTPS)
-Deny: 3000, 3001 (acesso direto)
+Deny: 3000, 3000 (acesso direto)
 ```
 
 ### 4. Rate Limiting

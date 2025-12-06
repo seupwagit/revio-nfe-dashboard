@@ -94,7 +94,7 @@ npm run dev
 
 **Configuração:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 **Iniciar:**
@@ -108,7 +108,7 @@ npm run proxy
 
 **Acesso:**
 - Dev Server: `http://localhost:3000`
-- Proxy: `http://localhost:3001`
+- Proxy: `http://localhost:3000`
 
 **CORS:** ✅ Configurado no proxy
 
@@ -197,7 +197,7 @@ npm run dev
 
 **3. Usar proxy local:**
 ```env
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3000
 ```
 ```bash
 npm run proxy

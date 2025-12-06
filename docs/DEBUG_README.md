@@ -42,7 +42,7 @@
 - **🚀 Start Full Stack** - Inicia ambos simultaneamente
 
 **Tasks Auxiliares:**
-- Kill Port 3000/3001 - Libera portas ocupadas
+- Kill Port 3000/3000 - Libera portas ocupadas
 - Debug: Check Cache - Verifica cache
 - Test MongoDB Connection - Testa conexão
 
@@ -243,7 +243,7 @@ taskkill /PID <PID> /F
 | Porta | Serviço | Descrição |
 |-------|---------|-----------|
 | 3000 | Frontend | Vite Dev Server |
-| 3001 | Backend | Backoffice API |
+| 3000 | Backend | Backoffice API |
 | 9222 | Chrome | Remote Debugging |
 | 9229 | Node.js | Inspector Protocol |
 | 27017 | MongoDB | Database |

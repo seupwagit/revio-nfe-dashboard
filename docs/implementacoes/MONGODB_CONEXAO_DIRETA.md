@@ -15,10 +15,10 @@ Criei um **MongoDB Proxy** que conecta diretamente ao MongoDB e expõe endpoints
 ### Arquivos Criados
 1. **server/mongodb-proxy.cjs** - Servidor proxy MongoDB
 2. **package.json** - Script `npm run mongodb-proxy`
-3. **.env** - Variável `VITE_MONGODB_PROXY_PORT=3001`
+3. **.env** - Variável `VITE_MONGODB_PROXY_PORT=3000`
 
 ### Telas Atualizadas
-- ✅ **Analytics MongoDB** - Configurada para usar o proxy (porta 3001)
+- ✅ **Analytics MongoDB** - Configurada para usar o proxy (porta 3000)
 - ⏸️ **Analytics API** - Desativada no menu (comentada)
 - ⏸️ **Analytics API Agregado** - Desativada no menu (comentada)
 
@@ -86,14 +86,14 @@ Você verá:
 ```
 ✅ Conectado ao MongoDB
 📊 Database: C67624577000145
-🚀 MongoDB Proxy rodando na porta 3001
-   Health: http://localhost:3001/health
+🚀 MongoDB Proxy rodando na porta 3000
+   Health: http://localhost:3000/health
 ```
 
 ### 2. Verificar Conexão
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 ```
 
 Deve retornar:
@@ -118,7 +118,7 @@ O MongoDB Proxy expõe:
 
 ### 1. Analytics (Agregações)
 ```
-POST http://localhost:3001/api/aggregate/analytics
+POST http://localhost:3000/api/aggregate/analytics
 Body: {
   "collection": "tbl_nfe_100",
   "dtIni": "2024-01-01",
@@ -128,12 +128,12 @@ Body: {
 
 ### 2. Documentos (Grid)
 ```
-GET http://localhost:3001/api/documents?collection=tbl_nfe_100&dtIni=2024-01-01&dtFin=2024-12-31&page=1&size=100
+GET http://localhost:3000/api/documents?collection=tbl_nfe_100&dtIni=2024-01-01&dtFin=2024-12-31&page=1&size=100
 ```
 
 ### 3. Contador (Dashboard)
 ```
-GET http://localhost:3001/api/count?collection=tbl_nfe_100&dtIni=2024-01-01&dtFin=2024-12-31
+GET http://localhost:3000/api/count?collection=tbl_nfe_100&dtIni=2024-01-01&dtFin=2024-12-31
 ```
 
 ## 🎯 Próximos Passos

@@ -50,7 +50,7 @@ log_success "Variáveis de ambiente OK"
 echo ""
 
 # Configurações
-BACKEND_PORT=${BACKOFFICE_PORT:-3001}
+BACKEND_PORT=${BACKOFFICE_PORT:-3000}
 FRONTEND_PORT=${PORT:-3000}
 
 # Função para cleanup
@@ -105,7 +105,7 @@ fi
 RETRIES=10
 RETRY_COUNT=0
 while [ $RETRY_COUNT -lt $RETRIES ]; do
-    if wget -q --spider "http://localhost:$BACKEND_PORT/api/health" 2>/dev/null; then
+        if wget -q --spider "http://localhost:$BACKEND_PORT/api/health" 2>/dev/null; then
         log_success "Backend está respondendo!"
         break
     fi

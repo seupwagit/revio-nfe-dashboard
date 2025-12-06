@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       strictPort: false,
     proxy: {
       '/api': {
-        target: 'https://nf-dashboard-homologacao.sistemasflow.com.br',
+        target: env.VITE_API_BASE_URL,
         changeOrigin: true,
         secure: true,
        // rewrite: (path) => path.replace(/^\/api/, '/api'),

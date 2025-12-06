@@ -19,7 +19,7 @@ COLLECTIONS IMPLEMENTADAS
 SERVIDORES
 ───────────────────────────────────────────────────────────────────────────────
 
-✅ Proxy Node.js → Porta 3001 → RODANDO
+✅ Proxy Node.js → Porta 3000 → RODANDO
 ✅ Vite Dev      → Porta 5173 → RODANDO
 🌐 URL: http://localhost:5173
 

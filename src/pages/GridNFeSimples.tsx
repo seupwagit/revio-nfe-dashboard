@@ -5,6 +5,7 @@ import { ArrowUpDown } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ExportarExcel from '../components/ExportarExcel'
 import GridPaginada from '../components/GridPaginada'
+import DebugGrid from '../components/DebugGrid'
 
 const columnHelper = createColumnHelper<any>()
 
@@ -316,6 +317,9 @@ export default function GridNFeSimples() {
 
   return (
     <div className="space-y-4">
+      {/* Debug temporário */}
+      <DebugGrid />
+      
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-revio-gray-800">Grid NF-e</h2>

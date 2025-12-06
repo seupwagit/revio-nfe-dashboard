@@ -1,6 +1,6 @@
 # 🚀 Guia Rápido: Corrigir Problema no Coolify
 
-**Problema:** Frontend conectando em `localhost:3001` ao invés da URL correta
+**Problema:** Frontend conectando em `localhost:3000` ao invés da URL correta
 
 ---
 
@@ -34,7 +34,7 @@ VITE_DB_COLLECTION=tbl_nfe_100
 VITE_MONGODB_CONNECTION_STRING=mongodb://revio:zaqwsx2001@10.0.0.8:27017/?authMechanism=SCRAM-SHA-256&authSource=admin&directConnection=true
 
 # Porta do Backend
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 ```
 
 ### 3️⃣ Limpar Cache Docker (Recomendado)
@@ -73,7 +73,7 @@ Se aparecer, está correto! ✅
 GET https://nf-dashboard-homologacao.sistemasflow.com.br/api/documents
 
 ❌ ERRADO:
-GET http://localhost:3001/api/documents
+GET http://localhost:3000/api/documents
 ```
 
 ---
@@ -112,7 +112,7 @@ VITE_API_BEARER_TOKEN=...
 VITE_DB_HOST=10.0.0.8
 VITE_DB_DATABASE=C67624577000145
 VITE_MONGODB_CONNECTION_STRING=mongodb://...
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 NODE_ENV=production
 ```
 

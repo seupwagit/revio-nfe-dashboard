@@ -3,7 +3,7 @@
 ## Status do Sistema
 
 ### 🟢 Servidores Ativos
-- **Proxy Node.js**: Rodando na porta 3001
+- **Proxy Node.js**: Rodando na porta 3000
 - **Vite Dev Server**: Rodando (npm run dev)
 
 ### 🟢 Collections Configuradas

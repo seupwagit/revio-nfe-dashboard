@@ -35,12 +35,12 @@ if %errorlevel% equ 0 (
 
 echo.
 echo [3/4] Testando MongoDB Proxy...
-curl -s http://localhost:3001/health > nul 2>&1
+curl -s http://localhost:3000/health > nul 2>&1
 if %errorlevel% equ 0 (
     echo   ✅ MongoDB Proxy esta rodando
     echo.
     echo [4/4] Status do MongoDB Proxy:
-    curl -s http://localhost:3001/health
+    curl -s http://localhost:3000/health
 ) else (
     echo   ❌ MongoDB Proxy NAO esta rodando
     echo.

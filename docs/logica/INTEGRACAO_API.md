@@ -13,7 +13,7 @@ https://api.revio.digital
 
 ### Proxy Local
 ```
-http://localhost:3001/api
+http://localhost:3000/api
 ```
 
 ## 🔐 Autenticação
@@ -278,8 +278,8 @@ app.use('/api', async (req, res) => {
   }
 })
 
-app.listen(3001, () => {
-  console.log('🔄 Proxy rodando na porta 3001')
+app.listen(3000, () => {
+  console.log('🔄 Proxy rodando na porta 3000')
 })
 ```
 
@@ -314,7 +314,7 @@ const axios = require('axios')
 
 async function testarAPI() {
   try {
-    const response = await axios.get('http://localhost:3001/api/WebView/Consultar', {
+    const response = await axios.get('http://localhost:3000/api/WebView/Consultar', {
       params: {
         host: '10.0.0.8',
         database: 'C67624577000145',

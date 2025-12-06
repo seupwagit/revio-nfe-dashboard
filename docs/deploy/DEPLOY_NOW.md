@@ -31,7 +31,7 @@ git push origin main
 # ESSENCIAIS (copie e cole)
 NODE_ENV=production
 PORT=3000
-BACKOFFICE_PORT=3001
+BACKOFFICE_PORT=3000
 VITE_MONGODB_CONNECTION_STRING=mongodb://revio:zaqwsx2001@10.0.0.8:27017/?authMechanism=SCRAM-SHA-256&authSource=admin&directConnection=true
 VITE_API_BASE_URL=https://apinfe.revio.digital
 VITE_API_BEARER_TOKEN=eyJhbGciOiJSUzI1NiIsImtpZCI6IkRCOTgzQTgxMTg3QTgwNTQ5MjBGOTg3QkVEN0E1OUI1ODYwQjMzRjkiLCJ4NXQiOiIyNWc2Z1JoNmdGU1NENWg3N1hwWnRZWUxNX2siLCJ0eXAiOiJhdCtqd3QifQ...
@@ -116,7 +116,7 @@ Antes de clicar em Deploy:
 - [ ] Variáveis configuradas no Coolify
 - [ ] Dockerfile selecionado: `Dockerfile` (padrão) ou `Dockerfile.fullstack`
 - [ ] Build Pack: Dockerfile
-- [ ] Portas: 3000 (frontend), 3001 (backend)
+- [ ] Portas: 3000 (frontend), 3000 (backend)
 
 ---
 

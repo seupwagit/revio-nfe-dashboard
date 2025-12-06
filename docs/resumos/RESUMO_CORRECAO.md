@@ -62,7 +62,7 @@ npm run dev
 
 ### Servidores Ativos
 - ✅ **Frontend:** http://localhost:3000 (Vite Dev Server)
-- ✅ **Backend:** http://localhost:3001 (MongoDB Proxy)
+- ✅ **Backend:** http://localhost:3000 (MongoDB Proxy)
 
 ### Páginas Testadas
 - ✅ Dashboard Fiscal - Funcionando

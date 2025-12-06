@@ -13,12 +13,12 @@ Network Error
 ```
 
 **Detalhes:**
-- URL: `http://localhost:3001/api/WebView/Consultar`
+- URL: `http://localhost:3000/api/WebView/Consultar`
 - Método: GET
 - Status: Connection Refused
 
 **Causa Raiz:**
-O servidor proxy/API não está rodando na porta 3001.
+O servidor proxy/API não está rodando na porta 3000.
 
 **Solução:**
 
@@ -37,7 +37,7 @@ O servidor proxy/API não está rodando na porta 3001.
 **Opção 2: Usar Proxy Local**
 1. Manter `.env` com:
    ```env
-   VITE_API_BASE_URL=http://localhost:3001/api
+   VITE_API_BASE_URL=http://localhost:3000/api
    ```
 
 2. Iniciar servidor proxy:
@@ -86,7 +86,7 @@ Isso é esperado na primeira execução. O cache será populado após a primeira
 1. ✅ Aplicação carregou
 2. ✅ Tentou buscar dados da collection `tbl_nfe_100`
 3. ⚠️ Cache MISS (esperado)
-4. ❌ Tentou conectar ao servidor proxy (porta 3001)
+4. ❌ Tentou conectar ao servidor proxy (porta 3000)
 5. ❌ Conexão recusada (servidor não está rodando)
 6. ❌ Erro propagado para UI
 
@@ -111,14 +111,14 @@ npm run proxy
 
 **Resultado esperado:**
 ```
-Proxy server running on http://localhost:3001
+Proxy server running on http://localhost:3000
 ```
 
 ### Passo 2: Verificar Conectividade
 
 ```bash
 # Testar endpoint
-curl http://localhost:3001/api/WebView/Consultar
+curl http://localhost:3000/api/WebView/Consultar
 ```
 
 **Resultado esperado:**
@@ -172,7 +172,7 @@ services:
     build: .
     command: npm run proxy
     ports:
-      - "3001:3001"
+      - "3000:3000"
 ```
 
 ---

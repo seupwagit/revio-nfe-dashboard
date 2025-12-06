@@ -36,7 +36,7 @@
 ║                            🚀 SERVIDORES ATIVOS                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  ✅ Proxy Node.js         → Porta 3001 → RODANDO                            ║
+║  ✅ Proxy Node.js         → Porta 3000 → RODANDO                            ║
 ║  ✅ Vite Dev Server       → Porta 5173 → RODANDO                            ║
 ║  🌐 URL: http://localhost:5173                                              ║
 ║                                                                              ║

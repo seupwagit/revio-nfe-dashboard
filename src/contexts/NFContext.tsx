@@ -104,6 +104,14 @@ export function NFProvider({ children }: { children: ReactNode }) {
       const dados = response.data
       const { totalPages } = response.pagination
       
+      console.log('📊 DEBUG: Dados recebidos da API:', {
+        quantidade: dados.length,
+        tipo: typeof dados,
+        isArray: Array.isArray(dados),
+        primeiraNota: dados[0],
+        totalPages
+      })
+      
       // Busca contagem total
       const totalCount = await mongoApiService.countDocuments({
         collection,
@@ -117,6 +125,12 @@ export function NFProvider({ children }: { children: ReactNode }) {
       console.log(`✅ Recebidos ${dados.length} registros da collection ${collection} em ${loadTime}s`)
       console.log(`⚡ Tempo de execução no backend: ${response.executionTime}ms`)
       
+      console.log('📊 DEBUG: Setando estado:', {
+        dadosLength: dados.length,
+        totalCount,
+        totalPages
+      })
+      
       setProgress(100)
       setCurrentPage(1)
       setTotalPages(totalPages)
@@ -124,6 +138,8 @@ export function NFProvider({ children }: { children: ReactNode }) {
       setTotalRegistros(totalCount)
       setStats(calcularStats(dados))
       setError(null)
+      
+      console.log('✅ DEBUG: Estado atualizado com sucesso')
     } catch (err: any) {
       console.error('❌ Erro ao carregar notas:', err)
       
@@ -132,7 +148,7 @@ export function NFProvider({ children }: { children: ReactNode }) {
         setError({
           status: 503,
           message: 'Servidor MongoDB Proxy não está rodando. Execute: npm run mongodb-proxy',
-          data: { hint: 'Verifique se o servidor proxy está ativo na porta 3001' }
+          data: { hint: 'Verifique se o servidor proxy está ativo na porta 3000' }
         })
       } else {
         setError({

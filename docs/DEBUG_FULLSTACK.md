@@ -17,7 +17,7 @@ Debug completo com Chrome e Node.js rodando simultaneamente.
 **O que acontece:**
 
 - ✅ Inicia o servidor Vite (Frontend) na porta 3000
-- ✅ Inicia o servidor Backoffice (Backend) na porta 3001 com debug
+- ✅ Inicia o servidor Backoffice (Backend) na porta 3000 com debug
 - ✅ Abre o Chrome com DevTools
 - ✅ Conecta o debugger do VS Code ao backend
 - ✅ Permite breakpoints em ambos frontend e backend
@@ -211,7 +211,7 @@ As tasks estão configuradas em `.vscode/tasks.json`:
 ## 🔗 Portas Utilizadas
 
 - **3000**: Frontend (Vite)
-- **3001**: Backend (Backoffice API)
+- **3000**: Backend (Backoffice API)
 - **9222**: Chrome Remote Debugging
 - **9229**: Node.js Inspector (Backend Debug)
 

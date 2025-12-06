@@ -85,7 +85,7 @@ Peça ao Kiro:
 ```
 ❌ Erro detectado:
    Tipo: Network Error - ERR_CONNECTION_REFUSED
-   URL: http://localhost:3001/api/WebView/Consultar
+   URL: http://localhost:3000/api/WebView/Consultar
    Severidade: 🔴 CRÍTICO
 ```
 
@@ -94,7 +94,7 @@ Peça ao Kiro:
 🔍 Analisando causa raiz...
 
 Causa identificada:
-   Servidor proxy não está rodando na porta 3001
+   Servidor proxy não está rodando na porta 3000
 
 Impacto:
    🔴 Aplicação não funcional
@@ -110,7 +110,7 @@ Passo 1: Iniciar servidor proxy
    npm run proxy
 
 Passo 2: Verificar conectividade
-   curl http://localhost:3001/api/WebView/Consultar
+   curl http://localhost:3000/api/WebView/Consultar
 
 Passo 3: Recarregar aplicação
    F5 no navegador
@@ -128,7 +128,7 @@ Passo 3: Recarregar aplicação
 ✅ Executando correção...
 
 1. Iniciando servidor proxy...
-   ✅ Servidor iniciado na porta 3001
+   ✅ Servidor iniciado na porta 3000
 
 2. Verificando conectividade...
    ✅ Servidor respondendo

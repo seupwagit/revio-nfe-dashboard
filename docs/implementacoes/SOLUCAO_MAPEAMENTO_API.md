@@ -15,7 +15,7 @@ A grid estava aparecendo em branco e com warnings infinitos porque:
 Criamos um script Node.js (`test-nfe-raw.cjs`) para consumir a API e ver os dados puros:
 
 ```javascript
-const response = await axios.get('http://localhost:3001/api/WebView/Consultar', {
+const response = await axios.get('http://localhost:3000/api/WebView/Consultar', {
   params: {
     host: '10.0.0.8',
     database: 'C67624577000145',

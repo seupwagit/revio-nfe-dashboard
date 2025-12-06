@@ -15,7 +15,7 @@ O Dashboard SpedRevio está **100% operacional** e consumindo dados das **3 tabe
 ### 1. Servidores já estão rodando?
 ```bash
 # Verificar se você vê:
-✅ Proxy server rodando na porta 3001
+✅ Proxy server rodando na porta 3000
 ✅ Local: http://localhost:5173
 ```
 

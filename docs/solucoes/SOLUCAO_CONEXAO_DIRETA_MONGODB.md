@@ -30,7 +30,7 @@ Implementação de servidor Node.js (backoffice) que conecta diretamente ao Mong
 │  Backoffice     │
 │  Server         │
 │  (Node.js)      │
-│  Porta: 3001    │
+│  Porta: 3000    │
 └────────┬────────┘
          │
          │ Mongoose
@@ -295,22 +295,22 @@ npm run backoffice
 
 ### Health Check
 ```
-GET http://localhost:3001/api/health
+GET http://localhost:3000/api/health
 ```
 
 ### Buscar Documentos
 ```
-GET http://localhost:3001/api/documents?collection=tbl_nfe_100&dtIni=2025-11-01&dtFim=2025-12-01&page=1&size=100
+GET http://localhost:3000/api/documents?collection=tbl_nfe_100&dtIni=2025-11-01&dtFim=2025-12-01&page=1&size=100
 ```
 
 ### Contar Documentos
 ```
-GET http://localhost:3001/api/documents/count?collection=tbl_nfe_100&dtIni=2025-11-01&dtFim=2025-12-01
+GET http://localhost:3000/api/documents/count?collection=tbl_nfe_100&dtIni=2025-11-01&dtFim=2025-12-01
 ```
 
 ### Agregação Analytics
 ```
-POST http://localhost:3001/api/analytics/aggregate
+POST http://localhost:3000/api/analytics/aggregate
 Content-Type: application/json
 
 {
@@ -330,8 +330,8 @@ VITE_MONGODB_CONNECTION_STRING=mongodb://user:pass@10.0.0.8:27017/?authMechanism
 VITE_DB_DATABASE=C67624577000145
 
 # Backoffice Server
-BACKOFFICE_PORT=3001
-VITE_MONGODB_PROXY_PORT=3001
+BACKOFFICE_PORT=3000
+VITE_MONGODB_PROXY_PORT=3000
 ```
 
 ---
@@ -380,17 +380,17 @@ Os alertas de "60 dias pode ser lento" foram removidos pois a conexão direta é
 
 ### 1. Verificar Servidor
 ```bash
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 ```
 
 ### 2. Testar Documentos
 ```bash
-curl "http://localhost:3001/api/documents?collection=tbl_nfe_100&page=1&size=10"
+curl "http://localhost:3000/api/documents?collection=tbl_nfe_100&page=1&size=10"
 ```
 
 ### 3. Testar Analytics
 ```bash
-curl -X POST http://localhost:3001/api/analytics/aggregate \
+curl -X POST http://localhost:3000/api/analytics/aggregate \
   -H "Content-Type: application/json" \
   -d '{"collection":"tbl_nfe_100","dtIni":"2025-11-01","dtFin":"2025-12-01"}'
 ```

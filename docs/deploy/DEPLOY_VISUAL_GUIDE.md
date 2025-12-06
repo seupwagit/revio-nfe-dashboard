@@ -135,7 +135,7 @@ Clique em **[+ New Resource]**
 │  [+ Add Port]                           │
 │                                         │
 │  ┌───────────────────────────────────┐ │
-│  │ Container Port: 3001              │ │ ← Backend
+│  │ Container Port: 3000              │ │ ← Backend
 │  │ Public Port: (auto)               │ │
 │  │ Protocol: HTTP                    │ │
 │  └───────────────────────────────────┘ │
@@ -185,7 +185,7 @@ Clique em **[+ New Resource]**
 **Variáveis essenciais:**
 - ✅ `NODE_ENV=production`
 - ✅ `PORT=3000`
-- ✅ `BACKOFFICE_PORT=3001`
+- ✅ `BACKOFFICE_PORT=3000`
 - ✅ `VITE_MONGODB_CONNECTION_STRING=...` (Secret)
 - ✅ `VITE_API_BASE_URL=...`
 - ✅ `VITE_API_BEARER_TOKEN=...` (Secret)
@@ -235,7 +235,7 @@ Clique em **[+ New Resource]**
 │  [/api/health]                          │
 │                                         │
 │  Port:                                  │
-│  [3001]                                 │
+│  [3000]                                 │
 │                                         │
 │  Interval:                              │
 │  [30] seconds                           │
@@ -271,7 +271,7 @@ Clique em **[+ New Resource]**
 │                                         │
 │  Ports:                                 │
 │  ├─ 3000 → 80 (Frontend)               │
-│  └─ 3001 (Backend)                     │
+│  └─ 3000 (Backend)                     │
 │                                         │
 │  Domain: nf-dashboard.seudominio.com.br│
 │  SSL: Enabled (Let's Encrypt)          │
@@ -444,7 +444,7 @@ URL: https://nf-dashboard.seudominio.com.br
 **Solução:**
 ```
 1. Verificar se backend está rodando
-2. Verificar porta do health check (3001)
+2. Verificar porta do health check (3000)
 3. Verificar path (/api/health)
 4. Ver logs do container
 ```

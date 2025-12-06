@@ -12,12 +12,12 @@ O arquivo `.env.production.example` estava com `VITE_API_BASE_URL` configurado i
 
 ```bash
 # ❌ ERRADO
-VITE_API_BASE_URL=https://127.0.0.1:3001
+VITE_API_BASE_URL=https://127.0.0.1:3000
 ```
 
 **Por que está errado:**
 1. ❌ `127.0.0.1` é localhost - não funciona em produção
-2. ❌ `https://` na porta 3001 sem certificado SSL
+2. ❌ `https://` na porta 3000 sem certificado SSL
 3. ❌ Aponta diretamente para porta do backend
 4. ❌ Não funciona quando acessado de outro computador
 
@@ -51,7 +51,7 @@ VITE_API_BASE_URL=https://seu-dominio.com
 VITE_API_BASE_URL=https://nf-dashboard-homologacao.sistemasflow.com.br
 
 # Desenvolvimento local
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ### ❌ Formatos Incorretos
@@ -61,14 +61,14 @@ VITE_API_BASE_URL=http://localhost:3001
 VITE_API_BASE_URL=https://seu-dominio.com/api
 
 # ❌ Com porta em produção
-VITE_API_BASE_URL=https://seu-dominio.com:3001
+VITE_API_BASE_URL=https://seu-dominio.com:3000
 
 # ❌ Localhost em produção
-VITE_API_BASE_URL=http://localhost:3001
-VITE_API_BASE_URL=https://127.0.0.1:3001
+VITE_API_BASE_URL=http://localhost:3000
+VITE_API_BASE_URL=https://127.0.0.1:3000
 
 # ❌ IP interno em produção
-VITE_API_BASE_URL=http://10.0.0.8:3001
+VITE_API_BASE_URL=http://10.0.0.8:3000
 
 # ❌ HTTP em produção (sem SSL)
 VITE_API_BASE_URL=http://seu-dominio.com
@@ -122,7 +122,7 @@ const response = await axios.get(`${env.api.baseUrl}/api/documents`)
 │ Container Docker (Fullstack)                             │
 │                                                          │
 │  ┌──────────────────┐      ┌──────────────────┐        │
-│  │ Frontend (3000)  │      │ Backend (3001)   │        │
+│  │ Frontend (3000)  │      │ Backend (3000)   │        │
 │  │ - Serve estático │      │ - API REST       │        │
 │  │ - HTML/CSS/JS    │      │ - MongoDB        │        │
 │  └──────────────────┘      └──────────────────┘        │
@@ -136,7 +136,7 @@ const response = await axios.get(`${env.api.baseUrl}/api/documents`)
 2. **Coolify recebe** e roteia para porta 3000 (frontend)
 3. **Frontend carrega** HTML/CSS/JS
 4. **JavaScript faz requisição:** `https://nf-dashboard-homologacao.sistemasflow.com.br/api/documents`
-5. **Coolify recebe** e roteia para porta 3001 (backend)
+5. **Coolify recebe** e roteia para porta 3000 (backend)
 6. **Backend processa** e retorna dados
 7. **Frontend exibe** os dados
 
@@ -220,8 +220,8 @@ VITE_API_BASE_URL=https://seu-dominio-customizado.com
 GET https://nf-dashboard-homologacao.sistemasflow.com.br/api/documents
 
 // ❌ ERRADO:
-GET http://localhost:3001/api/documents
-GET https://127.0.0.1:3001/api/documents
+GET http://localhost:3000/api/documents
+GET https://127.0.0.1:3000/api/documents
 ```
 
 ### 2. Verificar no Network Tab
@@ -304,7 +304,7 @@ GET https://127.0.0.1:3001/api/documents
 | Ambiente | URL Correta |
 |----------|-------------|
 | **Produção (Coolify)** | `https://nf-dashboard-homologacao.sistemasflow.com.br` |
-| **Desenvolvimento Local** | `http://localhost:3001` |
+| **Desenvolvimento Local** | `http://localhost:3000` |
 | **Staging** | `https://staging.seu-dominio.com` |
 
 **Lembre-se:**

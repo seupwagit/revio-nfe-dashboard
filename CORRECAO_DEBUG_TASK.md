@@ -135,7 +135,7 @@ A task `npm: dev` estava configurada com `type: "npm"`, mas o VS Code não estav
 
 1. Pressione **F5**
 2. Deve iniciar:
-   - Backend (porta 3001)
+   - Backend (porta 3000)
    - Frontend (porta 3000)
    - Chrome automaticamente
 3. Sem erros de task ✅
@@ -168,7 +168,7 @@ Pressione **Ctrl+Shift+P** → "Tasks: Run Task"
 | `Start Backend (Backoffice)` | Inicia backend com debug |
 | `🚀 Start Full Stack` | Inicia ambos simultaneamente |
 | `Kill Port 3000` | Mata processo na porta 3000 |
-| `Kill Port 3001` | Mata processo na porta 3001 |
+| `Kill Port 3000` | Mata processo na porta 3000 |
 | `🔌 Test MongoDB Connection` | Testa conexão MongoDB |
 
 ---
@@ -186,10 +186,10 @@ Pressione **Ctrl+Shift+P** → "Tasks: Run Task"
 
 **Solução:**
 ```bash
-# Executar task "Kill Port 3000" ou "Kill Port 3001"
+# Executar task "Kill Port 3000" ou "Kill Port 3000"
 # Ou manualmente:
 FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
-FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3001') DO taskkill /PID %P /F
+FOR /F "tokens=5" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F
 ```
 
 ### Problema: Backend não inicia
@@ -227,7 +227,7 @@ Antes de debugar:
 
 - [ ] `.env` configurado
 - [ ] MongoDB acessível
-- [ ] Portas 3000 e 3001 livres
+- [ ] Portas 3000 e 3000 livres
 - [ ] `npm install` executado
 - [ ] VS Code atualizado
 - [ ] Tasks funcionando (Ctrl+Shift+P → Run Task)

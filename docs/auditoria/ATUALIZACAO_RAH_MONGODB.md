@@ -29,7 +29,7 @@ O RAH (Revio Agent Helper) ainda tinha referências à arquitetura antiga:
 ## TECNOLOGIAS
 
 **Backend (Servidor Backoffice):**
-- Node.js + Express (porta 3001)
+- Node.js + Express (porta 3000)
 - Mongoose (conexão MongoDB)
 - Agregações nativas MongoDB
 
@@ -50,13 +50,13 @@ O RAH (Revio Agent Helper) ainda tinha referências à arquitetura antiga:
 
 **"O que é o cache e como funciona?"**
 Resposta: "O sistema não usa mais cache! Agora temos conexão DIRETA ao MongoDB 
-via servidor backoffice (porta 3001), o que torna as consultas muito mais rápidas 
+via servidor backoffice (porta 3000), o que torna as consultas muito mais rápidas 
 (10-20x). Os dados são sempre atualizados e não há necessidade de cache."
 
 **"Por que está lento?"**
 Resposta: "Com a nova arquitetura MongoDB direto, as consultas são muito rápidas 
 (~1-2s). Se estiver lento, pode ser: 1) Servidor backoffice não está rodando 
-(porta 3001), 2) Muitos dados sendo consultados, 3) Problema de rede."
+(porta 3000), 2) Muitos dados sendo consultados, 3) Problema de rede."
 
 **"Como limpar o cache?"**
 Resposta: "Não há mais cache no sistema! Usamos conexão direta ao MongoDB, 
@@ -64,7 +64,7 @@ então os dados são sempre atualizados em tempo real."
 
 **"Qual a diferença entre Analytics API e Analytics MongoDB?"**
 Resposta: "Agora só usamos Analytics MongoDB! Ele consulta diretamente o banco 
-de dados via servidor backoffice (porta 3001), sem passar pela API REST."
+de dados via servidor backoffice (porta 3000), sem passar pela API REST."
 ```
 
 ### 3. Sugestões de Perguntas Atualizadas (`src/components/RAHAssistant.tsx`)
@@ -98,7 +98,7 @@ const suggestions = [
 ### Contexto do Sistema
 
 **Adicionado:**
-- ✅ Descrição do servidor backoffice (Node.js porta 3001)
+- ✅ Descrição do servidor backoffice (Node.js porta 3000)
 - ✅ Mongoose e agregações nativas
 - ✅ Fluxo de dados atualizado
 - ✅ Estrutura de pastas com server/backoffice/
@@ -126,7 +126,7 @@ const suggestions = [
 1. **"O que é o cache e como funciona?"**
    - ✅ Deve responder que não usa mais cache
    - ✅ Deve explicar conexão direta MongoDB
-   - ✅ Deve mencionar servidor backoffice porta 3001
+   - ✅ Deve mencionar servidor backoffice porta 3000
 
 2. **"Como funciona a conexão direta com MongoDB?"**
    - ✅ Deve explicar servidor backoffice

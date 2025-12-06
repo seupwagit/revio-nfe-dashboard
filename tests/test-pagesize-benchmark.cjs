@@ -26,7 +26,7 @@ async function benchmark() {
       while (hasMore) {
         const pageStart = Date.now();
         
-        const response = await axios.get('http://localhost:3001/api/WebView/Consultar', {
+        const response = await axios.get('http://localhost:3000/api/WebView/Consultar', {
           params: {
             host: '10.0.0.8',
             database: 'C67624577000145',

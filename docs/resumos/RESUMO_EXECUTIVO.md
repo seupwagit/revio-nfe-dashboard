@@ -58,7 +58,7 @@ API Revio (https://apinfe.revio.digital/api)
 
 ### Proxy
 ```
-Node.js Express (porta 3001)
+Node.js Express (porta 3000)
 └── Repassa requisições com Bearer Token
 ```
 

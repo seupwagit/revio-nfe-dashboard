@@ -3,7 +3,7 @@
 ## Base URL
 
 ```
-http://localhost:3001/api
+http://localhost:3000/api
 ```
 
 ## Autenticação
@@ -254,7 +254,7 @@ Atualmente sem rate limiting. Será implementado em versão futura.
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api'
+  baseURL: 'http://localhost:3000/api'
 })
 
 // Analytics
@@ -278,10 +278,10 @@ const documents = await api.get('/documents', {
 
 ```bash
 # Health check
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 
 # Analytics
-curl -X POST http://localhost:3001/api/analytics/aggregate \
+curl -X POST http://localhost:3000/api/analytics/aggregate \
   -H "Content-Type: application/json" \
   -d '{
     "collection": "tbl_nfe_100",
@@ -290,7 +290,7 @@ curl -X POST http://localhost:3001/api/analytics/aggregate \
   }'
 
 # Documents
-curl "http://localhost:3001/api/documents?collection=tbl_nfe_100&page=1&size=50"
+curl "http://localhost:3000/api/documents?collection=tbl_nfe_100&page=1&size=50"
 ```
 
 ### Python (requests)
@@ -298,7 +298,7 @@ curl "http://localhost:3001/api/documents?collection=tbl_nfe_100&page=1&size=50"
 ```python
 import requests
 
-base_url = 'http://localhost:3001/api'
+base_url = 'http://localhost:3000/api'
 
 # Analytics
 response = requests.post(f'{base_url}/analytics/aggregate', json={

@@ -4,8 +4,8 @@
 
 Ao carregar o grid de dados, erros de conexão eram retornados no console:
 
-- **ERR_CONNECTION_REFUSED**: O servidor backend (porta 3001) não estava rodando
-- A aplicação frontend tentava conectar em `http://localhost:3001/api/documents`
+- **ERR_CONNECTION_REFUSED**: O servidor backend (porta 3000) não estava rodando
+- A aplicação frontend tentava conectar em `http://localhost:3000/api/documents`
 - Sem o backend, os dados não eram carregados
 
 ## ✅ Solução Implementada
@@ -21,7 +21,7 @@ Usando o Chrome DevTools MCP, identifiquei:
 ### 2. Correção Imediata
 
 - Iniciado o servidor Vite (frontend) na porta 3000
-- Iniciado o servidor Backoffice (backend) na porta 3001
+- Iniciado o servidor Backoffice (backend) na porta 3000
 - Dados carregados com sucesso: **5.199 registros** em ~1.6s
 
 ### 3. Monitoramento Automático
@@ -64,10 +64,10 @@ npm run backend
 ## 📊 URLs Disponíveis
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3001
-- **Health Check**: http://localhost:3001/api/health
-- **Analytics**: http://localhost:3001/api/analytics
-- **Documents**: http://localhost:3001/api/documents
+- **Backend API**: http://localhost:3000
+- **Health Check**: http://localhost:3000/api/health
+- **Analytics**: http://localhost:3000/api/analytics
+- **Documents**: http://localhost:3000/api/documents
 
 ## 🔍 Monitoramento com Chrome DevTools MCP
 
@@ -107,12 +107,12 @@ O monitor automático exibe:
 
 ### Porta já em uso
 
-Se a porta 3000 ou 3001 já estiver em uso:
+Se a porta 3000 ou 3000 já estiver em uso:
 
 ```bash
 # Windows
 netstat -ano | findstr :3000
-netstat -ano | findstr :3001
+netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 ```
 

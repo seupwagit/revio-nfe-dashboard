@@ -211,5 +211,5 @@ export class MongoApiService {
  * Configurada com a URL do servidor proxy a partir das variáveis de ambiente.
  */
 export const mongoApiService = new MongoApiService({
-  baseURL: `http://localhost:${import.meta.env.VITE_MONGODB_PROXY_PORT || 3001}`
+  baseURL: `http://localhost:${import.meta.env.VITE_MONGODB_PROXY_PORT || 3000}`
 });
