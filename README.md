@@ -27,7 +27,21 @@ Dashboard moderno para visualização e análise de Documentos Fiscais Eletrôni
 ## 📚 DOCUMENTAÇÃO
 
 ### 📖 Índice Completo
-📄 **[DOCUMENTACAO.md](./DOCUMENTACAO.md)** - Índice completo de toda a documentação
+📄 **[Índice da Documentação](docs/INDEX.md)** - Navegue por toda a documentação organizada
+
+### 🚀 Início Rápido
+- [Como Rodar Fullstack](docs/quickstart/COMO_RODAR_FULLSTACK.md)
+- [Início Rápido](docs/quickstart/INICIO_RAPIDO.md)
+- [Deploy no Coolify](docs/quickstart/GUIA_RAPIDO_COOLIFY.md)
+
+### 🐛 Problemas Comuns
+- [Grid Vazia](docs/troubleshooting/TROUBLESHOOTING_GRID_VAZIA.md)
+- [API Retorna HTML](docs/fixes/PROBLEMA_API_RETORNA_HTML.md)
+- [Solução Rápida](docs/quickstart/SOLUCAO_RAPIDA.md)
+
+### 📋 Logs
+- [Logs no Coolify](docs/logs/LOGS_NO_COOLIFY.md)
+- [Logs Melhorados](docs/logs/LOGS_MELHORADOS.md)
 
 ### 🔥 Documentos Principais
 - **[Manual do Usuário](./docs/MANUAL_COMPLETO_USUARIO.md)** - Guia completo de uso
