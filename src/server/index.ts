@@ -30,12 +30,13 @@ app.use((req, res, next) => {
   const start = Date.now()
   const timestamp = new Date().toISOString()
   
-  console.log(`📥 ${timestamp} ${req.method} ${req.path}`)
+  // Logs com prefixo [API] para facilitar busca no Coolify
+  console.log(`[API] 📥 ${timestamp} ${req.method} ${req.path}`)
   if (Object.keys(req.query).length > 0) {
-    console.log('   📋 Query:', JSON.stringify(req.query))
+    console.log(`[API]    📋 Query:`, JSON.stringify(req.query))
   }
   if (req.body && Object.keys(req.body).length > 0) {
-    console.log('   📦 Body:', JSON.stringify(req.body))
+    console.log(`[API]    📦 Body:`, JSON.stringify(req.body))
   }
   
   // Interceptar resposta para logar resultado
@@ -45,20 +46,20 @@ app.use((req, res, next) => {
     const status = res.statusCode
     const statusIcon = status >= 400 ? '❌' : status >= 300 ? '⚠️' : '✅'
     
-    console.log(`📤 ${statusIcon} ${req.method} ${req.path} - ${status} (${duration}ms)`)
+    console.log(`[API] 📤 ${statusIcon} ${req.method} ${req.path} - ${status} (${duration}ms)`)
     
     if (status >= 400) {
       try {
         const errorData = typeof data === 'string' ? JSON.parse(data) : data
-        console.error('   🔍 Erro:', errorData.error || errorData.message)
+        console.error(`[API] ❌ 🔍 Erro:`, errorData.error || errorData.message)
         if (errorData.errorType) {
-          console.error('   📋 Tipo:', errorData.errorType)
+          console.error(`[API] ❌    📋 Tipo:`, errorData.errorType)
         }
         if (errorData.errorCode) {
-          console.error('   🔢 Código:', errorData.errorCode)
+          console.error(`[API] ❌    🔢 Código:`, errorData.errorCode)
         }
       } catch (e) {
-        console.error('   🔍 Erro:', data)
+        console.error(`[API] ❌ 🔍 Erro:`, data)
       }
     }
     

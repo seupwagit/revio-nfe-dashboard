@@ -9,8 +9,8 @@ import mongoose from 'mongoose'
 
 export async function connectMongoDB(): Promise<void> {
   try {
-    console.log('📊 Conectando ao MongoDB (Mongoose)...')
-    console.log('   Timestamp:', new Date().toISOString())
+    console.log('[MONGODB] 📊 Conectando ao MongoDB (Mongoose)...')
+    console.log('[MONGODB]    Timestamp:', new Date().toISOString())
     
     const MONGODB_URI = process.env.VITE_MONGODB_CONNECTION_STRING?.trim()
     const DB_NAME = process.env.VITE_DB_DATABASE?.trim()
@@ -44,17 +44,17 @@ export async function connectMongoDB(): Promise<void> {
     const endTime = Date.now()
     const connectionTime = endTime - startTime
     
-    console.log('✅ MongoDB conectado com sucesso!')
-    console.log('   Status:', mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado')
-    console.log('   Tempo de conexão:', `${connectionTime}ms`)
-    console.log('   ReadyState:', mongoose.connection.readyState)
+    console.log('[MONGODB] ✅ MongoDB conectado com sucesso!')
+    console.log('[MONGODB]    Status:', mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado')
+    console.log('[MONGODB]    Tempo de conexão:', `${connectionTime}ms`)
+    console.log('[MONGODB]    ReadyState:', mongoose.connection.readyState)
     
     // Listar collections
     if (mongoose.connection.db) {
       const collections = await mongoose.connection.db.listCollections().toArray()
-      console.log(`   Collections: ${collections.length} encontradas`)
+      console.log(`[MONGODB]    Collections: ${collections.length} encontradas`)
       collections.forEach(col => {
-        console.log(`     - ${col.name}`)
+        console.log(`[MONGODB]      - ${col.name}`)
       })
     }
     
@@ -62,9 +62,9 @@ export async function connectMongoDB(): Promise<void> {
     setupConnectionMonitoring()
     
   } catch (error: any) {
-    console.error('❌ ERRO CRÍTICO: Falha ao conectar MongoDB')
-    console.error('   Timestamp:', new Date().toISOString())
-    console.error('📋 Detalhes do erro de conexão:', {
+    console.error('[MONGODB] ❌ ERRO CRÍTICO: Falha ao conectar MongoDB')
+    console.error('[MONGODB]    Timestamp:', new Date().toISOString())
+    console.error('[MONGODB] 📋 Detalhes do erro de conexão:', {
       name: error.name,
       code: error.code,
       codeName: error.codeName,

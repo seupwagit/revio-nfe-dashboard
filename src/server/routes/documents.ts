@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
     // Validar datas
     validateDates(dtIni as string, dtFin as string)
     
-    console.log('📄 Buscando documentos:', { 
+    console.log('[DOCUMENTS] 📄 Buscando documentos:', { 
       collection, 
       periodo: formatDateRangeForLog(dtIni as string, dtFin as string),
       page, 
@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
       : await coll.estimatedDocumentCount()
     const endTime = Date.now()
     
-    console.log(`✅ ${documents.length} documentos retornados em ${endTime - startTime}ms`)
+    console.log(`[DOCUMENTS] ✅ ${documents.length} documentos retornados em ${endTime - startTime}ms`)
     
     // Mapear campos do MongoDB para o formato esperado pelo frontend
     const mappedDocuments = documents.map(doc => ({
@@ -140,8 +140,8 @@ router.get('/', async (req, res) => {
     })
     
   } catch (error: any) {
-    console.error('❌ Erro ao buscar documentos:', error.message)
-    console.error('📋 Detalhes do erro:', {
+    console.error('[DOCUMENTS] ❌ Erro ao buscar documentos:', error.message)
+    console.error('[DOCUMENTS] 📋 Detalhes do erro:', {
       name: error.name,
       code: error.code,
       codeName: error.codeName,
@@ -150,7 +150,7 @@ router.get('/', async (req, res) => {
     
     // Logs específicos por tipo de erro
     if (error.name === 'MongoNetworkError' || error.code === 'ECONNREFUSED') {
-      console.error('🔌 Erro de Conectividade MongoDB:')
+      console.error('[DOCUMENTS] 🔌 Erro de Conectividade MongoDB:')
       console.error('   - MongoDB pode estar offline')
       console.error('   - Verifique se o host está acessível')
       console.error('   - Verifique firewall e regras de rede')
