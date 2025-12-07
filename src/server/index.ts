@@ -81,13 +81,9 @@ app.use(cors({
 }))
 app.use(express.json())
 
-// Servir arquivos estáticos do frontend (quando em modo fullstack)
-if (process.env.SERVE_FRONTEND === 'true') {
-  const distPath = path.join(__dirname, '../../dist')
-  
-  console.log('📁 Servindo frontend estático de:', distPath)
-  app.use(express.static(distPath))
-}
+// ============================================
+// IMPORTANTE: Rotas da API DEVEM vir ANTES dos arquivos estáticos
+// ============================================
 
 // Endpoint de debug de variáveis de ambiente
 app.get('/api/debug/env', (_req, res) => {
@@ -100,10 +96,20 @@ app.get('/api/debug/env', (_req, res) => {
   })
 })
 
-// Rotas da API
+// Rotas da API (DEVEM vir ANTES do express.static)
 app.use('/api/health', healthRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/documents', documentsRoutes)
+
+// ============================================
+// Servir arquivos estáticos do frontend (DEPOIS das rotas da API)
+// ============================================
+if (process.env.SERVE_FRONTEND === 'true') {
+  const distPath = path.join(__dirname, '../../dist')
+  
+  console.log('📁 Servindo frontend estático de:', distPath)
+  app.use(express.static(distPath))
+}
 
 // SPA fallback - todas as rotas não-API retornam index.html (deve vir por último)
 if (process.env.SERVE_FRONTEND === 'true') {
