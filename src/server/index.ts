@@ -85,8 +85,15 @@ app.use(express.json())
 // IMPORTANTE: Rotas da API DEVEM vir ANTES dos arquivos estáticos
 // ============================================
 
+// Middleware para garantir Content-Type JSON em todas as rotas /api/*
+app.use('/api/*', (_req, res, next) => {
+  res.setHeader('Content-Type', 'application/json')
+  next()
+})
+
 // Endpoint de debug de variáveis de ambiente
 app.get('/api/debug/env', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json')
   res.json({
     VITE_DB_HOST: process.env.VITE_DB_HOST || 'NÃO DEFINIDO',
     VITE_DB_DATABASE: process.env.VITE_DB_DATABASE || 'NÃO DEFINIDO',
