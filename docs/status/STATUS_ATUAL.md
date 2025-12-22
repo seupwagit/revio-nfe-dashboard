@@ -55,7 +55,7 @@ curl http://localhost:3000/api/health
 - ✅ Compatível com módulos ES
 
 ### 3. Script Windows
-- ✅ Criado `start-fullstack.bat`
+- ✅ Criado `scripts/start-fullstack.bat`
 - ✅ Funciona sem `cross-env`
 - ✅ Define `SERVE_FRONTEND=true`
 
@@ -79,8 +79,8 @@ curl http://localhost:3000/api/health
 - `src/components/DebugGrid.tsx` - Debug visual
 
 ### Scripts
-- `start-fullstack.bat` - Iniciar no Windows
-- `start-fullstack-simple.sh` - Iniciar no Linux/Mac
+- `scripts/start-fullstack.bat` - Iniciar no Windows
+- `scripts/start-fullstack-simple.sh` - Iniciar no Linux/Mac
 - `package.json` - Scripts npm
 
 ### Docker
@@ -193,7 +193,7 @@ npm run kill-ports
 
 ### Cross-env no Windows
 - **Status**: ✅ Resolvido
-- **Solução**: Script batch `start-fullstack.bat`
+- **Solução**: Script batch `scripts/start-fullstack.bat`
 
 ### __dirname em ES Modules
 - **Status**: ✅ Resolvido

@@ -155,8 +155,8 @@ function validateFileStructure() {
     'Dockerfile.fullstack',
     'docker-compose.yml',
     'start-fullstack.sh',
-    'src/server/index.ts',
-    'src/main.tsx'
+    'src/backend/index.ts',
+    'src/frontend/main.tsx'
   ]
   
   let allExist = true

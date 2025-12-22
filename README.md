@@ -249,25 +249,31 @@ npm run preview
 
 ```
 SpedRevio/
-├── src/                    # Código-fonte React + TypeScript
-│   ├── components/         # Componentes reutilizáveis
-│   │   ├── RAHAssistant.tsx    # Assistente IA
-│   │   ├── CacheStats.tsx      # Estatísticas de cache
-│   │   ├── GridPaginada.tsx    # Grid principal
-│   │   └── ...
-│   ├── pages/              # Páginas principais
-│   │   ├── Dashboard.tsx       # Dashboard principal
-│   │   ├── Analytics*.tsx      # Páginas de analytics
-│   │   ├── Grid*.tsx           # Grids de documentos
-│   │   └── ...
-│   ├── services/           # Serviços e lógica de negócio
-│   │   ├── rahAgent.ts         # Lógica do RAH
-│   │   ├── api.ts              # API Revio
-│   │   ├── streamingCache.ts   # Sistema de cache
-│   │   └── ...
-│   ├── contexts/           # Context API (NFContext)
-│   ├── types/              # TypeScript types
-│   └── utils/              # Funções utilitárias
+├── src/
+│   ├── frontend/           # Código-fonte React + TypeScript
+│   │   ├── components/     # Componentes reutilizáveis
+│   │   │   ├── RAHAssistant.tsx    # Assistente IA
+│   │   │   ├── CacheStats.tsx      # Estatísticas de cache
+│   │   │   ├── GridPaginada.tsx    # Grid principal
+│   │   │   └── ...
+│   │   ├── pages/          # Páginas principais
+│   │   │   ├── Dashboard.tsx       # Dashboard principal
+│   │   │   ├── Analytics*.tsx      # Páginas de analytics
+│   │   │   ├── Grid*.tsx           # Grids de documentos
+│   │   │   └── ...
+│   │   ├── services/       # Serviços e lógica de negócio
+│   │   │   ├── rahAgent.ts         # Lógica do RAH
+│   │   │   ├── api.ts              # API Revio
+│   │   │   ├── streamingCache.ts   # Sistema de cache
+│   │   │   └── ...
+│   │   ├── contexts/       # Context API (NFContext)
+│   │   ├── types/          # TypeScript types
+│   │   └── utils/          # Funções utilitárias
+│   └── backend/            # Servidor Node.js + Express
+│       ├── routes/         # Rotas da API
+│       ├── database/       # Conexões MongoDB e Prisma
+│       ├── utils/          # Utilitários do backend
+│       └── index.ts        # Servidor principal
 │
 ├── docs/                   # 📚 Documentação completa
 │   ├── arquitetura/        # Documentação técnica

@@ -168,8 +168,8 @@ npm run fullstack:restart
 
 ## Scripts Criados
 
-- `start-fullstack.bat` - Inicia servidor
-- `restart-fullstack.bat` - Mata porta 3000 e reinicia
+- `scripts/start-fullstack.bat` - Inicia servidor
+- `scripts/restart-fullstack.bat` - Mata porta 3000 e reinicia
 - `scripts/kill-ports.bat` - Mata portas 3000 e 3001
 
 ## Próximos Passos

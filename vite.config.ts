@@ -10,9 +10,14 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
+    publicDir: 'public',
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+    },
     resolve: {
       // alias: {
-      //   '@': path.resolve(__dirname, './src'),
+      //   '@': path.resolve(__dirname, './src/frontend'),
       // },
     },
     server: {

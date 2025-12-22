@@ -107,7 +107,7 @@ function startServers() {
   // Aguardar 2 segundos antes de iniciar o backend
   setTimeout(() => {
     // Servidor Backoffice (Backend)
-    startProcess("Backend", "npx", ["tsx", "src/server/index.ts"]);
+    startProcess("Backend", "npx", ["tsx", "src/backend/index.ts"]);
   }, 2000);
 
   log("", "reset");

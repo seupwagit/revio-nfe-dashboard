@@ -17,7 +17,7 @@ O servidor fullstack está rodando corretamente com:
 npm run fullstack
 
 # Opção 2: Usar script batch diretamente
-start-fullstack.bat
+scripts/start-fullstack.bat
 
 # Opção 3: Definir variável manualmente
 set SERVE_FRONTEND=true

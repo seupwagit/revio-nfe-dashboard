@@ -1,5 +1,6 @@
 // Prisma Schema for SQL Server
 // Document Download System - Scheduled Downloads
+// Authentication and Authorization System
 
 generator client {
   provider = "prisma-client-js"
@@ -7,9 +8,113 @@ generator client {
 
 datasource db {
   provider = "sqlserver"
+  url      = env("DATABASE_URL")
 }
 
-// CSV table - Parent record for scheduled downloads
+// Authentication Models
+model FrUsuario {
+  usrCodigo           String   @id @map("USR_CODIGO") @db.VarChar(90)
+  usrLogin            String   @unique @map("USR_LOGIN") @db.VarChar(180)
+  usrSenha            String?  @map("USR_SENHA") @db.VarChar(128)
+  usrSenhaConfirmar   String?  @map("USR_SENHA_CONFIRMAR") @db.VarChar(128)
+  usrAdministrador    String?  @map("USR_ADMINISTRADOR") @db.VarChar(1)
+  usrTipoExpiracao    String?  @map("USR_TIPO_EXPIRACAO") @db.VarChar(1)
+  usrDiasExpiracao    Int?     @map("USR_DIAS_EXPIRACAO")
+  usrImagemDigital    Bytes?   @map("USR_IMAGEM_DIGITAL")
+  usrFoto             Bytes?   @map("USR_FOTO")
+  usrNome             String   @map("USR_NOME") @db.VarChar(60)
+  usrEmail            String?  @map("USR_EMAIL") @db.VarChar(180)
+  usrDigital          BigInt?  @map("USR_DIGITAL")
+  usrInicioExpiracao  DateTime? @map("USR_INICIO_EXPIRACAO")
+  usrExcluir          Int?     @map("USR_EXCLUIR")
+  empresa             String?  @map("EMPRESA") @db.VarChar(90)
+  cnpj                String?  @map("CNPJ") @db.VarChar(36)
+  dthrAdd             DateTime? @map("DTHR_ADD")
+  dthrEdit            DateTime? @map("DTHR_EDIT")
+  tipoUser            String?  @map("TIPO_USER") @db.VarChar(18)
+  dataNascimento      DateTime? @map("DATA_NASCIMENTO")
+  endereco            String?  @map("ENDERECO") @db.VarChar(900)
+  numero              String?  @map("NUMERO") @db.VarChar(36)
+  cidade              String?  @map("CIDADE") @db.VarChar(360)
+  cep                 String?  @map("CEP") @db.VarChar(9)
+  estado              String?  @map("ESTADO") @db.VarChar(18)
+  pais                String?  @map("PAIS") @db.VarChar(36)
+  celular             String?  @map("CELULAR") @db.VarChar(18)
+  ativo               Int?     @map("ATIVO")
+  bancoDeDados        String?  @map("BANCODEDADOS") @db.VarChar(90)
+  genero              String?  @map("GENERO") @db.VarChar(18)
+  cnpjCompleto        String?  @map("CNPJ_COMPLETO") @db.VarChar(27)
+  
+  usuarioSistema      FrUsuarioSistema[]
+  
+  @@map("fr_usuario")
+}
+
+model FrUsuarioSistema {
+  usrCodigo           String   @map("USR_CODIGO") @db.VarChar(90)
+  sisCodigo           String   @map("SIS_CODIGO") @db.VarChar(3)
+  ussAcessoExterno    String?  @map("USS_ACESSO_EXTERNO") @db.VarChar(1)
+  ussAdministrador    String?  @map("USS_ADMINISTRADOR") @db.VarChar(1)
+  ussAcessoMaker      String?  @map("USS_ACESSO_MAKER") @db.VarChar(1)
+  ussCriarFormulario  String?  @map("USS_CRIAR_FORMULARIO") @db.VarChar(1)
+  ussCriarRelatorio   String?  @map("USS_CRIAR_RELATORIO") @db.VarChar(1)
+  ussAcessar          String?  @map("USS_ACESSAR") @db.VarChar(1)
+  ussCriarRegra       String?  @map("USS_CRIAR_REGRA") @db.VarChar(1)
+  dthrAdd             DateTime? @map("DTHR_ADD")
+  dthrEdit            DateTime? @map("DTHR_EDIT")
+  
+  usuario             FrUsuario @relation(fields: [usrCodigo], references: [usrCodigo], onDelete: Cascade)
+  
+  @@id([usrCodigo, sisCodigo])
+  @@map("fr_usuario_sistema")
+}
+
+model TblApiLog {
+  id                  Int      @id @default(autoincrement()) @map("ID")
+  dthr                DateTime @map("DTHR")
+  ip                  String?  @map("IP") @db.VarChar(50)
+  caminhoAcessado     String?  @map("CAMINHO_ACESSADO") @db.VarChar(255)
+  mensagem            String?  @map("MENSAGEM") @db.VarChar(Max)
+  usrCodigo           Int?     @map("USR_CODIGO")
+  tipo                String?  @map("TIPO") @db.VarChar(20)
+  
+  @@map("tbl_api_log")
+}
+
+// Download System Models
+model TblNfeDow {
+  id                  Int      @id @map("ID")
+  usrCodigo           Int?     @map("USR_CODIGO")
+  dthrAdd             DateTime? @map("DTHR_ADD")
+  dthrEdit            DateTime? @map("DTHR_EDIT")
+  status              String?  @map("STATUS") @db.VarChar(10)
+  dataInicial         DateTime? @map("DATA_INICIAL")
+  dataFinal           DateTime? @map("DATA_FINAL")
+  link                String?  @map("LINK") @db.VarChar(540)
+  caminho             String?  @map("CAMINHO") @db.VarChar(540)
+  tipoDoc             String?  @map("TIPO_DOC") @db.VarChar(10)
+  cnpj                String?  @map("CNPJ") @db.VarChar(36)
+  cnpj1               String?  @map("CNPJ1") @db.VarChar(36)
+  csv                 Int?     @map("CSV") @default(0)
+  
+  detalhes            TblNfeDowDet[]
+  
+  @@map("tbl_nfe_dow")
+}
+
+model TblNfeDowDet {
+  idDet               Int      @id @default(autoincrement()) @map("ID_DET")
+  id                  Int      @map("ID")
+  chv                 String?  @map("CHV") @db.VarChar(128)
+  status              Int?     @map("STATUS")
+  dthrAdd             DateTime? @map("DTHR_ADD")
+  
+  download            TblNfeDow @relation(fields: [id], references: [id], onDelete: Cascade)
+  
+  @@map("tbl_nfe_dow_det")
+}
+
+// Legacy CSV table - Parent record for scheduled downloads
 model CSV {
   id          Int      @id @default(autoincrement()) @map("ID")
   status      Int      @map("STATUS")
@@ -17,19 +122,5 @@ model CSV {
   dataCriacao DateTime @default(now()) @map("DATA_CRIACAO")
   usuario     String?  @map("USUARIO") @db.VarChar(100)
   
-  detalhes    NfeDownloadDetail[]
-  
   @@map("CSV")
-}
-
-// tbl_nfe_dow_det table - Detail records for each document in scheduled download
-model NfeDownloadDetail {
-  id      Int    @id @default(autoincrement()) @map("ID")
-  csvId   Int    @map("CSV_ID")
-  chave   String @map("CHAVE") @db.VarChar(44)
-  status  Int    @map("STATUS")
-  
-  csv     CSV    @relation(fields: [csvId], references: [id])
-  
-  @@map("tbl_nfe_dow_det")
 }

@@ -7,7 +7,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "src/server",
+    "src/backend",
     "server",
     "**/*.test.ts",
     "**/*.test.tsx",
