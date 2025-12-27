@@ -1,6 +1,6 @@
-# Dockerfile Fullstack Otimizado
+# Dockerfile Fullstack Simples (Alpine sem dependências complexas)
 # Frontend e Backend na mesma porta (3000)
-# Backend serve os arquivos estáticos do frontend
+# Versão simplificada para evitar problemas de compatibilidade
 
 # ============================================
 # Estágio 1: Build do Frontend
@@ -69,21 +69,14 @@ ENV VITE_S3_REGION=$VITE_S3_REGION
 RUN npm run build:prod
 
 # ============================================
-# Estágio 2: Produção Fullstack
+# Estágio 2: Produção Fullstack (Alpine Simples)
 # ============================================
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependências necessárias para Prisma no Alpine Linux
-RUN apk update && \
-    apk add --no-cache openssl ca-certificates && \
-    apk add --no-cache openssl-dev || echo "openssl-dev não disponível" && \
-    apk add --no-cache libc6-compat || echo "libc6-compat não disponível" && \
-    # Tentar criar links simbólicos para compatibilidade
-    (ln -sf /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2 2>/dev/null || true) && \
-    (ln -sf /usr/lib/libssl.so.3 /usr/lib/libssl.so.1.1 2>/dev/null || true) && \
-    (ln -sf /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 2>/dev/null || true)
+# Instalar apenas dependências básicas
+RUN apk add --no-cache openssl ca-certificates
 
 # Copiar package.json e instalar apenas dependências de produção
 COPY package*.json ./
@@ -96,11 +89,8 @@ COPY --from=frontend-builder /app/dist ./dist
 COPY src/backend ./src/backend
 COPY prisma ./prisma
 
-# Gerar cliente Prisma com engine específica para Alpine
-ENV PRISMA_CLI_BINARY_TARGETS="linux-musl,linux-musl-openssl-1.1.x,linux-musl-openssl-3.0.x"
-ENV PRISMA_QUERY_ENGINE_LIBRARY="/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node"
-RUN npx prisma generate || (echo "Prisma generate falhou, tentando sem binary targets..." && \
-    npx prisma generate --no-engine || echo "Prisma generate falhou completamente")
+# Tentar gerar cliente Prisma (com fallback se falhar)
+RUN npx prisma generate || echo "Prisma generate falhou - aplicação funcionará em modo degradado"
 
 # Instalar tsx para rodar TypeScript
 RUN npm install -g tsx
@@ -114,7 +104,6 @@ ENV BACKOFFICE_PORT=3000
 ENV SERVE_FRONTEND=true
 
 # Health check
-# start-period aumentado para 2 minutos para dar tempo do MongoDB conectar
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
   CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
 

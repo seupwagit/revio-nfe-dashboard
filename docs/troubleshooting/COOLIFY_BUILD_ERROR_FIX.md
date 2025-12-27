@@ -51,7 +51,7 @@ Certifique-se que na raiz do projeto existe:
 
 ## 🚀 Configuração Recomendada no Coolify
 
-### **Opção A: Dockerfile Principal (Recomendado)**
+### **Opção A: Dockerfile Principal (Mais Estável)**
 ```bash
 Repository: seu-repositorio
 Branch: main
@@ -62,7 +62,18 @@ Start Command: tsx src/backend/index.ts
 Port: 3000
 ```
 
-### **Opção B: Dockerfile Específico**
+### **Opção B: Dockerfile Simples (Se A falhar)**
+```bash
+Repository: seu-repositorio
+Branch: main
+Dockerfile: Dockerfile.fullstack.simple
+Build Context: .
+Build Command: npm run build:prod
+Start Command: tsx src/backend/index.ts
+Port: 3000
+```
+
+### **Opção C: Dockerfile Específico (Para casos especiais)**
 ```bash
 Repository: seu-repositorio
 Branch: main

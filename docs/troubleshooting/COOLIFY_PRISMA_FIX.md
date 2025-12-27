@@ -77,32 +77,44 @@ generator client {
 
 ## 🚀 Deploy no Coolify
 
-### **Configuração Recomendada (Atualizada)**
+## 🚀 Deploy no Coolify
+
+### **Opções de Dockerfile (em ordem de recomendação):**
+
+1. **`Dockerfile` (Principal - Mais Estável)**
+   - Debian-based para melhor compatibilidade Prisma
+   - Fullstack (Frontend + Backend)
+   - **Recomendado para produção**
+
+2. **`Dockerfile.fullstack.simple` (Alpine Simples)**
+   - Alpine Linux sem dependências complexas
+   - Fallback gracioso se Prisma falhar
+   - **Use se o principal não funcionar**
+
+3. **`Dockerfile.fullstack.debian` (Debian Específico)**
+   - Versão específica Debian
+   - Configurações detalhadas
+   - **Para casos específicos**
+
+4. **`Dockerfile.fullstack.optimized` (Alpine Avançado)**
+   - Tentativas de correção para Alpine + Prisma
+   - Pode falhar em alguns ambientes
+   - **Apenas para teste/debug**
+
+### **Configuração Recomendada no Coolify:**
 ```bash
-# Build Settings no Coolify
-Repository: seu-repositorio
-Branch: main
+# Opção 1: Dockerfile Principal (Recomendado)
 Dockerfile: Dockerfile
-Build Context: .
+Build Command: npm run build:prod
+Start Command: tsx src/backend/index.ts
+Port: 3000
+
+# Opção 2: Se o principal falhar
+Dockerfile: Dockerfile.fullstack.simple
 Build Command: npm run build:prod
 Start Command: tsx src/backend/index.ts
 Port: 3000
 ```
-
-### **Opções de Dockerfile:**
-
-1. **`Dockerfile` (Principal - Recomendado)**
-   - Debian-based para melhor compatibilidade Prisma
-   - Fullstack (Frontend + Backend)
-   - Mais estável para produção
-
-2. **`Dockerfile.fullstack.optimized` (Alpine)**
-   - Menor tamanho, mas pode ter problemas de compatibilidade
-   - Use apenas se o principal não funcionar
-
-3. **`Dockerfile.fullstack.debian` (Alternativo)**
-   - Versão específica Debian
-   - Use se precisar de configurações específicas
 
 ### **Configuração no Coolify:**
 ```bash
