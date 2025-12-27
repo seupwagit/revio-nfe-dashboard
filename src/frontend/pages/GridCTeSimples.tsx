@@ -6,7 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import ExportarExcel from '../components/ExportarExcel'
 import GridPaginada from '../components/GridPaginada'
 import SelectionCheckbox, { SelectionHeader } from '../components/SelectionCheckbox'
-import DownloadManager from '../components/DownloadManager'
+import FloatingDownloadButton from '../components/FloatingDownloadButton'
 
 const columnHelper = createColumnHelper<any>()
 
@@ -216,14 +216,18 @@ export default function GridCTeSimples() {
         <ExportarExcel dados={notas} nomeArquivo="conhecimentos-transporte-cte" />
       </div>
 
+      {/* Botão de Download Flutuante - Sempre visível no topo */}
+      <FloatingDownloadButton 
+        stickyTop={true}
+        topOffset={0}
+        className="mb-4"
+      />
+
       <GridPaginada
         data={notas}
         columns={columns}
         pageSize={1000}
       />
-
-      {/* Gerenciador de Downloads */}
-      <DownloadManager className="mt-6" />
     </div>
   )
 }

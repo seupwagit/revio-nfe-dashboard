@@ -184,7 +184,7 @@
   - **Propriedade 5: Isolamento entre usuários simultâneos**
   - **Valida: Requisitos 2.5**
 
-- [ ] 11. Implementar isolamento completo de dados
+- [x] 11. Implementar isolamento completo de dados
   - Garantir que usuários só acessem dados de suas respectivas organizações
   - Implementar validação de correspondência entre base e usuário
   - Adicionar bloqueio de tentativas de acesso cruzado
@@ -204,7 +204,7 @@
   - **Propriedade 8: Bloqueio de acesso cruzado**
   - **Valida: Requisitos 3.3**
 
-- [ ] 12. Garantir que serviços de autenticação usem base global
+- [x] 12. Garantir que serviços de autenticação usem base global
   - Verificar que AuthService sempre usa base global
   - Verificar que TokenManager sempre usa base global
   - Garantir que rotas de login/logout usem base global

@@ -9,6 +9,7 @@ import { authService } from '../services/AuthService'
 import { tokenManager } from '../services/TokenManager'
 import { apiLogger } from '../services/APILogger'
 import { authMiddleware, AuthenticatedRequest } from '../middleware/AuthMiddleware'
+import { contextCleanupHandler } from '../services/ContextCleanupHandler'
 
 const router = Router()
 
@@ -82,23 +83,32 @@ router.post('/login', async (req: Request, res: Response) => {
 
 /**
  * POST /api/auth/logout
- * Realiza logout do usuário
+ * Realiza logout do usuário com limpeza completa de contexto
  */
 router.post('/logout', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown'
   
   try {
     if (req.user) {
-      await apiLogger.logLogout(ip, parseInt(req.user.usrCodigo))
+      // Log do logout
+      await apiLogger.logLogout(ip, parseInt(req.user.usrCodigo), req.requestId)
+
+      // Limpar contexto do usuário
+      await contextCleanupHandler.handleLogout(
+        req.user.usrCodigo,
+        req.user.usrNome,
+        req.user.bancoDeDados,
+        req.requestId
+      )
     }
 
     return res.json({
       success: true,
-      message: 'Logout realizado com sucesso'
+      message: 'Logout realizado com sucesso - contexto limpo'
     })
   } catch (error) {
     console.error('Erro no logout:', error)
-    await apiLogger.logError(ip, '/api/auth/logout', `Erro interno: ${error}`)
+    await apiLogger.logError(ip, '/api/auth/logout', `Erro interno: ${error}`, req.user ? parseInt(req.user.usrCodigo) : undefined, req.requestId)
     
     return res.status(500).json({
       success: false,

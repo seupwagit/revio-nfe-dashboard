@@ -169,6 +169,10 @@ export class UserContextManager {
       if (expectedUserId && context.userContext) {
         if (context.userContext.usrCodigo !== expectedUserId) {
           console.error(`[UserContextManager] VIOLAÇÃO DE ISOLAMENTO: Usuário esperado ${expectedUserId}, encontrado ${context.userContext.usrCodigo} (Request: ${requestId})`)
+          
+          // Log de evento de segurança crítico
+          this.logSecurityViolation('ISOLATION_VIOLATION', requestId, context.userContext.usrCodigo, expectedUserId)
+          
           return null
         }
       }
@@ -407,6 +411,24 @@ export class UserContextManager {
     this.stopCleanupTimer()
     this.clearAllContexts()
     console.log('[UserContextManager] Destruído')
+  }
+
+  /**
+   * Log de violação de segurança
+   */
+  private logSecurityViolation(type: string, requestId: string, actualUserId: string, expectedUserId: string): void {
+    try {
+      // Para evitar dependência circular, usar console.error por enquanto
+      // Em implementação futura, usar securityEventLogger
+      console.error(`[UserContextManager] VIOLAÇÃO DE SEGURANÇA: ${type}`, {
+        requestId,
+        actualUserId,
+        expectedUserId,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('[UserContextManager] Erro ao registrar violação de segurança:', error)
+    }
   }
 }
 

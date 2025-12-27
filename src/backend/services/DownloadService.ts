@@ -224,6 +224,7 @@ export class DownloadService {
         `Erro ao agendar download: ${error}`,
         parseInt(data.usrCodigo),
         data.requestId
+        
       )
 
       return {
