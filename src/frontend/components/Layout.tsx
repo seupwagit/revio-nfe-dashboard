@@ -1,15 +1,27 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, FileText, Menu, X } from 'lucide-react'
+import { LayoutDashboard, FileText, Menu, X, User, LogOut, Database, Shield } from 'lucide-react'
 import { useState } from 'react'
 import RAHAssistant from './RAHAssistant'
 import UserDisplay from './UserDisplay'
 import DownloadNotification from './DownloadNotification'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Layout() {
   const location = useLocation()
   const [menuAberto, setMenuAberto] = useState(false)
+  const { user, database, isAdmin, logout } = useAuth()
 
   const isActive = (path: string) => location.pathname === path
+
+  const handleMobileLogout = async () => {
+    try {
+      await logout()
+      setMenuAberto(false) // Fechar menu após logout
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+      window.location.href = '/login'
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-revio-light via-white to-blue-50">
@@ -57,6 +69,50 @@ export default function Layout() {
           {/* Sidebar Moderna */}
           <aside className={`${menuAberto ? 'block' : 'hidden'} lg:block w-full lg:w-72 flex-shrink-0`}>
             <nav className="card p-6 space-y-2">
+              {/* User Info Mobile - Only visible on mobile when menu is open */}
+              {menuAberto && user && (
+                <div className="lg:hidden mb-6 p-4 bg-gradient-to-br from-revio-primary to-revio-secondary rounded-xl text-white">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                      <User className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">
+                        {user.usrNome}
+                      </p>
+                      <p className="text-xs opacity-90 truncate">
+                        {user.usrLogin}
+                      </p>
+                      <div className="flex items-center space-x-1 mt-1">
+                        <Database className="h-3 w-3 opacity-80" />
+                        <p className="text-xs opacity-80 truncate">
+                          {database || 'Base não definida'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {isAdmin && (
+                    <div className="mb-3 px-2 py-1 bg-white/20 rounded-md">
+                      <div className="flex items-center space-x-1">
+                        <Shield className="h-3 w-3" />
+                        <span className="text-xs font-medium">
+                          Privilégios Administrativos
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={handleMobileLogout}
+                    className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm font-medium"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              )}
+
               <div className="mb-6">
                 <h2 className="text-xs font-bold text-revio-gray-500 uppercase tracking-wider mb-3">
                   Menu Principal
@@ -65,6 +121,7 @@ export default function Layout() {
               
               <Link
                 to="/dashboard"
+                onClick={() => setMenuAberto(false)}
                 className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                   isActive('/dashboard')
                     ? 'bg-gradient-to-r from-revio-primary to-revio-secondary text-white shadow-revio'
@@ -83,6 +140,7 @@ export default function Layout() {
 
               <Link
                 to="/analytics"
+                onClick={() => setMenuAberto(false)}
                 className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                   isActive('/analytics')
                     ? 'bg-gradient-to-r from-revio-primary to-revio-secondary text-white shadow-revio'
@@ -106,6 +164,7 @@ export default function Layout() {
 
               <Link
                 to="/notas"
+                onClick={() => setMenuAberto(false)}
                 className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                   isActive('/notas')
                     ? 'bg-gradient-to-r from-revio-primary to-revio-secondary text-white shadow-revio'
@@ -158,7 +217,7 @@ export default function Layout() {
       </footer>
 
       {/* RAH - Assistente IA */}
-      <RAHAssistant />
+      {/* <RAHAssistant /> */}
 
       {/* Notificações Globais de Download */}
       <DownloadNotification />

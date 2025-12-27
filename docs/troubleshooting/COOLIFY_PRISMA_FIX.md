@@ -86,9 +86,24 @@ generator client {
 
 ## 🚀 Deploy no Coolify
 
-## 🚀 Deploy no Coolify
+## 🎉 **Status: RESOLVIDO**
 
-### **Opções de Dockerfile (em ordem de recomendação):**
+✅ **Solução Confirmada**: O `Dockerfile` principal (Debian) funciona perfeitamente no Coolify!
+
+### **Configuração Final Recomendada:**
+```bash
+# Configuração no Coolify que FUNCIONA:
+Dockerfile: Dockerfile
+Build Command: npm run build:prod
+Start Command: tsx src/backend/index.ts
+Port: 3000
+```
+
+### **Por que Funciona:**
+- **Debian**: Melhor compatibilidade com Prisma engines
+- **Fullstack**: Frontend e Backend no mesmo container
+- **Dependências SSL**: Nativas do Debian, sem problemas de compatibilidade
+- **Ordem de Build**: Correta para Prisma generation
 
 1. **`Dockerfile` (Principal - Mais Estável)**
    - Debian-based para melhor compatibilidade Prisma
