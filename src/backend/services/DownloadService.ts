@@ -9,6 +9,7 @@
 
 import { databaseRouter } from './DatabaseRouter'
 import { apiLogger } from './APILogger'
+import { queryInterceptor } from './QueryInterceptor'
 import { UserContext } from '../types/UserContext'
 
 export interface DownloadScheduleData {
@@ -148,60 +149,57 @@ export class DownloadService {
 
   /**
    * Agenda um novo download criando registros pai e filhos
-   * ATUALIZADO: Usa roteamento transparente - não especifica base de dados
+   * ATUALIZADO: Usa roteamento transparente com interceptação de consultas
    */
   async scheduleDownload(data: DownloadScheduleData): Promise<{ success: boolean; downloadId?: number; error?: string }> {
     try {
       // Registrar uso da base de dados
       await this.logDatabaseUsage('Agendamento de download', data.usrCodigo, data.requestId)
 
-      // Usar conexão transparente - DatabaseRouter decide automaticamente qual base usar
-      const prisma = await databaseRouter.getCurrentSqlConnection()
-      
-      if (!prisma) {
-        console.error('[DownloadService] Conexão SQL não disponível para agendamento de download')
-        await apiLogger.logError(
-          data.ip,
-          '/api/downloads/schedule',
-          'Conexão SQL não disponível',
-          parseInt(data.usrCodigo),
-          data.requestId
-        )
-        return {
-          success: false,
-          error: 'Serviço de base de dados não disponível'
-        }
-      }
-      
-      // Obter próximo ID disponível
-      const maxIdResult = await prisma.$queryRaw<[{ MAX_ID: number | null }]>`
-        SELECT ISNULL(MAX(ID), 0) as MAX_ID FROM tbl_nfe_dow
-      `
-      const nextId = (maxIdResult[0]?.MAX_ID || 0) + 1
-      
-      // Criar registro pai na tbl_nfe_dow
-      const downloadRecord = await prisma.tblNfeDow.create({
-        data: {
-          id: nextId,
-          usrCodigo: parseInt(data.usrCodigo),
-          status: '1', // 1 = Agendado
-          dthrAdd: new Date(),
-          tipoDoc: 'NFE',
-          csv: 0
-        }
-      })
+      // Usar interceptação de consultas para operações SQL
+      const { result: downloadRecord } = await queryInterceptor.interceptSqlQuery(
+        'scheduleDownload',
+        async () => {
+          // Usar conexão transparente - DatabaseRouter decide automaticamente qual base usar
+          const prisma = await databaseRouter.getCurrentSqlConnection()
+          
+          if (!prisma) {
+            throw new Error('Conexão SQL não disponível para agendamento de download')
+          }
+          
+          // Obter próximo ID disponível
+          const maxIdResult = await prisma.$queryRaw<[{ MAX_ID: number | null }]>`
+            SELECT ISNULL(MAX(ID), 0) as MAX_ID FROM tbl_nfe_dow
+          `
+          const nextId = (maxIdResult[0]?.MAX_ID || 0) + 1
+          
+          // Criar registro pai na tbl_nfe_dow
+          const downloadRecord = await prisma.tblNfeDow.create({
+            data: {
+              id: nextId,
+              usrCodigo: parseInt(data.usrCodigo),
+              status: '1', // 1 = Agendado
+              dthrAdd: new Date(),
+              tipoDoc: 'NFE',
+              csv: 0
+            }
+          })
 
-      // Criar registros filhos na tbl_nfe_dow_det
-      const detailRecords = data.chaves.map(chave => ({
-        id: downloadRecord.id,
-        chv: chave,
-        status: 1, // 1 = Agendado
-        dthrAdd: new Date()
-      }))
+          // Criar registros filhos na tbl_nfe_dow_det
+          const detailRecords = data.chaves.map(chave => ({
+            id: downloadRecord.id,
+            chv: chave,
+            status: 1, // 1 = Agendado
+            dthrAdd: new Date()
+          }))
 
-      await prisma.tblNfeDowDet.createMany({
-        data: detailRecords
-      })
+          await prisma.tblNfeDowDet.createMany({
+            data: detailRecords
+          })
+
+          return downloadRecord
+        }
+      )
 
       await apiLogger.logSuccess(
         data.ip,

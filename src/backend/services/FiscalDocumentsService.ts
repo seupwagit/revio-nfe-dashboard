@@ -8,6 +8,7 @@
 import mongoose from 'mongoose'
 import { databaseRouter } from './DatabaseRouter'
 import { apiLogger } from './APILogger'
+import { queryInterceptor } from './QueryInterceptor'
 import { UserContext } from '../types/UserContext'
 import { createDocumentFilter, validateDates, formatDateRangeForLog } from '../utils/dateFilter'
 
@@ -53,8 +54,8 @@ export interface StatsResponse {
 export class FiscalDocumentsService {
 
   /**
-   * Busca documentos fiscais usando roteamento transparente
-   * ATUALIZADO: Não especifica base de dados - usa roteamento automático
+   * Busca documentos fiscais usando roteamento transparente com interceptação
+   * ATUALIZADO: Usa interceptação de consultas MongoDB
    */
   async fetchDocuments(options: FetchOptions): Promise<DocumentsResponse> {
     const startTime = Date.now()
@@ -75,11 +76,8 @@ export class FiscalDocumentsService {
         validateDates(dtIni, dtFin)
       }
 
-      // Obter conexão MongoDB usando roteamento transparente
-      const mongoConnection = await databaseRouter.getCurrentMongoConnection()
-      const currentDatabase = this.getCurrentDatabase()
-      
       // Log de uso da base de dados
+      const currentDatabase = this.getCurrentDatabase()
       await this.logDatabaseUsage('fetchDocuments', {
         collection,
         database: currentDatabase,
@@ -94,41 +92,52 @@ export class FiscalDocumentsService {
         database: currentDatabase
       })
 
-      const coll = mongoConnection.collection(collection)
+      // Usar interceptação de consultas para operações MongoDB
+      const { result } = await queryInterceptor.interceptMongoQuery(
+        'find',
+        collection,
+        async () => {
+          // Obter conexão MongoDB usando roteamento transparente
+          const mongoConnection = await databaseRouter.getCurrentMongoConnection()
+          const coll = mongoConnection.collection(collection)
 
-      // Criar filtro usando utilitário centralizado
-      const filter = createDocumentFilter({
-        dtIni,
-        dtFin,
-        cnpjEmit,
-        cnpjDest
-      })
+          // Criar filtro usando utilitário centralizado
+          const filter = createDocumentFilter({
+            dtIni,
+            dtFin,
+            cnpjEmit,
+            cnpjDest
+          })
 
-      // Paginação
-      const skip = (page - 1) * size
-      const limit = size
+          // Paginação
+          const skip = (page - 1) * size
+          const limit = size
 
-      // Buscar documentos
-      const documents = await coll
-        .find(filter)
-        .sort({ DT_DOC: -1 })
-        .skip(skip)
-        .limit(limit)
-        .toArray()
+          // Buscar documentos
+          const documents = await coll
+            .find(filter)
+            .sort({ DT_DOC: -1 })
+            .skip(skip)
+            .limit(limit)
+            .toArray()
 
-      // Contar total (otimizado)
-      const hasFilters = Object.keys(filter).length > 0
-      const total = hasFilters 
-        ? await coll.countDocuments(filter)
-        : await coll.estimatedDocumentCount()
+          // Contar total (otimizado)
+          const hasFilters = Object.keys(filter).length > 0
+          const total = hasFilters 
+            ? await coll.countDocuments(filter)
+            : await coll.estimatedDocumentCount()
+
+          return { documents, total }
+        }
+      )
 
       const endTime = Date.now()
       const executionTime = endTime - startTime
 
-      console.log(`[FiscalDocumentsService] ✅ ${documents.length} documentos retornados em ${executionTime}ms`)
+      console.log(`[FiscalDocumentsService] ✅ ${result.documents.length} documentos retornados em ${executionTime}ms`)
 
       // Mapear campos do MongoDB para o formato esperado pelo frontend
-      const mappedDocuments = this.mapDocuments(documents)
+      const mappedDocuments = this.mapDocuments(result.documents)
 
       return {
         success: true,
@@ -136,8 +145,8 @@ export class FiscalDocumentsService {
         pagination: {
           page,
           size,
-          total,
-          totalPages: Math.ceil(total / size)
+          total: result.total,
+          totalPages: Math.ceil(result.total / size)
         },
         executionTime
       }

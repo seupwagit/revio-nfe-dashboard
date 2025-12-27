@@ -11,6 +11,7 @@ import { getPrismaClient } from '../database/prisma'
 import { UserContext, ContextError } from '../types/UserContext'
 import { fallbackNotificationService } from './FallbackNotificationService'
 import { connectionMetricsService } from './ConnectionMetricsService'
+import { queryInterceptor } from './QueryInterceptor'
 
 export interface ConnectionConfig {
   sqlServer: {
