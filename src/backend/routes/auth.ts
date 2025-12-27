@@ -21,10 +21,16 @@ router.post('/login', async (req: Request, res: Response) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown'
   
   try {
+    console.log('[AUTH] 🔐 Tentativa de login iniciada')
+    console.log('[AUTH]    IP:', ip)
+    console.log('[AUTH]    Headers:', JSON.stringify(req.headers, null, 2))
+    console.log('[AUTH]    Body keys:', Object.keys(req.body))
+    
     const { username, password } = req.body
 
     // Validar campos obrigatórios
     if (!username || !password) {
+      console.log('[AUTH] ❌ Campos obrigatórios não fornecidos')
       await apiLogger.logError(ip, '/api/auth/login', 'Campos obrigatórios não fornecidos')
       return res.status(400).json({
         success: false,
@@ -35,6 +41,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Validar campos não vazios
     if (username.trim() === '' || password.trim() === '') {
+      console.log('[AUTH] ❌ Campos vazios fornecidos')
       await apiLogger.logError(ip, '/api/auth/login', 'Campos vazios fornecidos')
       return res.status(400).json({
         success: false,
@@ -43,10 +50,20 @@ router.post('/login', async (req: Request, res: Response) => {
       })
     }
 
+    console.log('[AUTH] 🔍 Iniciando autenticação para usuário:', username)
+
     // Autenticar usuário
     const authResult = await authService.authenticate(username.trim(), password)
 
+    console.log('[AUTH] 📊 Resultado da autenticação:', {
+      success: authResult.success,
+      hasUser: !!authResult.user,
+      error: authResult.error,
+      errorCode: authResult.errorCode
+    })
+
     if (!authResult.success || !authResult.user) {
+      console.log('[AUTH] ❌ Falha na autenticação')
       await apiLogger.logLogin(ip, username, false)
       return res.status(401).json({
         success: false,
@@ -55,11 +72,17 @@ router.post('/login', async (req: Request, res: Response) => {
       })
     }
 
+    console.log('[AUTH] ✅ Autenticação bem-sucedida, gerando token')
+
     // Gerar token JWT
     const token = tokenManager.generateToken(authResult.user)
 
+    console.log('[AUTH] 🎫 Token gerado com sucesso')
+
     // Log de sucesso
     await apiLogger.logLogin(ip, username, true, parseInt(authResult.user.usrCodigo))
+
+    console.log('[AUTH] 📤 Enviando resposta de sucesso')
 
     return res.json({
       success: true,
@@ -70,7 +93,8 @@ router.post('/login', async (req: Request, res: Response) => {
     })
 
   } catch (error) {
-    console.error('Erro no login:', error)
+    console.error('[AUTH] 💥 Erro crítico no login:', error)
+    console.error('[AUTH]    Stack:', error instanceof Error ? error.stack : 'N/A')
     await apiLogger.logError(ip, '/api/auth/login', `Erro interno: ${error}`)
     
     return res.status(500).json({

@@ -467,9 +467,18 @@ export class DatabaseRouter {
    */
   getGlobalSqlConnection(): PrismaClient | null {
     try {
+      console.log('[DatabaseRouter] 🔍 Obtendo conexão SQL global...')
       const globalClient = getPrismaClient()
+      
+      if (globalClient) {
+        console.log('[DatabaseRouter] ✅ Conexão SQL global obtida com sucesso')
+      } else {
+        console.log('[DatabaseRouter] ❌ Conexão SQL global não disponível')
+      }
+      
       return globalClient
     } catch (error) {
+      console.error('[DatabaseRouter] 💥 Erro ao obter conexão SQL global:', error)
       console.warn('[DatabaseRouter] Prisma não disponível:', error instanceof Error ? error.message : error)
       return null
     }
