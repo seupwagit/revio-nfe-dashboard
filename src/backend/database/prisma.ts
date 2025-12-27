@@ -63,11 +63,27 @@ export async function connectPrisma(): Promise<void> {
     console.error('[Prisma] ❌ Erro ao conectar SQL Server:', error)
     console.error('[Prisma]    Tipo do erro:', error instanceof Error ? error.constructor.name : typeof error)
     console.error('[Prisma]    Mensagem:', error instanceof Error ? error.message : String(error))
+    
+    // Verificar se é erro de engine/biblioteca
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const isEngineError = errorMessage.includes('libquery_engine') || 
+                         errorMessage.includes('libssl.so') || 
+                         errorMessage.includes('system requirements')
+    
+    if (isEngineError) {
+      console.error('[Prisma] 🚨 Erro de compatibilidade de engine detectado')
+      console.error('[Prisma] 💡 Soluções:')
+      console.error('[Prisma]    1. Use Dockerfile.fullstack.debian em vez de Alpine')
+      console.error('[Prisma]    2. Verifique se binary targets estão corretos no schema.prisma')
+      console.error('[Prisma]    3. Instale dependências SSL no container')
+    }
+    
     console.error('[Prisma]    Stack:', error instanceof Error ? error.stack : 'N/A')
     
     // Em ambiente de produção, não falhar completamente se Prisma não estiver disponível
     if (process.env.NODE_ENV === 'production') {
       console.warn('[Prisma] ⚠️ Continuando sem Prisma em produção - funcionalidades limitadas')
+      console.warn('[Prisma] ⚠️ Autenticação pode não funcionar corretamente')
       return
     }
     

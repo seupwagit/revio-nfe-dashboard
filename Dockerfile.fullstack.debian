@@ -1,4 +1,4 @@
-# Dockerfile Fullstack Otimizado
+# Dockerfile Fullstack com Debian (melhor compatibilidade Prisma)
 # Frontend e Backend na mesma porta (3000)
 # Backend serve os arquivos estáticos do frontend
 
@@ -69,18 +69,17 @@ ENV VITE_S3_REGION=$VITE_S3_REGION
 RUN npm run build:prod
 
 # ============================================
-# Estágio 2: Produção Fullstack
+# Estágio 2: Produção Fullstack (Debian)
 # ============================================
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Instalar dependências necessárias para Prisma no Alpine Linux
-RUN apk add --no-cache \
+# Instalar dependências do sistema necessárias para Prisma
+RUN apt-get update && apt-get install -y \
     openssl \
-    openssl-dev \
-    libc6-compat \
-    && ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copiar package.json e instalar apenas dependências de produção
 COPY package*.json ./
@@ -93,8 +92,7 @@ COPY --from=frontend-builder /app/dist ./dist
 COPY src/backend ./src/backend
 COPY prisma ./prisma
 
-# Gerar cliente Prisma com engine específica para Alpine
-ENV PRISMA_CLI_BINARY_TARGETS="linux-musl,linux-musl-openssl-1.1.x"
+# Gerar cliente Prisma (Debian tem melhor compatibilidade)
 RUN npx prisma generate
 
 # Instalar tsx para rodar TypeScript

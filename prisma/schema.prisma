@@ -3,7 +3,8 @@
 // Authentication and Authorization System
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-1.1.x"]
 }
 
 datasource db {
