@@ -86,6 +86,9 @@ COPY --from=frontend-builder /app/dist ./dist
 COPY src/backend ./src/backend
 COPY prisma ./prisma
 
+# Gerar cliente Prisma
+RUN npx prisma generate
+
 # Instalar tsx para rodar TypeScript
 RUN npm install -g tsx
 

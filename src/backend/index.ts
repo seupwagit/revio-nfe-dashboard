@@ -316,8 +316,13 @@ async function startServer() {
       await connectPrisma()
       console.log('✅ Prisma conectado com sucesso')
     } catch (error) {
-      console.warn('⚠️  Prisma não conectado - funcionalidades de download não estarão disponíveis')
+      console.warn('⚠️  Prisma não conectado - funcionalidades de autenticação podem estar limitadas')
       console.warn('   Erro:', error instanceof Error ? error.message : error)
+      
+      // Em produção, continuar sem Prisma se necessário
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('⚠️  Continuando em modo degradado sem Prisma')
+      }
     }
     
     // Inicializar sistema de resilência

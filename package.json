@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port 3000 --host",
     "build": "tsc && vite build",
-    "build:prod": "tsc --project tsconfig.prod.json && vite build",
+    "build:prod": "npx prisma generate && tsc --project tsconfig.prod.json && vite build",
     "preview": "vite preview --port 3000 --host",
     "start": "vite preview --port 3000 --host",
     "checktype": "tsc --noEmit",
@@ -28,6 +28,8 @@
     "fullstack": "scripts/start-fullstack.bat",
     "fullstack:restart": "scripts/restart-fullstack.bat",
     "fullstack:rebuild": "scripts/rebuild-and-restart.bat",
+    "prisma:generate": "npx prisma generate",
+    "postinstall": "npx prisma generate || echo 'Prisma generate failed, continuing...'",
     "fullstack:debug": "set SERVE_FRONTEND=true&& npx tsx --inspect=9229 src/backend/index.ts",
     "kill-ports": "scripts\\kill-ports.bat",
     "docker:build": "docker build -f Dockerfile.fullstack -t nf-dashboard:latest .",

@@ -23,25 +23,37 @@ export async function connectPrisma(): Promise<void> {
     if (!prisma) {
       console.log('[Prisma] 🏗️ Criando nova instância do PrismaClient...')
       
-      // Para Prisma 7, usar adapter ou configuração específica
-      prisma = new PrismaClient({
-        log: ['error', 'warn'],
-        errorFormat: 'pretty'
-      })
-      
-      console.log('[Prisma] 🔌 Testando conexão...')
-      
-      // Testar conexão
-      await prisma.$connect()
-      
-      console.log('[Prisma] ✅ SQL Server conectado via Prisma')
-      
-      // Teste adicional - executar query simples
       try {
-        await prisma.$queryRaw`SELECT 1 as test`
-        console.log('[Prisma] ✅ Query de teste executada com sucesso')
-      } catch (queryError) {
-        console.warn('[Prisma] ⚠️ Query de teste falhou:', queryError)
+        // Tentar importar o cliente Prisma gerado
+        const { PrismaClient } = await import('@prisma/client')
+        
+        // Para Prisma 7, usar adapter ou configuração específica
+        prisma = new PrismaClient({
+          log: ['error', 'warn'],
+          errorFormat: 'pretty'
+        })
+        
+        console.log('[Prisma] 🔌 Testando conexão...')
+        
+        // Testar conexão
+        await prisma.$connect()
+        
+        console.log('[Prisma] ✅ SQL Server conectado via Prisma')
+        
+        // Teste adicional - executar query simples
+        try {
+          await prisma.$queryRaw`SELECT 1 as test`
+          console.log('[Prisma] ✅ Query de teste executada com sucesso')
+        } catch (queryError) {
+          console.warn('[Prisma] ⚠️ Query de teste falhou:', queryError)
+        }
+        
+      } catch (importError) {
+        console.error('[Prisma] ❌ Erro ao importar @prisma/client:', importError)
+        console.error('[Prisma] 💡 Dica: Execute "npx prisma generate" para gerar o cliente')
+        
+        // Não definir prisma como null, deixar undefined para indicar erro
+        throw new Error('Prisma Client não foi gerado. Execute "npx prisma generate"')
       }
       
     } else {
@@ -52,6 +64,13 @@ export async function connectPrisma(): Promise<void> {
     console.error('[Prisma]    Tipo do erro:', error instanceof Error ? error.constructor.name : typeof error)
     console.error('[Prisma]    Mensagem:', error instanceof Error ? error.message : String(error))
     console.error('[Prisma]    Stack:', error instanceof Error ? error.stack : 'N/A')
+    
+    // Em ambiente de produção, não falhar completamente se Prisma não estiver disponível
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[Prisma] ⚠️ Continuando sem Prisma em produção - funcionalidades limitadas')
+      return
+    }
+    
     throw error
   }
 }
