@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { LayoutDashboard, FileText, Menu, X, User, LogOut, Database, Shield } from 'lucide-react'
 import { useState } from 'react'
-import RAHAssistant from './RAHAssistant'
+// import RAHAssistant from './RAHAssistant'
 import UserDisplay from './UserDisplay'
 import DownloadNotification from './DownloadNotification'
 import { useAuth } from '../contexts/AuthContext'
