@@ -1,43 +1,113 @@
 # Dockerfile para Deploy no Coolify
-# Build otimizado para produção
+# Build otimizado para produção com Debian (melhor compatibilidade Prisma)
 
-# Estágio 1: Build
-FROM node:20-alpine AS builder
+# ============================================
+# Estágio 1: Build do Frontend
+# ============================================
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app
 
-# Copiar arquivos de dependências e configuração TypeScript
+# Copiar arquivos de dependências
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Instalar TODAS as dependências (incluindo devDependencies para build)
-# Força reinstalação completa sem usar cache corrompido
+# Instalar TODAS as dependências (incluindo devDependencies para o build)
 RUN npm ci --include=dev
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação usando tsconfig.prod.json
+# IMPORTANTE: Declarar ARGs para receber variáveis de ambiente do Coolify
+ARG VITE_API_BASE_URL
+ARG VITE_API_BEARER_TOKEN
+ARG VITE_DB_HOST
+ARG VITE_DB_DATABASE
+ARG VITE_DB_COLLECTION
+ARG VITE_MONGODB_CONNECTION_STRING
+ARG VITE_MONGODB_PROXY_PORT
+ARG VITE_DEFAULT_PAGE_SIZE
+ARG VITE_DEFAULT_PAGE
+ARG VITE_MAX_DATE_RANGE_DAYS
+ARG VITE_DEFAULT_DATE_RANGE_DAYS
+ARG VITE_CACHE_DURATION_MINUTES
+ARG VITE_QUERY_TIMEOUT_MS
+ARG VITE_ANALYTICS_PAGE_SIZE
+ARG VITE_API_GOOGLE_GEMINI
+ARG VITE_PUBLIC_BUILDER_KEY
+ARG VITE_S3_ENDPOINT
+ARG VITE_S3_ACCESS_KEY
+ARG VITE_S3_SECRET_KEY
+ARG VITE_S3_BUCKET
+ARG VITE_S3_REGION
+
+# Converter ARGs em ENVs para o build do Vite
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_API_BEARER_TOKEN=$VITE_API_BEARER_TOKEN
+ENV VITE_DB_HOST=$VITE_DB_HOST
+ENV VITE_DB_DATABASE=$VITE_DB_DATABASE
+ENV VITE_DB_COLLECTION=$VITE_DB_COLLECTION
+ENV VITE_MONGODB_CONNECTION_STRING=$VITE_MONGODB_CONNECTION_STRING
+ENV VITE_MONGODB_PROXY_PORT=$VITE_MONGODB_PROXY_PORT
+ENV VITE_DEFAULT_PAGE_SIZE=$VITE_DEFAULT_PAGE_SIZE
+ENV VITE_DEFAULT_PAGE=$VITE_DEFAULT_PAGE
+ENV VITE_MAX_DATE_RANGE_DAYS=$VITE_MAX_DATE_RANGE_DAYS
+ENV VITE_DEFAULT_DATE_RANGE_DAYS=$VITE_DEFAULT_DATE_RANGE_DAYS
+ENV VITE_CACHE_DURATION_MINUTES=$VITE_CACHE_DURATION_MINUTES
+ENV VITE_QUERY_TIMEOUT_MS=$VITE_QUERY_TIMEOUT_MS
+ENV VITE_ANALYTICS_PAGE_SIZE=$VITE_ANALYTICS_PAGE_SIZE
+ENV VITE_API_GOOGLE_GEMINI=$VITE_API_GOOGLE_GEMINI
+ENV VITE_PUBLIC_BUILDER_KEY=$VITE_PUBLIC_BUILDER_KEY
+ENV VITE_S3_ENDPOINT=$VITE_S3_ENDPOINT
+ENV VITE_S3_ACCESS_KEY=$VITE_S3_ACCESS_KEY
+ENV VITE_S3_SECRET_KEY=$VITE_S3_SECRET_KEY
+ENV VITE_S3_BUCKET=$VITE_S3_BUCKET
+ENV VITE_S3_REGION=$VITE_S3_REGION
+
+# Build do frontend (TypeScript + Vite)
 RUN npm run build:prod
 
-# Estágio 2: Produção
-FROM node:20-alpine
+# ============================================
+# Estágio 2: Produção com Debian
+# ============================================
+FROM node:20-slim
 
 WORKDIR /app
 
-# Instalar apenas o que é necessário para servir a aplicação
-RUN npm install -g serve
+# Instalar dependências do sistema necessárias para Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copiar build do estágio anterior
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
+# Copiar package.json e instalar apenas dependências de produção
+COPY package*.json ./
+RUN npm ci --only=production
 
-# Expor porta 3000 (padrão Coolify)
+# Copiar build do frontend
+COPY --from=frontend-builder /app/dist ./dist
+
+# Copiar código do backend
+COPY src/backend ./src/backend
+COPY prisma ./prisma
+
+# Gerar cliente Prisma (Debian tem melhor compatibilidade)
+RUN npx prisma generate
+
+# Instalar tsx para rodar TypeScript
+RUN npm install -g tsx
+
+# Expor porta única (backend serve frontend)
 EXPOSE 3000
 
 # Variáveis de ambiente
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV BACKOFFICE_PORT=3000
+ENV SERVE_FRONTEND=true
 
-# Comando para iniciar a aplicação
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
+
+# Iniciar servidor (backend + frontend)
+CMD ["tsx", "src/backend/index.ts"]

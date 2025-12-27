@@ -1,34 +1,70 @@
 # 🔧 Fix: Erro Prisma no Coolify
 
-## 🎯 Problema
+## 🎯 Problemas Comuns
+
+### 1. **Erro: @prisma/client did not initialize yet**
 ```
 [Prisma] ❌ Erro ao conectar SQL Server: Error: @prisma/client did not initialize yet. 
 Please run "prisma generate" and try to import it again.
 ```
 
-## 🔍 Causa
-O Prisma Client não foi gerado durante o build no Coolify porque:
-1. O comando `prisma generate` não estava sendo executado no Dockerfile
-2. O script `build:prod` não incluía a geração do cliente Prisma
+### 2. **Erro: Engine Compatibility (Alpine Linux)**
+```
+Unable to require(`/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node`).
+The Prisma engines do not seem to be compatible with your system.
+Details: Error loading shared library libssl.so.1.1: No such file or directory
+```
+
+## 🔍 Causas
+1. O comando `prisma generate` não foi executado no build
+2. Incompatibilidade entre Prisma engines e Alpine Linux
+3. Bibliotecas SSL ausentes no container Alpine
 
 ## ✅ Soluções Aplicadas
 
-### 1. **Dockerfile Corrigido**
-Adicionado `npx prisma generate` no `Dockerfile.fullstack.optimized`:
+### **Solução 1: Dockerfile Alpine Corrigido**
+Use `Dockerfile.fullstack.optimized` com dependências SSL:
 
 ```dockerfile
-# Copiar código do backend
-COPY src/backend ./src/backend
-COPY prisma ./prisma
+FROM node:20-alpine
 
-# Gerar cliente Prisma
+# Instalar dependências necessárias para Prisma no Alpine Linux
+RUN apk add --no-cache \
+    openssl \
+    openssl-dev \
+    libc6-compat \
+    && ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+
+# Gerar cliente Prisma com engine específica para Alpine
+ENV PRISMA_CLI_BINARY_TARGETS="linux-musl,linux-musl-openssl-1.1.x"
 RUN npx prisma generate
-
-# Instalar tsx para rodar TypeScript
-RUN npm install -g tsx
 ```
 
-### 2. **Script build:prod Atualizado**
+### **Solução 2: Dockerfile Debian (Recomendado)**
+Use `Dockerfile.fullstack.debian` para melhor compatibilidade:
+
+```dockerfile
+FROM node:20-slim
+
+# Instalar dependências do sistema necessárias para Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Gerar cliente Prisma (Debian tem melhor compatibilidade)
+RUN npx prisma generate
+```
+
+### **Solução 3: Schema Prisma Atualizado**
+```prisma
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-1.1.x"]
+}
+```
+
+### **Solução 4: Scripts Atualizados**
 ```json
 {
   "scripts": {
@@ -39,125 +75,128 @@ RUN npm install -g tsx
 }
 ```
 
-### 3. **Fallback Implementado**
-O código agora continua funcionando mesmo se o Prisma falhar:
-
-```typescript
-// Em src/backend/database/prisma.ts
-try {
-  const { PrismaClient } = await import('@prisma/client')
-  prisma = new PrismaClient({...})
-} catch (importError) {
-  console.error('[Prisma] ❌ Erro ao importar @prisma/client:', importError)
-  
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('[Prisma] ⚠️ Continuando sem Prisma em produção')
-    return
-  }
-  
-  throw new Error('Prisma Client não foi gerado')
-}
-```
-
-### 4. **Servidor com Modo Degradado**
-```typescript
-// Em src/backend/index.ts
-try {
-  await connectPrisma()
-  console.log('✅ Prisma conectado com sucesso')
-} catch (error) {
-  console.warn('⚠️ Continuando em modo degradado sem Prisma')
-}
-```
-
 ## 🚀 Deploy no Coolify
 
-### 1. **Configuração Recomendada**
-- **Dockerfile**: `Dockerfile.fullstack.optimized`
-- **Build Command**: `npm run build:prod`
-- **Start Command**: `tsx src/backend/index.ts`
-- **Port**: `3000`
-
-### 2. **Variáveis de Ambiente Necessárias**
+### **Configuração Recomendada (Atualizada)**
 ```bash
-# Banco de Dados SQL Server (para Prisma)
-DATABASE_URL=sqlserver://host:1433;database=SpedRevio;user=sa;password=***;encrypt=false;trustServerCertificate=true
+# Build Settings no Coolify
+Repository: seu-repositorio
+Branch: main
+Dockerfile: Dockerfile
+Build Context: .
+Build Command: npm run build:prod
+Start Command: tsx src/backend/index.ts
+Port: 3000
+```
 
-# Outras variáveis...
+### **Opções de Dockerfile:**
+
+1. **`Dockerfile` (Principal - Recomendado)**
+   - Debian-based para melhor compatibilidade Prisma
+   - Fullstack (Frontend + Backend)
+   - Mais estável para produção
+
+2. **`Dockerfile.fullstack.optimized` (Alpine)**
+   - Menor tamanho, mas pode ter problemas de compatibilidade
+   - Use apenas se o principal não funcionar
+
+3. **`Dockerfile.fullstack.debian` (Alternativo)**
+   - Versão específica Debian
+   - Use se precisar de configurações específicas
+
+### **Configuração no Coolify:**
+```bash
+# Build Settings
+Dockerfile: Dockerfile.fullstack.debian  # ou .optimized
+Build Command: npm run build:prod
+Start Command: tsx src/backend/index.ts
+Port: 3000
+
+# Environment Variables
+DATABASE_URL=sqlserver://host:1433;database=SpedRevio;user=sa;password=***;encrypt=false;trustServerCertificate=true
 VITE_API_BASE_URL=https://seu-dominio-coolify.com
 NODE_ENV=production
 BACKOFFICE_PORT=3000
 SERVE_FRONTEND=true
 ```
 
-### 3. **Verificação Pós-Deploy**
-Após o deploy, verificar os logs:
+## 🔍 Verificação Pós-Deploy
 
-```bash
-# Logs esperados de sucesso:
+### **Logs de Sucesso:**
+```
 [Prisma] 🔗 Iniciando conexão com SQL Server...
 [Prisma] 🏗️ Criando nova instância do PrismaClient...
 [Prisma] ✅ SQL Server conectado via Prisma
 ✅ Prisma conectado com sucesso
+```
 
-# Ou em caso de fallback:
+### **Logs de Fallback (Aceitável):**
+```
+[Prisma] ❌ Erro ao conectar SQL Server: ...
 ⚠️ Continuando em modo degradado sem Prisma
+⚠️ Autenticação pode não funcionar corretamente
 ```
 
-## 🔍 Endpoints de Debug
-
-### 1. **Verificar Status do Prisma**
+### **Endpoints de Teste:**
 ```bash
+# Status das conexões
 curl https://seu-dominio.com/api/debug/database
-```
 
-Resposta esperada:
-```json
-{
-  "connections": {
-    "prisma": { "status": "CONECTADO", "error": null }
-  }
-}
-```
-
-### 2. **Testar Autenticação**
-```bash
+# Teste de autenticação
 curl -X POST https://seu-dominio.com/api/debug/auth \
   -H "Content-Type: application/json" \
-  -d '{"username":"test","password":"test"}'
+  -d '{"username":"divino@grupochama.com.br","password":"123456789"}'
+
+# Login real
+curl -X POST https://seu-dominio.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"divino@grupochama.com.br","password":"123456789"}'
 ```
 
 ## 🛠️ Troubleshooting
 
-### Se o Erro Persistir:
+### **Se o Erro de Engine Persistir:**
 
-1. **Limpar Cache do Build no Coolify**:
-   - Settings → Build → Clear Build Cache
-
-2. **Verificar Logs de Build**:
-   - Procurar por "npx prisma generate"
-   - Verificar se não há erros durante a geração
-
-3. **Testar Localmente**:
+1. **Mudar para Debian:**
    ```bash
-   npm run build:prod
-   docker build -f Dockerfile.fullstack.optimized -t test .
-   docker run -p 3000:3000 test
+   # No Coolify, alterar Dockerfile para:
+   Dockerfile.fullstack.debian
    ```
 
-4. **Verificar Schema Prisma**:
-   - Confirmar que `prisma/schema.prisma` existe
-   - Verificar se não há erros de sintaxe
+2. **Limpar Cache:**
+   - Settings → Build → Clear Build Cache
+   - Rebuild from scratch
+
+3. **Verificar Logs de Build:**
+   ```bash
+   # Procurar por:
+   "npx prisma generate"
+   "Prisma engines"
+   "Binary targets"
+   ```
+
+4. **Testar Localmente:**
+   ```bash
+   # Testar com Alpine
+   docker build -f Dockerfile.fullstack.optimized -t test-alpine .
+   
+   # Testar com Debian
+   docker build -f Dockerfile.fullstack.debian -t test-debian .
+   ```
 
 ## 📋 Checklist de Deploy
 
-- [ ] Dockerfile usa `Dockerfile.fullstack.optimized`
-- [ ] Build command é `npm run build:prod`
-- [ ] `DATABASE_URL` está configurada
-- [ ] Logs mostram "Prisma conectado" ou "modo degradado"
-- [ ] Endpoint `/api/debug/database` retorna status
-- [ ] Login funciona com credenciais válidas
+- [ ] Escolher Dockerfile: `.debian` (recomendado) ou `.optimized`
+- [ ] Build command: `npm run build:prod`
+- [ ] `DATABASE_URL` configurada
+- [ ] Logs mostram Prisma conectado ou modo degradado
+- [ ] `/api/debug/database` retorna status
+- [ ] Login funciona: `/api/auth/login`
+
+## 🎯 Recomendação Final
+
+**Use `Dockerfile.fullstack.debian`** para evitar problemas de compatibilidade com Prisma engines no Alpine Linux.
 
 ---
 
-**Status**: ✅ Correções aplicadas, pronto para redeploy no Coolify
+**Status**: ✅ Múltiplas soluções implementadas, pronto para redeploy
