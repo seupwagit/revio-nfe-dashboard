@@ -1,10 +1,10 @@
-// Prisma Schema for SQL Server
+// Prisma Schema for SQL Server - Alpine Linux Version
 // Document Download System - Scheduled Downloads
 // Authentication and Authorization System
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {

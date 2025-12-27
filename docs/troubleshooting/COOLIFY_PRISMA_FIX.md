@@ -8,11 +8,20 @@
 Please run "prisma generate" and try to import it again.
 ```
 
-### 2. **Erro: Engine Compatibility (Alpine Linux)**
+### **Erro: Unknown binary target linux-musl-openssl-1.1.x**
 ```
-Unable to require(`/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node`).
-The Prisma engines do not seem to be compatible with your system.
-Details: Error loading shared library libssl.so.1.1: No such file or directory
+Error: Unknown binary target linux-musl-openssl-1.1.x in generator client.
+Possible binaryTargets: linux-musl, linux-musl-openssl-3.0.x, ...
+```
+
+**Causa**: Binary target incorreto no schema.prisma para a versão do Prisma.
+
+**Solução**: Usar apenas targets válidos:
+```prisma
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
 ```
 
 ## 🔍 Causas

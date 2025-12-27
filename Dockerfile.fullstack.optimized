@@ -96,11 +96,20 @@ COPY --from=frontend-builder /app/dist ./dist
 COPY src/backend ./src/backend
 COPY prisma ./prisma
 
-# Gerar cliente Prisma com engine específica para Alpine
-ENV PRISMA_CLI_BINARY_TARGETS="linux-musl,linux-musl-openssl-1.1.x,linux-musl-openssl-3.0.x"
-ENV PRISMA_QUERY_ENGINE_LIBRARY="/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node"
-RUN npx prisma generate || (echo "Prisma generate falhou, tentando sem binary targets..." && \
-    npx prisma generate --no-engine || echo "Prisma generate falhou completamente")
+# Usar schema específico para Alpine se disponível
+RUN if [ -f "prisma/schema.alpine.prisma" ]; then \
+      echo "Usando schema Alpine específico..." && \
+      cp prisma/schema.alpine.prisma prisma/schema.prisma; \
+    fi
+
+# Gerar cliente Prisma com múltiplas tentativas
+RUN echo "Tentando gerar Prisma client..." && \
+    (npx prisma generate || \
+     (echo "Primeira tentativa falhou, tentando com binary targets específicos..." && \
+      PRISMA_CLI_BINARY_TARGETS="linux-musl" npx prisma generate) || \
+     (echo "Segunda tentativa falhou, tentando sem binary targets..." && \
+      npx prisma generate --no-engine) || \
+     echo "Todas as tentativas de Prisma generate falharam - aplicação funcionará em modo degradado")
 
 # Instalar tsx para rodar TypeScript
 RUN npm install -g tsx

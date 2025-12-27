@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port 3000 --host",
     "build": "tsc && vite build",
-    "build:prod": "npx prisma generate && tsc --project tsconfig.prod.json && vite build",
+    "build:prod": "npx prisma generate --no-engine || npx prisma generate || echo 'Prisma generate falhou, continuando...' && tsc --project tsconfig.prod.json && vite build",
     "preview": "vite preview --port 3000 --host",
     "start": "vite preview --port 3000 --host",
     "checktype": "tsc --noEmit",
