@@ -95,17 +95,22 @@ generator client {
    - Fullstack (Frontend + Backend)
    - **Recomendado para produção**
 
-2. **`Dockerfile.fullstack.simple` (Alpine Simples)**
-   - Alpine Linux sem dependências complexas
-   - Fallback gracioso se Prisma falhar
+2. **`Dockerfile.fullstack.fixed` (Alpine Corrigido)**
+   - Alpine Linux com ordem de build corrigida
+   - Prisma generate no momento correto
    - **Use se o principal não funcionar**
 
-3. **`Dockerfile.fullstack.debian` (Debian Específico)**
+3. **`Dockerfile.fullstack.simple` (Alpine Simples)**
+   - Alpine Linux sem dependências complexas
+   - Fallback gracioso se Prisma falhar
+   - **Para casos simples**
+
+4. **`Dockerfile.fullstack.debian` (Debian Específico)**
    - Versão específica Debian
    - Configurações detalhadas
    - **Para casos específicos**
 
-4. **`Dockerfile.fullstack.optimized` (Alpine Avançado)**
+5. **`Dockerfile.fullstack.optimized` (Alpine Avançado)**
    - Tentativas de correção para Alpine + Prisma
    - Pode falhar em alguns ambientes
    - **Apenas para teste/debug**
