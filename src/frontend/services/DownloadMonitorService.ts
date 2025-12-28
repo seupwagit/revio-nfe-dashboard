@@ -73,7 +73,7 @@ export class DownloadMonitorService {
         throw new Error('Falha ao criar Web Worker')
       }
 
-      // Inicializar worker
+      // Inicializar worker com dados reais (não teste)
       const message: WorkerMessage = {
         type: 'INIT',
         payload: {
@@ -392,76 +392,8 @@ export class DownloadMonitorService {
   }
 
   /**
-   * Testa se o worker pode ser criado (método de debug)
+   * Obtém status do serviço
    */
-  async testWorkerCreation(): Promise<{ success: boolean; error?: string }> {
-    try {
-      console.log('[DownloadMonitor] Testando criação do worker...')
-      
-      // Verificar suporte a Web Workers
-      if (typeof Worker === 'undefined') {
-        return { success: false, error: 'Web Workers não são suportados' }
-      }
-
-      // Usar apenas o worker JavaScript para evitar problemas de MIME type
-      let workerUrl: string | URL
-      
-      try {
-        // Abordagem 1: Tentar usar o worker da pasta public (mais confiável)
-        workerUrl = '/downloadWorker.js'
-        console.log('[DownloadMonitor] URL do worker para teste (public):', workerUrl)
-      } catch (error) {
-        console.warn('[DownloadMonitor] Falha com worker da pasta public no teste, tentando import.meta.url:', error)
-        
-        try {
-          // Abordagem 2: Usar o worker JavaScript com import.meta.url
-          workerUrl = new URL('../workers/downloadWorker.js', import.meta.url)
-          console.log('[DownloadMonitor] URL do worker JS para teste (import.meta.url):', workerUrl.href)
-        } catch (error2) {
-          console.warn('[DownloadMonitor] Falha com import.meta.url no teste, tentando caminho relativo:', error2)
-          
-          // Abordagem 3: Fallback para caminho relativo
-          workerUrl = '/src/frontend/workers/downloadWorker.js'
-          console.log('[DownloadMonitor] URL do worker para teste (caminho relativo):', workerUrl)
-        }
-      }
-      
-      // Criar worker sem type: 'module' para evitar problemas de MIME type
-      const testWorker = new Worker(workerUrl)
-      
-      // Testar comunicação básica
-      return new Promise((resolve) => {
-        const timeout = setTimeout(() => {
-          testWorker.terminate()
-          resolve({ success: false, error: 'Timeout na comunicação com worker' })
-        }, 3000)
-
-        testWorker.onmessage = (event) => {
-          console.log('[DownloadMonitor] Mensagem de teste recebida:', event.data)
-          clearTimeout(timeout)
-          testWorker.terminate()
-          resolve({ success: true })
-        }
-
-        testWorker.onerror = (error) => {
-          console.error('[DownloadMonitor] Erro no teste do worker:', error)
-          clearTimeout(timeout)
-          testWorker.terminate()
-          resolve({ success: false, error: error.message || 'Erro desconhecido' })
-        }
-
-        // Enviar mensagem de teste
-        testWorker.postMessage({ type: 'INIT', payload: { test: true } })
-      })
-
-    } catch (error) {
-      console.error('[DownloadMonitor] Erro ao testar worker:', error)
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Erro desconhecido' 
-      }
-    }
-  }
   getStatus(): {
     isInitialized: boolean
     isMonitoring: boolean

@@ -3,7 +3,6 @@ import { LayoutDashboard, FileText, Menu, X, User, LogOut, Database, Shield } fr
 import { useState } from 'react'
 import UserDisplay from './UserDisplay'
 import DownloadNotification from './DownloadNotification'
-import { DownloadWorkerDebug } from './DownloadWorkerDebug'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Layout() {
@@ -221,9 +220,6 @@ export default function Layout() {
 
       {/* Notificações Globais de Download */}
       <DownloadNotification />
-
-      {/* Debug do Worker (temporário) */}
-      <DownloadWorkerDebug />
     </div>
   )
 }

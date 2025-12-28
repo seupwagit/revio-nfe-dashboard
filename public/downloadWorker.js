@@ -208,18 +208,23 @@ self.onmessage = function(event) {
     case 'INIT':
       console.log('[DownloadWorker] Inicializando worker com payload:', payload)
       
-      // Configurar parâmetros
-      if (payload?.usrCodigo) {
-        usrCodigo = payload.usrCodigo
-        console.log('[DownloadWorker] usrCodigo configurado:', usrCodigo)
-      }
-      if (payload?.authToken) {
-        authToken = payload.authToken
-        console.log('[DownloadWorker] authToken configurado (length):', authToken?.length || 0)
-      }
-      if (payload?.baseURL) {
-        baseURL = payload.baseURL
-        console.log('[DownloadWorker] baseURL configurado:', baseURL)
+      // Configurar parâmetros (ignorar se for teste)
+      if (payload?.test) {
+        console.log('[DownloadWorker] Payload de teste detectado, enviando READY')
+      } else {
+        // Configuração real
+        if (payload?.usrCodigo) {
+          usrCodigo = payload.usrCodigo
+          console.log('[DownloadWorker] usrCodigo configurado:', usrCodigo)
+        }
+        if (payload?.authToken) {
+          authToken = payload.authToken
+          console.log('[DownloadWorker] authToken configurado (length):', authToken?.length || 0)
+        }
+        if (payload?.baseURL) {
+          baseURL = payload.baseURL
+          console.log('[DownloadWorker] baseURL configurado:', baseURL)
+        }
       }
 
       // Confirmar inicialização
