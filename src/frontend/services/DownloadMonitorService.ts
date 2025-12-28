@@ -112,38 +112,31 @@ export class DownloadMonitorService {
         throw new Error('Web Workers não são suportados neste navegador')
       }
 
-      // Tentar diferentes abordagens para criar o worker
+      // Usar apenas o worker JavaScript para evitar problemas de MIME type
       let workerUrl: string | URL
-      let useJavaScript = false
       
       try {
-        // Abordagem 1: Usar import.meta.url com TypeScript (padrão do Vite)
-        workerUrl = new URL('../workers/downloadWorker.ts', import.meta.url)
-        console.log('[DownloadMonitor] Tentando URL do worker TS (import.meta.url):', workerUrl.href)
+        // Abordagem 1: Tentar usar o worker da pasta public (mais confiável)
+        workerUrl = '/downloadWorker.js'
+        console.log('[DownloadMonitor] Tentando URL do worker (public):', workerUrl)
       } catch (error) {
-        console.warn('[DownloadMonitor] Falha com import.meta.url TS, tentando JavaScript:', error)
+        console.warn('[DownloadMonitor] Falha com worker da pasta public, tentando import.meta.url:', error)
         
         try {
-          // Abordagem 2: Usar JavaScript worker
+          // Abordagem 2: Usar o worker JavaScript com import.meta.url
           workerUrl = new URL('../workers/downloadWorker.js', import.meta.url)
-          useJavaScript = true
           console.log('[DownloadMonitor] Tentando URL do worker JS (import.meta.url):', workerUrl.href)
         } catch (error2) {
-          console.warn('[DownloadMonitor] Falha com import.meta.url JS, tentando caminho relativo:', error2)
+          console.warn('[DownloadMonitor] Falha com import.meta.url, tentando caminho relativo:', error2)
           
-          // Abordagem 3: Usar caminho relativo
+          // Abordagem 3: Fallback para caminho relativo
           workerUrl = '/src/frontend/workers/downloadWorker.js'
-          useJavaScript = true
           console.log('[DownloadMonitor] Tentando URL do worker (caminho relativo):', workerUrl)
         }
       }
       
-      // Criar worker com ou sem type: 'module' dependendo da abordagem
-      if (useJavaScript) {
-        this.worker = new Worker(workerUrl)
-      } else {
-        this.worker = new Worker(workerUrl, { type: 'module' })
-      }
+      // Criar worker sem type: 'module' para evitar problemas de MIME type
+      this.worker = new Worker(workerUrl)
 
       // Configurar listener de mensagens
       this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
@@ -169,7 +162,7 @@ export class DownloadMonitorService {
         })
       }
 
-      console.log('[DownloadMonitor] Worker criado com sucesso usando:', useJavaScript ? 'JavaScript' : 'TypeScript')
+      console.log('[DownloadMonitor] Worker JavaScript criado com sucesso')
 
     } catch (error) {
       console.error('[DownloadMonitor] Erro ao criar worker:', error)
@@ -410,36 +403,31 @@ export class DownloadMonitorService {
         return { success: false, error: 'Web Workers não são suportados' }
       }
 
-      // Tentar diferentes abordagens para criar o worker
+      // Usar apenas o worker JavaScript para evitar problemas de MIME type
       let workerUrl: string | URL
-      let useJavaScript = false
       
       try {
-        // Abordagem 1: Usar import.meta.url com TypeScript (padrão do Vite)
-        workerUrl = new URL('../workers/downloadWorker.ts', import.meta.url)
-        console.log('[DownloadMonitor] URL do worker TS para teste (import.meta.url):', workerUrl.href)
+        // Abordagem 1: Tentar usar o worker da pasta public (mais confiável)
+        workerUrl = '/downloadWorker.js'
+        console.log('[DownloadMonitor] URL do worker para teste (public):', workerUrl)
       } catch (error) {
-        console.warn('[DownloadMonitor] Falha com import.meta.url TS no teste, tentando JavaScript:', error)
+        console.warn('[DownloadMonitor] Falha com worker da pasta public no teste, tentando import.meta.url:', error)
         
         try {
-          // Abordagem 2: Usar JavaScript worker
+          // Abordagem 2: Usar o worker JavaScript com import.meta.url
           workerUrl = new URL('../workers/downloadWorker.js', import.meta.url)
-          useJavaScript = true
           console.log('[DownloadMonitor] URL do worker JS para teste (import.meta.url):', workerUrl.href)
         } catch (error2) {
-          console.warn('[DownloadMonitor] Falha com import.meta.url JS no teste, tentando caminho relativo:', error2)
+          console.warn('[DownloadMonitor] Falha com import.meta.url no teste, tentando caminho relativo:', error2)
           
-          // Abordagem 3: Usar caminho relativo
+          // Abordagem 3: Fallback para caminho relativo
           workerUrl = '/src/frontend/workers/downloadWorker.js'
-          useJavaScript = true
           console.log('[DownloadMonitor] URL do worker para teste (caminho relativo):', workerUrl)
         }
       }
       
-      // Criar worker com ou sem type: 'module' dependendo da abordagem
-      const testWorker = useJavaScript 
-        ? new Worker(workerUrl)
-        : new Worker(workerUrl, { type: 'module' })
+      // Criar worker sem type: 'module' para evitar problemas de MIME type
+      const testWorker = new Worker(workerUrl)
       
       // Testar comunicação básica
       return new Promise((resolve) => {
