@@ -1,5 +1,5 @@
-import { useState, useEffect, memo } from 'react'
-// import { fetchAnalyticsAggregation, type AnalyticsData } from '../services/aggregation' // Temporariamente desabilitado
+import { useState, useEffect, memo, useCallback } from 'react'
+import { fetchAnalyticsAggregation, type AnalyticsData } from '../services/aggregation'
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
@@ -102,11 +102,14 @@ export default function Analytics() {
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [loading, setLoading] = useState(false)
-  const [analytics, setAnalytics] = useState<any | null>(null) // Temporariamente usando any
+  const [error, setError] = useState<string | null>(null)
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [isFirstLoad, setIsFirstLoad] = useState(true)
 
   // Carregar dados (usa API REST automaticamente via fallback)
-  const carregarDados = async () => {
+  const carregarDados = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       const hoje = new Date()
       let inicio = new Date()
@@ -133,33 +136,61 @@ export default function Analytics() {
           break
       }
 
-      // const dtIni = inicio.toISOString().split('T')[0] // Temporariamente não usado
-      // const dtFin = periodo === 'custom' && dataFim ? dataFim : hoje.toISOString().split('T')[0] // Temporariamente não usado
+      const dtIni = inicio.toISOString().split('T')[0]
+      const dtFin = periodo === 'custom' && dataFim ? dataFim : hoje.toISOString().split('T')[0]
 
-      // const data = await fetchAnalyticsAggregation({ // Temporariamente desabilitado
-      //   collection: collectionFiltro,
-      //   dtIni,
-      //   dtFin
-      // })
+      const data = await fetchAnalyticsAggregation({
+        collection: collectionFiltro,
+        dtIni,
+        dtFin
+      })
       
-      // Dados mock temporários
-      const data = null
-
-      setAnalytics(data)
+       setAnalytics(data)
+      setIsFirstLoad(false)
     } catch (error) {
       console.error('Erro ao carregar agregação:', error)
       setAnalytics(null)
+      
+      // Definir mensagem de erro amigável
+      if (error instanceof Error) {
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          setError('Sessão expirada. Faça login novamente.')
+        } else if (error.message.includes('500')) {
+          setError('Erro interno do servidor. Tente novamente em alguns minutos.')
+        } else if (error.message.includes('fetch')) {
+          setError('Não foi possível conectar ao servidor. Verifique sua conexão.')
+        } else {
+          setError(`Erro ao carregar dados: ${error.message}`)
+        }
+      } else {
+        setError('Erro desconhecido ao carregar dados.')
+      }
     } finally {
       setLoading(false)
     }
-  }
+  }, [periodo, collectionFiltro, dataInicio, dataFim])
 
-  // Auto-carregar quando mudar período (exceto custom)
+  // Auto-carregar quando mudar filtros
   useEffect(() => {
-    if (periodo !== 'custom') {
+    // Não recarregar no primeiro render (já carrega no useEffect inicial)
+    if (isFirstLoad) return
+    
+    // Para período custom, só carrega se tiver as duas datas
+    if (periodo === 'custom') {
+      if (dataInicio && dataFim) {
+        carregarDados()
+      } else {
+        setAnalytics(null) // Limpa dados enquanto aguarda
+      }
+    } else {
       carregarDados()
     }
-  }, [periodo, collectionFiltro])
+  }, [periodo, collectionFiltro, dataInicio, dataFim, carregarDados, isFirstLoad])
+
+  // Carregar dados iniciais
+  useEffect(() => {
+    carregarDados()
+  }, [])
 
   if (loading) {
     return (
@@ -174,11 +205,30 @@ export default function Analytics() {
   if (!analytics) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mb-4">
-          <span className="text-3xl">📊</span>
-        </div>
-        <h3 className="text-xl font-bold text-revio-gray-800 mb-2">Sem dados para análise</h3>
-        <p className="text-revio-gray-600">Selecione um período para visualizar os gráficos.</p>
+        {error ? (
+          <div className="inline-flex flex-col items-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h3 className="text-xl font-bold text-red-800 mb-2">Erro ao carregar dados</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={carregarDados}
+              className="btn-primary flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </button>
+          </div>
+        ) : (
+          <div className="inline-flex flex-col items-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mb-4">
+              <span className="text-3xl">📊</span>
+            </div>
+            <h3 className="text-xl font-bold text-revio-gray-800 mb-2">Sem dados para análise</h3>
+            <p className="text-revio-gray-600">Selecione um período para visualizar os gráficos.</p>
+          </div>
+        )}
       </div>
     )
   }
@@ -192,12 +242,15 @@ export default function Analytics() {
           <p className="text-revio-gray-600 mt-1">Análise completa dos seus documentos fiscais</p>
         </div>
         <button
-          onClick={carregarDados}
+          onClick={() => {
+            console.log('🔄 Botão Atualizar clicado')
+            carregarDados()
+          }}
           disabled={loading}
           className="btn-secondary flex items-center gap-2"
         >
-          <RefreshCw className="h-4 w-4" />
-          Atualizar
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? 'Carregando...' : 'Atualizar'}
         </button>
       </div>
 

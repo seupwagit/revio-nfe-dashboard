@@ -86,7 +86,6 @@ export class QueryInterceptor {
       // Registrar erro
       await this.recordQueryError({
         database: validation.database,
-        queryType: 'sql',
         operation,
         userId: validation.userId,
         executionTime,
@@ -141,7 +140,6 @@ export class QueryInterceptor {
       // Registrar erro
       await this.recordQueryError({
         database: validation.database,
-        queryType: 'mongo',
         operation: `${operation}:${collection}`,
         userId: validation.userId,
         executionTime,
@@ -286,7 +284,6 @@ export class QueryInterceptor {
    */
   private async recordQueryError(errorData: {
     database: string
-    queryType: 'sql' | 'mongo'
     operation: string
     userId?: string
     executionTime: number
@@ -295,7 +292,7 @@ export class QueryInterceptor {
   }): Promise<void> {
     try {
       // Log do erro
-      console.error(`[QueryInterceptor] Erro na consulta ${errorData.queryType.toUpperCase()}:`, {
+      console.error(`[QueryInterceptor] Erro na consulta:`, {
         database: errorData.database,
         operation: errorData.operation,
         userId: errorData.userId,
@@ -307,16 +304,10 @@ export class QueryInterceptor {
       // Registrar no APILogger se disponível
       await apiLogger.logError(
         'system',
-        `/query/${errorData.queryType}`,
+        `/query/error`,
         `Erro na consulta: ${errorData.error}`,
         errorData.userId ? parseInt(errorData.userId) : undefined,
-        undefined,
-        {
-          database: errorData.database,
-          operation: errorData.operation,
-          executionTime: errorData.executionTime,
-          isAutomaticallyRouted: errorData.isAutomaticallyRouted
-        }
+        undefined
       )
 
     } catch (logError) {
@@ -327,7 +318,7 @@ export class QueryInterceptor {
   /**
    * Registra log do direcionamento automático de consultas
    */
-  private async logQueryRouting(metrics: QueryMetrics, validation: QueryValidationResult): Promise<void> {
+  private async logQueryRouting(metrics: QueryMetrics, _validation: QueryValidationResult): Promise<void> {
     try {
       const routingInfo = {
         database: metrics.database,
@@ -351,9 +342,7 @@ export class QueryInterceptor {
         usrCodigo: metrics.userId ? parseInt(metrics.userId) : undefined,
         tipo: 'QUERY_ROUTING',
         databaseUsed: metrics.database,
-        isFallback: metrics.isFallback,
-        executionTime: metrics.executionTime,
-        queryOperation: metrics.operation
+        isFallback: metrics.isFallback
       })
 
     } catch (error) {
