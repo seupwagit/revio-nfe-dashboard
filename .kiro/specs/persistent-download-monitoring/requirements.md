@@ -12,6 +12,10 @@ This specification defines the requirements for enhancing the download monitorin
 - **Auto-Recovery**: Automatic restart of monitoring after failures
 - **Token Refresh**: Process of obtaining new authentication tokens when current ones expire
 - **Resilient Polling**: Polling mechanism that adapts to network conditions and failures
+- **CSV Export**: Comma-separated values file containing document data from collections
+- **Download Bot**: Automated system that processes download requests and generates ZIP files
+- **Document Grid**: User interface displaying lists of fiscal documents (NFe, CTe, CFe)
+- **Collection Tables**: Database tables storing document data (tbl_nfe_100, tbl_cte_100, tbl_cfe_100)
 
 ## Requirements
 
@@ -98,3 +102,18 @@ This specification defines the requirements for enhancing the download monitorin
 3. WHEN download notifications are triggered THEN they SHALL integrate with the existing notification system
 4. WHEN authentication context changes THEN the monitoring SHALL update its context without stopping
 5. WHEN the system needs to refresh tokens THEN it SHALL integrate with the existing authentication service
+
+### Requirement 8
+
+**User Story:** As a user, I want to include CSV data files in my scheduled downloads, so that I can get structured data along with the original documents.
+
+#### Acceptance Criteria
+
+1. WHEN viewing document grids THEN the system SHALL display a CSV checkbox option for each document type
+2. WHEN I select the CSV checkbox THEN the system SHALL mark the CSV column in tbl_nfe_dow table with value 1
+3. WHEN the download bot processes a request with CSV enabled THEN it SHALL include CSV files in the generated ZIP
+4. WHEN CSV is requested for NFe documents THEN the system SHALL generate CSV from tbl_nfe_100 collection data
+5. WHEN CSV is requested for CTe documents THEN the system SHALL generate CSV from tbl_cte_100 collection data
+6. WHEN CSV is requested for CFe documents THEN the system SHALL generate CSV from tbl_cfe_100 collection data
+7. WHEN generating CSV files THEN the system SHALL include only documents matching the selected filter criteria
+8. WHEN CSV generation is complete THEN the CSV files SHALL be included in the ZIP file alongside the original documents

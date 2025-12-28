@@ -47,16 +47,30 @@ export class DownloadMonitorService {
    */
   async initialize(usrCodigo: string, authToken: string, baseURL?: string): Promise<void> {
     try {
-      console.log('[DownloadMonitor] Inicializando serviço para usuário:', usrCodigo)
+      console.log('[DownloadMonitor] Iniciando inicialização do serviço...')
+      console.log('[DownloadMonitor] Parâmetros:', { 
+        usrCodigo, 
+        hasToken: !!authToken, 
+        tokenLength: authToken?.length,
+        baseURL 
+      })
       
       // Usar baseURL fornecido ou obter da variável de ambiente
       const apiBaseURL = baseURL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      console.log('[DownloadMonitor] URL da API:', apiBaseURL)
       
       this.usrCodigo = usrCodigo
 
       // Criar worker se não existir
       if (!this.worker) {
+        console.log('[DownloadMonitor] Criando worker...')
         this.createWorker()
+        console.log('[DownloadMonitor] Worker criado, estado:', !!this.worker)
+      }
+
+      // Verificar se worker foi criado com sucesso
+      if (!this.worker) {
+        throw new Error('Falha ao criar Web Worker')
       }
 
       // Inicializar worker
@@ -69,9 +83,11 @@ export class DownloadMonitorService {
         }
       }
 
-      this.worker?.postMessage(message)
+      console.log('[DownloadMonitor] Enviando mensagem INIT para worker:', message)
+      this.worker.postMessage(message)
 
       // Aguardar confirmação de inicialização
+      console.log('[DownloadMonitor] Aguardando worker ficar pronto...')
       await this.waitForWorkerReady()
       
       this.isInitialized = true
@@ -79,6 +95,7 @@ export class DownloadMonitorService {
 
     } catch (error) {
       console.error('[DownloadMonitor] Erro ao inicializar:', error)
+      this.isInitialized = false
       throw error
     }
   }
@@ -88,14 +105,49 @@ export class DownloadMonitorService {
    */
   private createWorker(): void {
     try {
-      // Criar worker a partir do arquivo TypeScript compilado
-      this.worker = new Worker(
-        new URL('../workers/downloadWorker.ts', import.meta.url),
-        { type: 'module' }
-      )
+      console.log('[DownloadMonitor] Tentando criar worker...')
+      
+      // Verificar se Web Workers são suportados
+      if (typeof Worker === 'undefined') {
+        throw new Error('Web Workers não são suportados neste navegador')
+      }
+
+      // Tentar diferentes abordagens para criar o worker
+      let workerUrl: string | URL
+      let useJavaScript = false
+      
+      try {
+        // Abordagem 1: Usar import.meta.url com TypeScript (padrão do Vite)
+        workerUrl = new URL('../workers/downloadWorker.ts', import.meta.url)
+        console.log('[DownloadMonitor] Tentando URL do worker TS (import.meta.url):', workerUrl.href)
+      } catch (error) {
+        console.warn('[DownloadMonitor] Falha com import.meta.url TS, tentando JavaScript:', error)
+        
+        try {
+          // Abordagem 2: Usar JavaScript worker
+          workerUrl = new URL('../workers/downloadWorker.js', import.meta.url)
+          useJavaScript = true
+          console.log('[DownloadMonitor] Tentando URL do worker JS (import.meta.url):', workerUrl.href)
+        } catch (error2) {
+          console.warn('[DownloadMonitor] Falha com import.meta.url JS, tentando caminho relativo:', error2)
+          
+          // Abordagem 3: Usar caminho relativo
+          workerUrl = '/src/frontend/workers/downloadWorker.js'
+          useJavaScript = true
+          console.log('[DownloadMonitor] Tentando URL do worker (caminho relativo):', workerUrl)
+        }
+      }
+      
+      // Criar worker com ou sem type: 'module' dependendo da abordagem
+      if (useJavaScript) {
+        this.worker = new Worker(workerUrl)
+      } else {
+        this.worker = new Worker(workerUrl, { type: 'module' })
+      }
 
       // Configurar listener de mensagens
       this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+        console.log('[DownloadMonitor] Mensagem recebida do worker:', event.data)
         this.handleWorkerMessage(event.data)
       }
 
@@ -103,12 +155,21 @@ export class DownloadMonitorService {
       this.worker.onerror = (error) => {
         console.error('[DownloadMonitor] Erro no worker:', error)
         this.notifyError({
-          message: 'Erro no Web Worker de monitoramento',
+          message: `Erro no Web Worker: ${error.message || 'Erro desconhecido'}`,
           timestamp: new Date().toISOString()
         })
       }
 
-      console.log('[DownloadMonitor] Worker criado')
+      // Configurar listener de erros não capturados
+      this.worker.onmessageerror = (error) => {
+        console.error('[DownloadMonitor] Erro de mensagem no worker:', error)
+        this.notifyError({
+          message: 'Erro de comunicação com o Web Worker',
+          timestamp: new Date().toISOString()
+        })
+      }
+
+      console.log('[DownloadMonitor] Worker criado com sucesso usando:', useJavaScript ? 'JavaScript' : 'TypeScript')
 
     } catch (error) {
       console.error('[DownloadMonitor] Erro ao criar worker:', error)
@@ -121,19 +182,34 @@ export class DownloadMonitorService {
    */
   private waitForWorkerReady(): Promise<void> {
     return new Promise((resolve, reject) => {
+      console.log('[DownloadMonitor] Aguardando worker ficar pronto...')
+      
       const timeout = setTimeout(() => {
-        reject(new Error('Timeout aguardando worker'))
+        console.error('[DownloadMonitor] Timeout aguardando worker (5s)')
+        reject(new Error('Timeout aguardando worker ficar pronto'))
       }, 5000)
 
       const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+        console.log('[DownloadMonitor] Mensagem recebida durante espera:', event.data)
+        
         if (event.data.type === 'READY') {
+          console.log('[DownloadMonitor] Worker confirmou que está pronto!')
           clearTimeout(timeout)
           this.worker?.removeEventListener('message', handleMessage)
           resolve()
         }
       }
 
+      const handleError = (error: ErrorEvent) => {
+        console.error('[DownloadMonitor] Erro durante espera do worker:', error)
+        clearTimeout(timeout)
+        this.worker?.removeEventListener('message', handleMessage)
+        this.worker?.removeEventListener('error', handleError)
+        reject(new Error(`Erro no worker durante inicialização: ${error.message}`))
+      }
+
       this.worker?.addEventListener('message', handleMessage)
+      this.worker?.addEventListener('error', handleError)
     })
   }
 
@@ -323,8 +399,81 @@ export class DownloadMonitorService {
   }
 
   /**
-   * Obtém status do serviço
+   * Testa se o worker pode ser criado (método de debug)
    */
+  async testWorkerCreation(): Promise<{ success: boolean; error?: string }> {
+    try {
+      console.log('[DownloadMonitor] Testando criação do worker...')
+      
+      // Verificar suporte a Web Workers
+      if (typeof Worker === 'undefined') {
+        return { success: false, error: 'Web Workers não são suportados' }
+      }
+
+      // Tentar diferentes abordagens para criar o worker
+      let workerUrl: string | URL
+      let useJavaScript = false
+      
+      try {
+        // Abordagem 1: Usar import.meta.url com TypeScript (padrão do Vite)
+        workerUrl = new URL('../workers/downloadWorker.ts', import.meta.url)
+        console.log('[DownloadMonitor] URL do worker TS para teste (import.meta.url):', workerUrl.href)
+      } catch (error) {
+        console.warn('[DownloadMonitor] Falha com import.meta.url TS no teste, tentando JavaScript:', error)
+        
+        try {
+          // Abordagem 2: Usar JavaScript worker
+          workerUrl = new URL('../workers/downloadWorker.js', import.meta.url)
+          useJavaScript = true
+          console.log('[DownloadMonitor] URL do worker JS para teste (import.meta.url):', workerUrl.href)
+        } catch (error2) {
+          console.warn('[DownloadMonitor] Falha com import.meta.url JS no teste, tentando caminho relativo:', error2)
+          
+          // Abordagem 3: Usar caminho relativo
+          workerUrl = '/src/frontend/workers/downloadWorker.js'
+          useJavaScript = true
+          console.log('[DownloadMonitor] URL do worker para teste (caminho relativo):', workerUrl)
+        }
+      }
+      
+      // Criar worker com ou sem type: 'module' dependendo da abordagem
+      const testWorker = useJavaScript 
+        ? new Worker(workerUrl)
+        : new Worker(workerUrl, { type: 'module' })
+      
+      // Testar comunicação básica
+      return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          testWorker.terminate()
+          resolve({ success: false, error: 'Timeout na comunicação com worker' })
+        }, 3000)
+
+        testWorker.onmessage = (event) => {
+          console.log('[DownloadMonitor] Mensagem de teste recebida:', event.data)
+          clearTimeout(timeout)
+          testWorker.terminate()
+          resolve({ success: true })
+        }
+
+        testWorker.onerror = (error) => {
+          console.error('[DownloadMonitor] Erro no teste do worker:', error)
+          clearTimeout(timeout)
+          testWorker.terminate()
+          resolve({ success: false, error: error.message || 'Erro desconhecido' })
+        }
+
+        // Enviar mensagem de teste
+        testWorker.postMessage({ type: 'INIT', payload: { test: true } })
+      })
+
+    } catch (error) {
+      console.error('[DownloadMonitor] Erro ao testar worker:', error)
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erro desconhecido' 
+      }
+    }
+  }
   getStatus(): {
     isInitialized: boolean
     isMonitoring: boolean

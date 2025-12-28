@@ -107,6 +107,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Inicializar monitoramento de downloads
       try {
+        console.log('[Auth] Testando criação do worker antes da inicialização...')
+        
+        // Testar se o worker pode ser criado
+        const testResult = await downloadMonitor.testWorkerCreation()
+        if (!testResult.success) {
+          console.error('[Auth] Falha no teste do worker:', testResult.error)
+          throw new Error(`Falha no teste do worker: ${testResult.error}`)
+        }
+        
+        console.log('[Auth] Teste do worker bem-sucedido, inicializando...')
+        
         await downloadMonitor.initialize(
           response.data.user.usrCodigo,
           response.data.token,

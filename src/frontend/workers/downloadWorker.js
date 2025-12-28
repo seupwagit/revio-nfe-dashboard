@@ -1,43 +1,17 @@
 /**
- * Download Worker - Web Worker para Monitoramento Global de Downloads
+ * Download Worker - Web Worker para Monitoramento Global de Downloads (JavaScript)
  * 
- * Worker que monitora downloads em background, fazendo polling
- * a cada 30 segundos para verificar downloads prontos
+ * Versão JavaScript alternativa para compatibilidade
  */
-
-// Tipos para comunicação com o worker
-export interface WorkerMessage {
-  type: 'INIT' | 'START_MONITORING' | 'STOP_MONITORING' | 'CHECK_NOW' | 'SHUTDOWN'
-  payload?: any
-}
-
-export interface WorkerResponse {
-  type: 'READY' | 'DOWNLOAD_READY' | 'ERROR' | 'STATUS'
-  payload?: any
-}
 
 // Estado do worker
 let isMonitoring = false
-let monitoringInterval: number | null = null
-let usrCodigo: string | null = null
-let authToken: string | null = null
-
-// Configurar baseURL de forma mais robusta
-let baseURL: string
-try {
-  // Tentar obter da variável de ambiente do worker
-  baseURL = (self as any).VITE_API_BASE_URL || 'http://localhost:3001'
-  
-  // Se estiver em localhost, usar porta 3001
-  if (self.location.origin.includes('localhost')) {
-    baseURL = 'http://localhost:3001'
-  }
-} catch (error) {
-  console.warn('[DownloadWorker] Erro ao configurar baseURL inicial:', error)
-  baseURL = 'http://localhost:3001'
-}
-
-console.log('[DownloadWorker] BaseURL inicial configurado:', baseURL)
+let monitoringInterval = null
+let usrCodigo = null
+let authToken = null
+let baseURL = self.location.origin.includes('localhost') 
+  ? 'http://localhost:3001' 
+  : (self.VITE_API_BASE_URL || 'http://localhost:3001')
 
 // Configurações
 const POLLING_INTERVAL = 30000 // 30 segundos
@@ -46,12 +20,10 @@ const MAX_RETRIES = 3
 /**
  * Faz requisição para verificar downloads prontos
  */
-async function checkReadyDownloads(): Promise<any[]> {
+async function checkReadyDownloads() {
   if (!usrCodigo || !authToken) {
     throw new Error('Usuário não configurado')
   }
-
-  console.log('[DownloadWorker] Fazendo requisição para:', `${baseURL}/api/downloads/ready`)
 
   let retries = 0
   while (retries < MAX_RETRIES) {
@@ -64,21 +36,14 @@ async function checkReadyDownloads(): Promise<any[]> {
         }
       })
 
-      console.log('[DownloadWorker] Resposta recebida:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      })
-
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Token expirado')
         }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        throw new Error(`HTTP ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('[DownloadWorker] Dados recebidos:', data)
       
       if (!data.success) {
         throw new Error(data.error || 'Erro na resposta da API')
@@ -95,9 +60,7 @@ async function checkReadyDownloads(): Promise<any[]> {
       }
       
       // Aguardar antes de tentar novamente
-      const delay = 1000 * retries
-      console.log(`[DownloadWorker] Aguardando ${delay}ms antes da próxima tentativa...`)
-      await new Promise(resolve => setTimeout(resolve, delay))
+      await new Promise(resolve => setTimeout(resolve, 1000 * retries))
     }
   }
 
@@ -122,7 +85,7 @@ function startMonitoring() {
   // Configurar polling
   monitoringInterval = setInterval(() => {
     checkDownloads()
-  }, POLLING_INTERVAL) as unknown as number
+  }, POLLING_INTERVAL)
 }
 
 /**
@@ -148,21 +111,10 @@ function stopMonitoring() {
  */
 async function checkDownloads() {
   if (!isMonitoring) {
-    console.log('[DownloadWorker] Monitoramento não está ativo, pulando verificação')
-    return
-  }
-
-  if (!usrCodigo || !authToken) {
-    console.warn('[DownloadWorker] Parâmetros não configurados:', { 
-      hasUsrCodigo: !!usrCodigo, 
-      hasAuthToken: !!authToken,
-      baseURL 
-    })
     return
   }
 
   try {
-    console.log('[DownloadWorker] Verificando downloads para usuário:', usrCodigo)
     const readyDownloads = await checkReadyDownloads()
     
     if (readyDownloads.length > 0) {
@@ -170,7 +122,7 @@ async function checkDownloads() {
       
       // Notificar thread principal sobre cada download pronto
       readyDownloads.forEach(download => {
-        const response: WorkerResponse = {
+        const response = {
           type: 'DOWNLOAD_READY',
           payload: {
             downloadId: download.id,
@@ -182,17 +134,15 @@ async function checkDownloads() {
         
         self.postMessage(response)
       })
-    } else {
-      console.log('[DownloadWorker] Nenhum download pronto encontrado')
     }
 
   } catch (error) {
     console.error('[DownloadWorker] Erro ao verificar downloads:', error)
     
-    const response: WorkerResponse = {
+    const response = {
       type: 'ERROR',
       payload: {
-        message: error instanceof Error ? error.message : 'Erro desconhecido',
+        message: error.message || 'Erro desconhecido',
         timestamp: new Date().toISOString()
       }
     }
@@ -200,8 +150,7 @@ async function checkDownloads() {
     self.postMessage(response)
 
     // Se erro de autenticação, parar monitoramento
-    if (error instanceof Error && error.message.includes('Token expirado')) {
-      console.warn('[DownloadWorker] Token expirado, parando monitoramento')
+    if (error.message && error.message.includes('Token expirado')) {
       stopMonitoring()
     }
   }
@@ -210,7 +159,7 @@ async function checkDownloads() {
 /**
  * Processa mensagens do thread principal
  */
-self.onmessage = function(event: MessageEvent<WorkerMessage>) {
+self.onmessage = function(event) {
   console.log('[DownloadWorker] Mensagem recebida:', event.data)
   
   const { type, payload } = event.data
@@ -226,7 +175,7 @@ self.onmessage = function(event: MessageEvent<WorkerMessage>) {
       }
       if (payload?.authToken) {
         authToken = payload.authToken
-        console.log('[DownloadWorker] authToken configurado (length):', authToken?.length || 0)
+        console.log('[DownloadWorker] authToken configurado (length):', authToken.length)
       }
       if (payload?.baseURL) {
         baseURL = payload.baseURL
@@ -234,7 +183,7 @@ self.onmessage = function(event: MessageEvent<WorkerMessage>) {
       }
 
       // Confirmar inicialização
-      const readyResponse: WorkerResponse = {
+      const readyResponse = {
         type: 'READY',
         payload: {
           usrCodigo,
@@ -277,16 +226,16 @@ self.onmessage = function(event: MessageEvent<WorkerMessage>) {
 }
 
 // Confirmar que worker está carregado
-console.log('[DownloadWorker] Worker carregado e pronto para receber mensagens')
+console.log('[DownloadWorker] Worker JavaScript carregado e pronto para receber mensagens')
 
 // Adicionar handler para erros não capturados
 self.onerror = function(error) {
   console.error('[DownloadWorker] Erro não capturado no worker:', error)
   
-  const errorResponse: WorkerResponse = {
+  const errorResponse = {
     type: 'ERROR',
     payload: {
-      message: `Erro não capturado: ${error instanceof ErrorEvent ? error.message : String(error)}`,
+      message: `Erro não capturado: ${error.message}`,
       timestamp: new Date().toISOString()
     }
   }
@@ -298,7 +247,7 @@ self.onerror = function(error) {
 self.addEventListener('unhandledrejection', function(event) {
   console.error('[DownloadWorker] Promise rejeitada não tratada:', event.reason)
   
-  const errorResponse: WorkerResponse = {
+  const errorResponse = {
     type: 'ERROR',
     payload: {
       message: `Promise rejeitada: ${event.reason}`,

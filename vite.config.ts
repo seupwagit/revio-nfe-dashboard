@@ -14,6 +14,21 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       emptyOutDir: true,
+      rollupOptions: {
+        output: {
+          // Configuração específica para Web Workers
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name && assetInfo.name.endsWith('.worker.js')) {
+              return 'workers/[name]-[hash][extname]'
+            }
+            return 'assets/[name]-[hash][extname]'
+          }
+        }
+      }
+    },
+    worker: {
+      format: 'es',
+      plugins: () => [react()]
     },
     resolve: {
       // alias: {
