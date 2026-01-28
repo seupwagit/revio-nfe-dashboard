@@ -237,7 +237,7 @@ export async function fetchNotasFiscais(
       return resultado
     }
     
-    const pageSize = 20000 // Máximo permitido pela API para melhor performance
+    const pageSize = env.defaults.maxPageSize // Limite configurável via .env para melhor performance
 
     console.log('🔄 Iniciando busca com streaming incremental...')
     console.log('🔑 Cache key:', cacheKey)
@@ -544,7 +544,16 @@ function getDefaultEndDate(): string {
 export function calcularStats(notas: any[]): DashboardStats {
   return {
     totalNotas: notas.length,
-    valorTotal: notas.reduce((acc, nf) => acc + nf.valorTotal, 0),
+    valorTotal: notas.reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
+    valorTotalEntradas: notas.filter(nf => nf.tipoOperacao === '0').reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
+    valorTotalSaidas: notas.filter(nf => nf.tipoOperacao === '1').reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
+    totalICMS: notas.reduce((acc, nf) => acc + (nf.totais?.valorICMS || 0), 0),
+    totalIPI: notas.reduce((acc, nf) => acc + (nf.totais?.valorIPI || 0), 0),
+    totalPIS: notas.reduce((acc, nf) => acc + (nf.totais?.valorPIS || 0), 0),
+    totalCOFINS: notas.reduce((acc, nf) => acc + (nf.totais?.valorCOFINS || 0), 0),
+    valorFrete: notas.reduce((acc, nf) => acc + (nf.totais?.valorFrete || 0), 0),
+    valorSeguro: notas.reduce((acc, nf) => acc + (nf.totais?.valorSeguro || 0), 0),
+    valorDesconto: notas.reduce((acc, nf) => acc + (nf.totais?.valorDesconto || 0), 0),
     notasAutorizadas: notas.filter(nf => nf.status === 'autorizada').length,
     notasCanceladas: notas.filter(nf => nf.status === 'cancelada').length
   }

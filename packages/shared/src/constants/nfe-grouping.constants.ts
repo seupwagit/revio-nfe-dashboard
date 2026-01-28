@@ -35,13 +35,9 @@ export const NFE_GROUPING_DEFAULTS = {
  * Nomes de variáveis de ambiente para configuração
  */
 export const NFE_GROUPING_ENV_VARS = {
-  // Controle global
-  GLOBAL_ENABLED: 'NFE_GROUPING_ENABLED',
-  
   // Configuração específica da coleção tbl_nfe_100
   TBL_NFE_100_GROUP_BY: 'TBL_NFE_100_GROUP_BY',
   TBL_NFE_100_ORDER_BY: 'TBL_NFE_100_ORDER_BY',
-  TBL_NFE_100_ENABLED: 'TBL_NFE_100_GROUPING_ENABLED',
   
   // Configurações de performance
   CACHE_TTL: 'NFE_GROUPING_CACHE_TTL',

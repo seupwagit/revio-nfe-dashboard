@@ -17,6 +17,7 @@ export const env = {
     page: Number(import.meta.env.VITE_DEFAULT_PAGE) || 1,
     maxDateRangeDays: Number(import.meta.env.VITE_MAX_DATE_RANGE_DAYS) || 365,
     analyticsPageSize: Number(import.meta.env.VITE_ANALYTICS_PAGE_SIZE) || 10000,
+    maxPageSize: Number(import.meta.env.VITE_MAX_PAGE_SIZE) || 50000,
   }
 }
 

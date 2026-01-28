@@ -61,5 +61,8 @@
   "task.showDecorations": true,
   "task.problemMatchers.neverPrompt": true,
   "task.quickOpen.history": 10,
-  "task.quickOpen.detail": true
+  "task.quickOpen.detail": true,
+  "containers.environment": {
+    "WSL_UTF8": "1"
+  }
 }

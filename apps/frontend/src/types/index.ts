@@ -173,6 +173,15 @@ export interface ItemCF {
 export interface DashboardStats {
   totalNotas: number
   valorTotal: number
+  valorTotalEntradas: number
+  valorTotalSaidas: number
+  totalICMS: number
+  totalIPI: number
+  totalPIS: number
+  totalCOFINS: number
+  valorFrete: number
+  valorSeguro: number
+  valorDesconto: number
   notasAutorizadas: number
   notasCanceladas: number
 }

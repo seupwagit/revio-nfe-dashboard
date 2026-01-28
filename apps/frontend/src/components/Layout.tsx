@@ -1,10 +1,11 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, FileText, Menu, X, User, LogOut, Database, Shield } from 'lucide-react'
+import { Database, FileText, LayoutDashboard, LogOut, Menu, Shield, User, X } from 'lucide-react'
 import { useState } from 'react'
-import UserDisplay from './UserDisplay'
-import DownloadNotification from './DownloadNotification'
-import { ConnectivityIndicator } from './ConnectivityIndicator'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import logoReduzido from '../assets/logo-reduzido-revio-200x199.png'
 import { useAuth } from '../contexts/AuthContext'
+import { ConnectivityIndicator } from './ConnectivityIndicator'
+import DownloadNotification from './DownloadNotification'
+import UserDisplay from './UserDisplay'
 
 export default function Layout() {
   const location = useLocation()
@@ -32,8 +33,8 @@ export default function Layout() {
             {/* Logo e Título */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-revio-primary to-revio-secondary rounded-xl flex items-center justify-center shadow-revio">
-                  <FileText className="h-7 w-7 text-white" />
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-revio overflow-hidden border border-revio-gray-100 p-1">
+                  <img src={logoReduzido} alt="Revio Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-revio-primary to-revio-secondary bg-clip-text text-transparent">

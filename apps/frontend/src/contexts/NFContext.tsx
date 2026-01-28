@@ -27,12 +27,22 @@ const NFContext = createContext<NFContextType | undefined>(undefined)
  * Calcula estatísticas dos documentos
  */
 function calcularStats(dados: any[]): DashboardStats {
-  return {
+  const stats = {
     totalNotas: dados.length,
     valorTotal: dados.reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
+    valorTotalEntradas: dados.filter(doc => doc.tipoOperacao === '0').reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
+    valorTotalSaidas: dados.filter(doc => doc.tipoOperacao === '1').reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
+    totalICMS: dados.reduce((sum, doc) => sum + (doc.totais?.valorICMS || 0), 0),
+    totalIPI: dados.reduce((sum, doc) => sum + (doc.totais?.valorIPI || 0), 0),
+    totalPIS: dados.reduce((sum, doc) => sum + (doc.totais?.valorPIS || 0), 0),
+    totalCOFINS: dados.reduce((sum, doc) => sum + (doc.totais?.valorCOFINS || 0), 0),
+    valorFrete: dados.reduce((sum, doc) => sum + (doc.totais?.valorFrete || 0), 0),
+    valorSeguro: dados.reduce((sum, doc) => sum + (doc.totais?.valorSeguro || 0), 0),
+    valorDesconto: dados.reduce((sum, doc) => sum + (doc.totais?.valorDesconto || 0), 0),
     notasAutorizadas: dados.filter(doc => doc.status === 'autorizada').length,
     notasCanceladas: dados.filter(doc => doc.status === 'cancelada').length
-  }
+  };
+  return stats;
 }
 
 export function NFProvider({ children }: { children: ReactNode }) {
@@ -41,6 +51,15 @@ export function NFProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState<DashboardStats>({
     totalNotas: 0,
     valorTotal: 0,
+    valorTotalEntradas: 0,
+    valorTotalSaidas: 0,
+    totalICMS: 0,
+    totalIPI: 0,
+    totalPIS: 0,
+    totalCOFINS: 0,
+    valorFrete: 0,
+    valorSeguro: 0,
+    valorDesconto: 0,
     notasAutorizadas: 0,
     notasCanceladas: 0
   })

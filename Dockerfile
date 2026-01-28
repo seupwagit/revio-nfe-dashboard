@@ -1,75 +1,68 @@
-# Multi-stage Dockerfile otimizado para Coolify
-# Compatível com produção e desenvolvimento
-# Seguindo regras WSL/Docker/pnpm prioritárias
-
+# Dockerfile otimizado para Monorepo (Coolify)
 FROM node:20-alpine AS base
 
-# Instalar ferramentas essenciais
+# Dependências de sistema
 RUN apk add --no-cache git curl bash
-
-# Habilitar pnpm via corepack (método oficial)
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Configurar diretório de trabalho
 WORKDIR /app
 
-# Stage 1: Dependencies
-FROM base AS deps
-
-# Copiar arquivos de configuração do workspace (ORDEM IMPORTANTE)
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY package.json ./
-
-# Copiar package.json de todos os workspaces
-COPY apps/*/package.json ./apps/*/
-COPY packages/*/package.json ./packages/*/
-
-# Cache inteligente do pnpm
-RUN pnpm config set store-dir /pnpm-store
-
-# Instalar dependências com cache otimizado
-RUN pnpm install --frozen-lockfile --prefer-offline
-
-# Stage 2: Builder
+# --- Stage 1: Build Dependencies ---
 FROM base AS builder
 
-# Copiar dependências do stage anterior
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/*/node_modules ./apps/*/node_modules
-COPY --from=deps /app/packages/*/node_modules ./packages/*/node_modules
+# Copiar arquivos de configuração do workspace
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+COPY packages/shared/package.json ./packages/shared/
+
+# Instalar dependências (incluindo devDeps para build)
+RUN pnpm install --frozen-lockfile
 
 # Copiar código fonte
 COPY . .
 
-# ARGs para variáveis de ambiente (Coolify compatibility)
-ARG NODE_ENV=production
-ARG PORT=3000
+# Build do monorepo
+# 1. Build do shared (dependência de todos)
+# 2. Build do frontend (gera os estáticos)
+# 3. Build do backend
+RUN pnpm --filter @fiscal/shared build && \
+    pnpm --filter @fiscal/frontend build && \
+    pnpm --filter @fiscal/backend build
 
-# Build do projeto
-RUN pnpm build
-
-# Stage 3: Runtime
+# --- Stage 2: Production Runtime ---
 FROM node:20-alpine AS runtime
 
-# Instalar apenas dependências de runtime
 RUN apk add --no-cache curl bash
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copiar apenas arquivos necessários
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./
-COPY --from=deps /app/node_modules ./node_modules
 
-# Expor porta (será sobrescrita pelo Coolify)
+# Variáveis de ambiente padrão
+ENV NODE_ENV=production
+ENV BACKOFFICE_PORT=3000
+ENV SERVE_FRONTEND=true
+
+# Copiar apenas os arquivos necessários para rodar
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/frontend/package.json ./apps/frontend/
+COPY packages/shared/package.json ./packages/shared/
+
+# Instalar apenas dependências de produção
+RUN pnpm install --frozen-lockfile --prod
+
+# Copiar as distros construídas
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder /app/apps/frontend/dist ./apps/frontend/dist
+
+# Expor porta única
 EXPOSE 3000
 
-# Health check obrigatório para Coolify
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/api/health || exit 1
+# Health check para Coolify
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Variáveis de ambiente
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# Comando de produção
-CMD ["node", "dist/index.js"]
+# Comando para iniciar o backend
+CMD ["node", "apps/backend/dist/index.js"]

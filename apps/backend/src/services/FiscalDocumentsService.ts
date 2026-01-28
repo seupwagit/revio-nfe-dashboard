@@ -171,6 +171,15 @@ export class FiscalDocumentsService {
   async fetchDashboardStats(params: FetchCountParams): Promise<{
     totalNotas: number,
     valorTotal: number,
+    valorTotalEntradas: number,
+    valorTotalSaidas: number,
+    totalICMS: number,
+    totalIPI: number,
+    totalPIS: number,
+    totalCOFINS: number,
+    valorFrete: number,
+    valorSeguro: number,
+    valorDesconto: number,
     notasAutorizadas: number,
     notasCanceladas: number
   }> {
@@ -179,22 +188,35 @@ export class FiscalDocumentsService {
     try {
       const { collection, filter = {} } = params;
       
-      // Roteamento automático de base de dados
       const mongoConnection = await databaseRouter.getTransparentMongoConnection();
       if (!mongoConnection.db) {
         throw new Error('Banco de dados não disponível na conexão MongoDB');
       }
 
-      const coll = mongoConnection.db.collection(collection);
+      // Obter estágios de agrupamento do interceptor para garantir que cada nota agrupada 
+      // seja contabilizada apenas uma vez
+      const groupingStages = this.queryInterceptor.getGroupingStages(collection, filter);
       
-      // Usar o interceptador para garantir que as estatísticas considerem o agrupamento (deduplicação)
-      const aggregationResult = await this.queryInterceptor.executeAggregation(collection, [
-        { $match: filter },
+      const pipeline = [
+        ...groupingStages,
         { 
           $group: {
             _id: null,
             totalNotas: { $sum: 1 },
             valorTotal: { $sum: { $ifNull: ['$VL_DOC', { $ifNull: ['$VALOR_TOTAL', 0] }] } },
+            valorTotalEntradas: { 
+              $sum: { $cond: [{ $eq: ['$IND_OPER', '0'] }, { $ifNull: ['$VL_DOC', 0] }, 0] } 
+            },
+            valorTotalSaidas: { 
+              $sum: { $cond: [{ $eq: ['$IND_OPER', '1'] }, { $ifNull: ['$VL_DOC', 0] }, 0] } 
+            },
+            totalICMS: { $sum: { $ifNull: ['$VL_ICMS', 0] } },
+            totalIPI: { $sum: { $ifNull: ['$VL_IPI', 0] } },
+            totalPIS: { $sum: { $ifNull: ['$VL_PIS', 0] } },
+            totalCOFINS: { $sum: { $ifNull: ['$VL_COFINS', 0] } },
+            valorFrete: { $sum: { $ifNull: ['$VL_FRT', 0] } },
+            valorSeguro: { $sum: { $ifNull: ['$VL_SEG', 0] } },
+            valorDesconto: { $sum: { $ifNull: ['$VL_DESC', 0] } },
             notasAutorizadas: { 
               $sum: { 
                 $cond: [
@@ -222,11 +244,22 @@ export class FiscalDocumentsService {
             }
           }
         }
-      ], mongoConnection.db);
+      ];
+
+      const aggregationResult = await this.queryInterceptor.executeAggregation(collection, pipeline, mongoConnection.db);
 
       const stats = aggregationResult[0] || {
         totalNotas: 0,
         valorTotal: 0,
+        valorTotalEntradas: 0,
+        valorTotalSaidas: 0,
+        totalICMS: 0,
+        totalIPI: 0,
+        totalPIS: 0,
+        totalCOFINS: 0,
+        valorFrete: 0,
+        valorSeguro: 0,
+        valorDesconto: 0,
         notasAutorizadas: 0,
         notasCanceladas: 0
       };
@@ -242,6 +275,15 @@ export class FiscalDocumentsService {
       return {
         totalNotas: stats.totalNotas,
         valorTotal: stats.valorTotal,
+        valorTotalEntradas: stats.valorTotalEntradas,
+        valorTotalSaidas: stats.valorTotalSaidas,
+        totalICMS: stats.totalICMS,
+        totalIPI: stats.totalIPI,
+        totalPIS: stats.totalPIS,
+        totalCOFINS: stats.totalCOFINS,
+        valorFrete: stats.valorFrete,
+        valorSeguro: stats.valorSeguro,
+        valorDesconto: stats.valorDesconto,
         notasAutorizadas: stats.notasAutorizadas,
         notasCanceladas: stats.notasCanceladas
       };

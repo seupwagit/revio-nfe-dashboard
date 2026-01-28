@@ -1,11 +1,11 @@
-import { useNF } from '../contexts/NFContext'
-import { TrendingUp, FileText, CheckCircle, XCircle, DollarSign, AlertTriangle, Package, Truck, Receipt, Calendar, BarChart3, PieChart, Activity } from 'lucide-react'
-import StatsCard from '../components/StatsCard'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { Activity, AlertTriangle, BarChart3, Calendar, CheckCircle, DollarSign, FileText, Package, PieChart, Receipt, TrendingUp, Truck, XCircle } from 'lucide-react'
+import { useMemo } from 'react'
 import CollectionSelector from '../components/CollectionSelector'
 import FiltroNotas from '../components/FiltroNotas'
+import LoadingSpinner from '../components/LoadingSpinner'
+import StatsCard from '../components/StatsCard'
 import StreamingProgress from '../components/StreamingProgress'
-import { useMemo } from 'react'
+import { useNF } from '../contexts/NFContext'
 
 export default function Dashboard() {
   const { stats, loading, progress, currentPage, totalPages, collection, setCollection, notas } = useNF()
@@ -67,22 +67,35 @@ export default function Dashboard() {
     const totalNotas = stats.totalNotas || 0
     const totalImpostos = totalICMS + totalIPI + totalPIS + totalCOFINS
     
+    // Consolidar indicadores combinando iteração local com stats do backend para precisão total
     return {
-      valorTotalEntradas: valorEntradas, valorTotalSaidas: valorSaidas,
-      saldoOperacional: valorSaidas - valorEntradas,
-      totalICMS, totalIPI, totalPIS, totalCOFINS,
-      cargaTributaria: valorTotal > 0 ? (totalImpostos / valorTotal) * 100 : 0,
-      ticketMedio: totalNotas > 0 ? valorTotal / totalNotas : 0,
+      valorTotalEntradas: stats.valorTotalEntradas || valorEntradas,
+      valorTotalSaidas: stats.valorTotalSaidas || valorSaidas,
+      saldoOperacional: (stats.valorTotalSaidas || valorSaidas) - (stats.valorTotalEntradas || valorEntradas),
+      totalICMS: stats.totalICMS || totalICMS,
+      totalIPI: stats.totalIPI || totalIPI,
+      totalPIS: stats.totalPIS || totalPIS,
+      totalCOFINS: stats.totalCOFINS || totalCOFINS,
+      cargaTributaria: (stats.valorTotal || 0) > 0 
+        ? ((stats.totalICMS + stats.totalIPI + stats.totalPIS + stats.totalCOFINS) / stats.valorTotal) * 100 
+        : (valorTotal > 0 ? (totalImpostos / valorTotal) * 100 : 0),
+      ticketMedio: totalNotas > 0 ? (stats.valorTotal || valorTotal) / totalNotas : 0,
       maiorNota: valores.length > 0 ? Math.max(...valores) : 0,
       menorNota: valores.length > 0 ? Math.min(...valores) : 0,
-      qtdEntradas, qtdSaidas, notasHoje, notasUltimos7Dias, notasUltimos30Dias,
+      qtdEntradas: stats.valorTotalEntradas ? qtdEntradas : qtdEntradas, // Mantemos local por enquanto se stats não tiver contagem separada
+      qtdSaidas: stats.valorTotalSaidas ? qtdSaidas : qtdSaidas,
+      notasHoje, notasUltimos7Dias, notasUltimos30Dias,
       taxaAutorizacao: totalNotas > 0 ? (stats.notasAutorizadas / totalNotas) * 100 : 0,
       taxaCancelamento: totalNotas > 0 ? (stats.notasCanceladas / totalNotas) * 100 : 0,
       notasPendentes: totalNotas - stats.notasAutorizadas - stats.notasCanceladas,
-      valorFrete, valorDesconto, valorSeguro, pesoTotal, volumeTotal,
+      valorFrete: stats.valorFrete || valorFrete,
+      valorDesconto: stats.valorDesconto || valorDesconto,
+      valorSeguro: stats.valorSeguro || valorSeguro,
+      pesoTotal: pesoTotal,
+      volumeTotal: volumeTotal,
       qtdViagens: notas.filter(n => n.rodoviario).length,
       qtdCupons: collection === 'tbl_cfe_100' ? totalNotas : 0,
-      ticketMedioCupom: collection === 'tbl_cfe_100' && totalNotas > 0 ? valorTotal / totalNotas : 0
+      ticketMedioCupom: collection === 'tbl_cfe_100' && totalNotas > 0 ? (stats.valorTotal || valorTotal) / totalNotas : 0
     }
   }, [notas, stats, collection])
 

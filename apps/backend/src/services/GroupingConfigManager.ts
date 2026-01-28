@@ -102,9 +102,11 @@ export class GroupingConfigManager {
 
   /**
    * Verifica se agrupamento está globalmente habilitado
+   * (Mantido para compatibilidade, mas agora sempre retorna true 
+   * já que o controle é por campo preenchido)
    */
   isGloballyEnabled(): boolean {
-    return process.env[NFE_GROUPING_ENV_VARS.GLOBAL_ENABLED] !== 'false';
+    return true;
   }
 
   /**
@@ -123,69 +125,44 @@ export class GroupingConfigManager {
    */
   private loadGroupingConfigFromEnvironment(collection: string): GroupingConfig {
     const collectionUpper = collection.toUpperCase();
-    const globalEnabled = this.isGloballyEnabled();
     
     // Verificar configurações específicas da coleção primeiro (precedência)
     const collectionGroupByVar = `${collectionUpper}_GROUP_BY`;
-    const collectionEnabledVar = `${collectionUpper}_GROUPING_ENABLED`;
     
     // Verificar configurações globais como fallback
     const globalGroupByVar = 'NFE_GROUP_BY';
     
     // Determinar valores com precedência: específico > global > padrão
-    let groupByValue: string;
-    let enabled: boolean;
+    let groupByValue: string | undefined;
     let source: string;
     
     // Verificar se há configuração específica da coleção
-    const hasCollectionGroupBy = process.env[collectionGroupByVar] !== undefined;
-    const hasCollectionEnabled = process.env[collectionEnabledVar] !== undefined;
-    const hasGlobalGroupBy = process.env[globalGroupByVar] !== undefined;
-    
-    // Precedência para GROUP_BY: específico > global > padrão
-    if (hasCollectionGroupBy) {
-      groupByValue = process.env[collectionGroupByVar]!;
+    if (process.env[collectionGroupByVar] !== undefined) {
+      groupByValue = process.env[collectionGroupByVar];
       source = 'collection';
-    } else if (hasGlobalGroupBy) {
-      groupByValue = process.env[globalGroupByVar]!;
+    } else if (process.env[globalGroupByVar] !== undefined) {
+      groupByValue = process.env[globalGroupByVar];
       source = 'global';
     } else {
-      groupByValue = NFE_GROUPING_DEFAULTS.DEFAULT_GROUP_BY_FIELD;
+      // Se não houver nada nas variáveis, o agrupamento estará desabilitado 
+      // (a menos que o padrão diga o contrário, mas seguiremos o pedido do usuário)
+      groupByValue = ''; 
       source = 'default';
     }
 
-    // Precedência para ENABLED: específico > global (se não há específico)
-    if (hasCollectionEnabled) {
-      enabled = process.env[collectionEnabledVar] !== 'false';
-    } else {
-      // Se não há configuração específica, usar globalEnabled como padrão
-      enabled = globalEnabled;
-    }
-
     // Parsear campos de agrupamento
-    let groupByFields = groupByValue
+    const groupByFields = (groupByValue || '')
       .split(',')
       .map(field => field.trim())
       .filter(field => field.length > 0);
 
-    // NÃO remover duplicatas para manter compatibilidade com testes
-    // groupByFields = [...new Set(groupByFields)];
-
-    // Se não há campos válidos após o parsing, usar padrão
-    if (groupByFields.length === 0) {
-      groupByFields = [NFE_GROUPING_DEFAULTS.DEFAULT_GROUP_BY_FIELD];
-      source = 'default';
-    }
-
-    // Controle global: 
-    // - Se globalEnabled é false, sempre desabilitar independente da configuração específica
-    // - Se globalEnabled é true, respeitar configuração específica/calculada
-    const finalEnabled = globalEnabled && enabled && groupByFields.length > 0;
+    // O agrupamento está habilitado se houver pelo menos um campo especificado
+    const enabled = groupByFields.length > 0;
 
     return {
-      enabled: finalEnabled,
-      globalEnabled,
-      groupByFields,
+      enabled,
+      globalEnabled: true,
+      groupByFields: enabled ? groupByFields : [NFE_GROUPING_DEFAULTS.DEFAULT_GROUP_BY_FIELD],
       collection,
       lastUpdated: Date.now(),
       source
