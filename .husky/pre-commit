@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run project validation before commit
+echo "🔍 Running project validation..."
+
+if command -v pwsh >/dev/null 2>&1; then
+    # Windows with PowerShell
+    pwsh -File scripts/validate-project-config.ps1
+elif [ -f "scripts/validate-project-config.sh" ]; then
+    # WSL/Linux
+    ./scripts/validate-project-config.sh
+else
+    echo "⚠️ No validation script found, skipping validation"
+    exit 0
+fi
+
+validation_result=$?
+
+if [ $validation_result -eq 0 ]; then
+    echo "✅ Project validation passed - proceeding with commit"
+else
+    echo "❌ Project validation failed - commit blocked"
+    echo "Run validation manually to see details:"
+    echo "  Windows: .\\scripts\\validate-project-config.ps1 -Detailed"
+    echo "  WSL: ./scripts/validate-project-config.sh --detailed"
+    exit 1
+fi

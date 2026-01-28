@@ -1,0 +1,60 @@
+/**
+ * Performance Constants
+ * 
+ * Shared constants for input performance optimization.
+ */
+
+export const PERFORMANCE_CONSTANTS = {
+  // Throttle settings
+  DEFAULT_THROTTLE_MS: 300,
+  MIN_THROTTLE_MS: 100,
+  MAX_THROTTLE_MS: 1000,
+
+  // Cache settings
+  DEFAULT_CACHE_TTL_MS: 300000, // 5 minutes
+  MAX_CACHE_SIZE: 1000,
+  MAX_CACHE_SIZE_BYTES: 52428800, // 50MB
+
+  // Request settings
+  MAX_RETRIES: 3,
+  RETRY_DELAY_MS: 1000,
+  REQUEST_TIMEOUT_MS: 30000,
+
+  // UI performance
+  FRAME_BUDGET_MS: 16, // 60 FPS
+  MAX_UI_UPDATE_MS: 16,
+
+  // Rate limiting
+  DEFAULT_RATE_LIMIT_WINDOW_MS: 900000, // 15 minutes
+  DEFAULT_RATE_LIMIT_MAX_REQUESTS: 100,
+
+  // Parallel fetching
+  DEFAULT_PARALLEL_BATCH_SIZE: 5,
+  MAX_PARALLEL_REQUESTS: 10,
+  MAX_PAGES_LIMIT: 100,
+
+  // Memory management
+  MEMORY_WARNING_THRESHOLD_MB: 200,
+  MEMORY_CHECK_INTERVAL_MS: 5000,
+} as const;
+
+export const ERROR_CODES = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  RATE_LIMIT_ERROR: 'RATE_LIMIT_ERROR',
+  CACHE_ERROR: 'CACHE_ERROR',
+  TIMEOUT_ERROR: 'TIMEOUT_ERROR',
+  ABORT_ERROR: 'ABORT_ERROR',
+} as const;
+
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+} as const;

@@ -1,113 +1,75 @@
-# Dockerfile para Deploy no Coolify
-# Build otimizado para produção com Debian (melhor compatibilidade Prisma)
+# Multi-stage Dockerfile otimizado para Coolify
+# Compatível com produção e desenvolvimento
+# Seguindo regras WSL/Docker/pnpm prioritárias
 
-# ============================================
-# Estágio 1: Build do Frontend
-# ============================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-alpine AS base
 
+# Instalar ferramentas essenciais
+RUN apk add --no-cache git curl bash
+
+# Habilitar pnpm via corepack (método oficial)
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Configurar diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos de dependências
-COPY package*.json ./
-COPY tsconfig*.json ./
+# Stage 1: Dependencies
+FROM base AS deps
 
-# Instalar TODAS as dependências (incluindo devDependencies para o build)
-RUN npm ci --include=dev
+# Copiar arquivos de configuração do workspace (ORDEM IMPORTANTE)
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json ./
+
+# Copiar package.json de todos os workspaces
+COPY apps/*/package.json ./apps/*/
+COPY packages/*/package.json ./packages/*/
+
+# Cache inteligente do pnpm
+RUN pnpm config set store-dir /pnpm-store
+
+# Instalar dependências com cache otimizado
+RUN pnpm install --frozen-lockfile --prefer-offline
+
+# Stage 2: Builder
+FROM base AS builder
+
+# Copiar dependências do stage anterior
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/*/node_modules ./apps/*/node_modules
+COPY --from=deps /app/packages/*/node_modules ./packages/*/node_modules
 
 # Copiar código fonte
 COPY . .
 
-# IMPORTANTE: Declarar ARGs para receber variáveis de ambiente do Coolify
-ARG VITE_API_BASE_URL
-ARG VITE_API_BEARER_TOKEN
-ARG VITE_DB_HOST
-ARG VITE_DB_DATABASE
-ARG VITE_DB_COLLECTION
-ARG VITE_MONGODB_CONNECTION_STRING
-ARG VITE_MONGODB_PROXY_PORT
-ARG VITE_DEFAULT_PAGE_SIZE
-ARG VITE_DEFAULT_PAGE
-ARG VITE_MAX_DATE_RANGE_DAYS
-ARG VITE_DEFAULT_DATE_RANGE_DAYS
-ARG VITE_CACHE_DURATION_MINUTES
-ARG VITE_QUERY_TIMEOUT_MS
-ARG VITE_ANALYTICS_PAGE_SIZE
-ARG VITE_API_GOOGLE_GEMINI
-ARG VITE_PUBLIC_BUILDER_KEY
-ARG VITE_S3_ENDPOINT
-ARG VITE_S3_ACCESS_KEY
-ARG VITE_S3_SECRET_KEY
-ARG VITE_S3_BUCKET
-ARG VITE_S3_REGION
+# ARGs para variáveis de ambiente (Coolify compatibility)
+ARG NODE_ENV=production
+ARG PORT=3000
 
-# Converter ARGs em ENVs para o build do Vite
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-ENV VITE_API_BEARER_TOKEN=$VITE_API_BEARER_TOKEN
-ENV VITE_DB_HOST=$VITE_DB_HOST
-ENV VITE_DB_DATABASE=$VITE_DB_DATABASE
-ENV VITE_DB_COLLECTION=$VITE_DB_COLLECTION
-ENV VITE_MONGODB_CONNECTION_STRING=$VITE_MONGODB_CONNECTION_STRING
-ENV VITE_MONGODB_PROXY_PORT=$VITE_MONGODB_PROXY_PORT
-ENV VITE_DEFAULT_PAGE_SIZE=$VITE_DEFAULT_PAGE_SIZE
-ENV VITE_DEFAULT_PAGE=$VITE_DEFAULT_PAGE
-ENV VITE_MAX_DATE_RANGE_DAYS=$VITE_MAX_DATE_RANGE_DAYS
-ENV VITE_DEFAULT_DATE_RANGE_DAYS=$VITE_DEFAULT_DATE_RANGE_DAYS
-ENV VITE_CACHE_DURATION_MINUTES=$VITE_CACHE_DURATION_MINUTES
-ENV VITE_QUERY_TIMEOUT_MS=$VITE_QUERY_TIMEOUT_MS
-ENV VITE_ANALYTICS_PAGE_SIZE=$VITE_ANALYTICS_PAGE_SIZE
-ENV VITE_API_GOOGLE_GEMINI=$VITE_API_GOOGLE_GEMINI
-ENV VITE_PUBLIC_BUILDER_KEY=$VITE_PUBLIC_BUILDER_KEY
-ENV VITE_S3_ENDPOINT=$VITE_S3_ENDPOINT
-ENV VITE_S3_ACCESS_KEY=$VITE_S3_ACCESS_KEY
-ENV VITE_S3_SECRET_KEY=$VITE_S3_SECRET_KEY
-ENV VITE_S3_BUCKET=$VITE_S3_BUCKET
-ENV VITE_S3_REGION=$VITE_S3_REGION
+# Build do projeto
+RUN pnpm build
 
-# Build do frontend (TypeScript + Vite)
-RUN npm run build:prod
+# Stage 3: Runtime
+FROM node:20-alpine AS runtime
 
-# ============================================
-# Estágio 2: Produção com Debian
-# ============================================
-FROM node:20-slim
+# Instalar apenas dependências de runtime
+RUN apk add --no-cache curl bash
 
+# Copiar apenas arquivos necessários
 WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
+COPY --from=deps /app/node_modules ./node_modules
 
-# Instalar dependências do sistema necessárias para Prisma
-RUN apt-get update && apt-get install -y \
-    openssl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copiar package.json e instalar apenas dependências de produção
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Copiar build do frontend
-COPY --from=frontend-builder /app/dist ./dist
-
-# Copiar código do backend
-COPY src/backend ./src/backend
-COPY prisma ./prisma
-
-# Gerar cliente Prisma (Debian tem melhor compatibilidade)
-RUN npx prisma generate
-
-# Instalar tsx para rodar TypeScript
-RUN npm install -g tsx
-
-# Expor porta única (backend serve frontend)
+# Expor porta (será sobrescrita pelo Coolify)
 EXPOSE 3000
+
+# Health check obrigatório para Coolify
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:$PORT/api/health || exit 1
 
 # Variáveis de ambiente
 ENV NODE_ENV=production
-ENV BACKOFFICE_PORT=3000
-ENV SERVE_FRONTEND=true
+ENV PORT=3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
-
-# Iniciar servidor (backend + frontend)
-CMD ["tsx", "src/backend/index.ts"]
+# Comando de produção
+CMD ["node", "dist/index.js"]

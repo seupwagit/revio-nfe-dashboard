@@ -7,10 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+.pnpm-store
+.pnpm-debug.log
+
+# Build outputs
 dist
 dist-ssr
+dist-legacy
 *.local
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Agents
+.agent
+# Cache directories
+.cache
+.parcel-cache
+.next
+.nuxt
+.vuepress/dist
 
 # Editor directories and files
 .vscode/*
@@ -29,3 +50,41 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+temp_*
+debug-*
+cookies.txt
+simple-worker-test.js
+check-users.js
+mcp-cursor-executed.txt
+$null
+
+# Backup directories
+backup_*/
+bkp_temporario/
+
+# Test outputs
+coverage/
+.nyc_output
+test-output.pdf
+
+# Docker
+.dockerignore
+
+# Monorepo specific
+.pnpm-store/
+.pnpm-debug.log*

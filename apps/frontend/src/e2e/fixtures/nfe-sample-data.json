@@ -1,0 +1,102 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "nfe-001",
+      "numero": "000001234",
+      "serie": "1",
+      "chaveAcesso": "35240114200166000187550010000012341001234567",
+      "dataEmissao": "2024-01-15T10:30:00Z",
+      "valorTotal": 1500.50,
+      "status": "autorizada",
+      "emitente": {
+        "cnpj": "14.200.166/0001-87",
+        "razaoSocial": "Empresa Teste LTDA",
+        "nomeFantasia": "Empresa Teste"
+      },
+      "destinatario": {
+        "cnpj": "11.222.333/0001-44",
+        "razaoSocial": "Cliente Teste LTDA"
+      },
+      "produtos": [
+        {
+          "codigo": "PROD001",
+          "descricao": "Produto de Teste",
+          "quantidade": 2,
+          "valorUnitario": 750.25,
+          "valorTotal": 1500.50
+        }
+      ]
+    },
+    {
+      "id": "nfe-002",
+      "numero": "000001235",
+      "serie": "1",
+      "chaveAcesso": "35240114200166000187550010000012351001234568",
+      "dataEmissao": "2024-01-16T14:20:00Z",
+      "valorTotal": 2300.75,
+      "status": "autorizada",
+      "emitente": {
+        "cnpj": "14.200.166/0001-87",
+        "razaoSocial": "Empresa Teste LTDA",
+        "nomeFantasia": "Empresa Teste"
+      },
+      "destinatario": {
+        "cnpj": "22.333.444/0001-55",
+        "razaoSocial": "Outro Cliente LTDA"
+      },
+      "produtos": [
+        {
+          "codigo": "PROD002",
+          "descricao": "Outro Produto",
+          "quantidade": 1,
+          "valorUnitario": 2300.75,
+          "valorTotal": 2300.75
+        }
+      ]
+    },
+    {
+      "id": "nfe-003",
+      "numero": "000001236",
+      "serie": "1",
+      "chaveAcesso": "35240114200166000187550010000012361001234569",
+      "dataEmissao": "2024-01-17T09:15:00Z",
+      "valorTotal": 850.00,
+      "status": "cancelada",
+      "emitente": {
+        "cnpj": "14.200.166/0001-87",
+        "razaoSocial": "Empresa Teste LTDA",
+        "nomeFantasia": "Empresa Teste"
+      },
+      "destinatario": {
+        "cnpj": "33.444.555/0001-66",
+        "razaoSocial": "Terceiro Cliente LTDA"
+      },
+      "produtos": [
+        {
+          "codigo": "PROD003",
+          "descricao": "Produto Cancelado",
+          "quantidade": 1,
+          "valorUnitario": 850.00,
+          "valorTotal": 850.00
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalItems": 3,
+    "itemsPerPage": 50
+  },
+  "metadata": {
+    "collection": "tbl_nfe_100",
+    "queryTime": "45ms",
+    "lastUpdate": "2024-01-26T10:00:00Z",
+    "groupingConfig": {
+      "enabled": true,
+      "strategy": "configurable",
+      "fields": ["emitente.cnpj", "dataEmissao"]
+    }
+  }
+}

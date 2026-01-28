@@ -1,0 +1,157 @@
+# Docker Compose para Debug - Desenvolvimento com hot reload
+# Usa variáveis do arquivo .env automaticamente
+
+services:
+  # Backend com debug habilitado
+  backend-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    container_name: fiscal-backend-debug
+    ports:
+      - "${BACKOFFICE_PORT:-4001}:${BACKOFFICE_PORT:-4001}" # API Backend
+      - "9229:9229" # Node.js Debug Port
+    volumes:
+      # Hot reload - montar código fonte
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./packages/shared/src:/app/packages/shared/src
+      # Preservar node_modules
+      - /app/node_modules
+      - /app/apps/backend/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=*
+      - BACKOFFICE_PORT=${BACKOFFICE_PORT:-4001}
+      # Habilitar debug do Node.js
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+      # Database Configuration
+      - VITE_DB_HOST=${VITE_DB_HOST}
+      - VITE_DB_DATABASE=${VITE_DB_DATABASE}
+      - VITE_DB_COLLECTION=${VITE_DB_COLLECTION}
+      - VITE_MONGODB_CONNECTION_STRING=${VITE_MONGODB_CONNECTION_STRING}
+      - DATABASE_URL=${DATABASE_URL}
+      # SQL Server Configuration
+      - VITE_DB_SERVER=${VITE_DB_SERVER}
+      - VITE_DB_USER=${VITE_DB_USER}
+      - VITE_DB_PASSWORD=${VITE_DB_PASSWORD}
+      # S3 Configuration
+      - VITE_S3_ENDPOINT=${VITE_S3_ENDPOINT}
+      - VITE_S3_ACCESS_KEY=${VITE_S3_ACCESS_KEY}
+      - VITE_S3_SECRET_KEY=${VITE_S3_SECRET_KEY}
+      - VITE_S3_BUCKET=${VITE_S3_BUCKET}
+      - VITE_S3_REGION=${VITE_S3_REGION}
+      # API Configuration
+      - VITE_API_BASE_URL=http://localhost:${BACKOFFICE_PORT:-4001}
+      - VITE_API_BEARER_TOKEN=${VITE_API_BEARER_TOKEN}
+      - VITE_EXTERNAL_API_URL=${VITE_EXTERNAL_API_URL}
+      - VITE_REVIO_API_URL=${VITE_REVIO_API_URL}
+      # Google API
+      - VITE_API_GOOGLE_GEMINI=${VITE_API_GOOGLE_GEMINI}
+      - VITE_GOOGLE_API_URL=${VITE_GOOGLE_API_URL}
+      # Cache and Query Configuration
+      - VITE_CACHE_DURATION_MINUTES=${VITE_CACHE_DURATION_MINUTES}
+      - VITE_QUERY_TIMEOUT_MS=${VITE_QUERY_TIMEOUT_MS}
+      - VITE_MAX_PAGE_SIZE=${VITE_MAX_PAGE_SIZE}
+      - VITE_DEFAULT_PAGE_SIZE=${VITE_DEFAULT_PAGE_SIZE}
+      - VITE_ANALYTICS_PAGE_SIZE=${VITE_ANALYTICS_PAGE_SIZE}
+      # Email Configuration
+      - BREVO_SMTP_HOST=${BREVO_SMTP_HOST}
+      - BREVO_SMTP_PORT=${BREVO_SMTP_PORT}
+      - BREVO_SMTP_USER=${BREVO_SMTP_USER}
+      - BREVO_SMTP_PASS=${BREVO_SMTP_PASS}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
+    command: >
+      sh -c "cd apps/backend && 
+             pnpm dev --inspect=0.0.0.0:9229"
+    networks:
+      - fiscal-network
+
+  # Frontend com debug habilitado
+  frontend-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    container_name: fiscal-frontend-debug
+    ports:
+      - "${VITE_PORT:-4000}:${VITE_PORT:-4000}" # Vite Dev Server
+      - "9230:9230" # Frontend Debug Port (se necessário)
+    volumes:
+      # Hot reload - montar código fonte
+      - ./apps/frontend/src:/app/apps/frontend/src
+      - ./packages/shared/src:/app/packages/shared/src
+      # Preservar node_modules
+      - /app/node_modules
+      - /app/apps/frontend/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=${VITE_PORT:-4000}
+      - VITE_PORT=${VITE_PORT:-4000}
+      # API Configuration - Aponta para o backend no host
+      - VITE_API_BASE_URL=http://localhost:${BACKOFFICE_PORT:-4001}
+      - VITE_API_BEARER_TOKEN=${VITE_API_BEARER_TOKEN}
+      - VITE_EXTERNAL_API_URL=${VITE_EXTERNAL_API_URL}
+      - VITE_REVIO_API_URL=${VITE_REVIO_API_URL}
+      # Database Configuration
+      - VITE_DB_HOST=${VITE_DB_HOST}
+      - VITE_DB_DATABASE=${VITE_DB_DATABASE}
+      - VITE_DB_COLLECTION=${VITE_DB_COLLECTION}
+      - VITE_MONGODB_CONNECTION_STRING=${VITE_MONGODB_CONNECTION_STRING}
+      # SQL Server Configuration
+      - VITE_DB_SERVER=${VITE_DB_SERVER}
+      - VITE_DB_USER=${VITE_DB_USER}
+      - VITE_DB_PASSWORD=${VITE_DB_PASSWORD}
+      # S3 Configuration
+      - VITE_S3_ENDPOINT=${VITE_S3_ENDPOINT}
+      - VITE_S3_ACCESS_KEY=${VITE_S3_ACCESS_KEY}
+      - VITE_S3_SECRET_KEY=${VITE_S3_SECRET_KEY}
+      - VITE_S3_BUCKET=${VITE_S3_BUCKET}
+      - VITE_S3_REGION=${VITE_S3_REGION}
+      # Google API
+      - VITE_API_GOOGLE_GEMINI=${VITE_API_GOOGLE_GEMINI}
+      - VITE_GOOGLE_API_URL=${VITE_GOOGLE_API_URL}
+      # Cache and Query Configuration
+      - VITE_CACHE_DURATION_MINUTES=${VITE_CACHE_DURATION_MINUTES}
+      - VITE_QUERY_TIMEOUT_MS=${VITE_QUERY_TIMEOUT_MS}
+      - VITE_MAX_PAGE_SIZE=${VITE_MAX_PAGE_SIZE}
+      - VITE_DEFAULT_PAGE_SIZE=${VITE_DEFAULT_PAGE_SIZE}
+      - VITE_ANALYTICS_PAGE_SIZE=${VITE_ANALYTICS_PAGE_SIZE}
+      - VITE_MAX_DATE_RANGE_DAYS=${VITE_MAX_DATE_RANGE_DAYS}
+      - VITE_DEFAULT_DATE_RANGE_DAYS=${VITE_DEFAULT_DATE_RANGE_DAYS}
+      # Frontend URL
+      - FRONTEND_URL=${FRONTEND_URL}
+      # Builder.io
+      - VITE_PUBLIC_BUILDER_KEY=${VITE_PUBLIC_BUILDER_KEY}
+    command: >
+      sh -c "cd apps/frontend && 
+             pnpm dev --host 0.0.0.0 --port ${VITE_PORT:-4000}"
+    depends_on:
+      - backend-debug
+    networks:
+      - fiscal-network
+
+  # MongoDB para desenvolvimento local (opcional)
+  # Use apenas se não quiser usar o MongoDB externo definido no .env
+  mongodb-debug:
+    image: mongo:7
+    container_name: fiscal-mongodb-debug
+    ports:
+      - "27018:27017" # Porta diferente para não conflitar com MongoDB externo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=fiscal_dev
+    volumes:
+      - mongodb_debug_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - fiscal-network
+    profiles:
+      - local-db # Usar apenas se quiser MongoDB local: docker-compose --profile local-db up
+
+networks:
+  fiscal-network:
+    driver: bridge
+
+volumes:
+  mongodb_debug_data:

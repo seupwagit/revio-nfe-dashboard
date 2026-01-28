@@ -337,5 +337,5 @@ open http://localhost:3000
 ## Referências
 
 - [Dockerfile.fullstack.optimized](../../Dockerfile.fullstack.optimized)
-- [src/server/index.ts](../../src/server/index.ts)
+- [apps/backend/src/index.ts](../../apps/backend/src/index.ts)
 - [Guia de Deploy no Coolify](./COOLIFY_DEPLOY.md)

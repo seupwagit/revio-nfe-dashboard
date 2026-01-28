@@ -125,3 +125,37 @@ model CSV {
   
   @@map("CSV")
 }
+
+// Manifestation System Models
+model TblTipoManifestacao {
+  id          Int      @id @default(autoincrement()) @map("ID")
+  codigo      String   @unique @map("CODIGO") @db.VarChar(10)
+  descricao   String   @map("DESCRICAO") @db.VarChar(100)
+  ativo       Boolean  @default(true) @map("ATIVO")
+  ordem       Int?     @map("ORDEM")
+  createdAt   DateTime @default(now()) @map("CREATED_AT")
+  updatedAt   DateTime @updatedAt @map("UPDATED_AT")
+  
+  @@index([ativo, ordem])
+  @@map("tbl_tipo_manifestacao")
+}
+
+model TblManifestacao {
+  id                  String   @id @map("ID") @db.VarChar(36)
+  usrCodigo           String   @map("USR_CODIGO") @db.VarChar(20)
+  tipoManifestacao    String   @map("TIPO_MANIFESTACAO") @db.VarChar(10)
+  chaveAcesso         String   @map("CHAVE_ACESSO") @db.VarChar(44)
+  status              String   @default("AGENDADO") @map("STATUS") @db.VarChar(10)
+  dataAgendamento     DateTime @default(now()) @map("DATA_AGENDAMENTO")
+  dataProcessamento   DateTime? @map("DATA_PROCESSAMENTO")
+  ipOrigem            String?  @map("IP_ORIGEM") @db.VarChar(45)
+  observacoes         String?  @map("OBSERVACOES") @db.Text
+  createdAt           DateTime @default(now()) @map("CREATED_AT")
+  updatedAt           DateTime @updatedAt @map("UPDATED_AT")
+  
+  @@index([usrCodigo, status])
+  @@index([tipoManifestacao, dataAgendamento])
+  @@index([chaveAcesso])
+  @@unique([usrCodigo, tipoManifestacao, chaveAcesso])
+  @@map("tbl_manifestacao")
+}

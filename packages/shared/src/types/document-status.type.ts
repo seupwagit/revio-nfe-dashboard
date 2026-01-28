@@ -1,0 +1,1 @@
+export type DocumentStatus = 'xml_not_found' | 'xml_downloaded' | 'pdf_cached' | 'pdf_ready';

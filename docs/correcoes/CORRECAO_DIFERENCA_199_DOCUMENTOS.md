@@ -428,9 +428,9 @@ Documentação clara ajuda a evitar regressões futuras.
 ## 🔗 Referências
 
 - [Utilitário de Filtro de Data](../../server/backoffice/utils/dateFilter.ts)
-- [Contexto NF](../../src/contexts/NFContext.tsx)
-- [Componente de Filtros](../../src/components/FiltroNotas.tsx)
-- [Botões de Período](../../src/components/PeriodPresets.tsx)
+- [Contexto NF](../../apps/frontend/src/contexts/NFContext.tsx)
+- [Componente de Filtros](../../apps/frontend/src/components/FiltroNotas.tsx)
+- [Botões de Período](../../apps/frontend/src/components/PeriodPresets.tsx)
 
 ---
 

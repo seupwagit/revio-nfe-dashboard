@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Compilar e Reportar Erros",
+  "description": "Quando o agente completar sua resposta, realiza typecheck automaticamente e reporta quaisquer erros de código, ou informações obtidas através do chrome-devtools (logs de erro, problemas de navegação) de volta ao agente para correção iterativa",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": " #docs Realizar typecheck para pnpm (pnpm --recursive type-check) a partir do projeto root automaticamente e reportar quaisquer erros de código, ou informações obtidas através do chrome-devtools (logs de erro, problemas de navegação) de volta ao agente para correção iterativa corrigindo qualquer problema, caso nenhum erro seja detectado o sistema solicita aprovação do build pelo usuário e aguardar 10 segundos pelo feedback, apenas se usuário aprovar execute   \"pnpm --recursive build\" se os 10 segundos passarem sem aprovação deve-se considerar como se o usuário tivesse recusado, se aprovado e comando de build executado \ntambém identificar problemas de build e se existirem, como por exemplo se erro \"Cannot find module 'zod'\" apenas prossiga com instalação do módulo com problemas e continue com o processo de build até conseguir, sempre obedecer regras do agent steering definidas no diretório .kiro\\steering"
+  },
+  "workspaceFolderName": "revio-nfe-dashboard",
+  "shortName": "compile-and-report"
+}

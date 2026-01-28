@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Manutenção de Documentação",
+  "description": "Hook para atualizar, organizar e manter a documentação do projeto seguindo as regras e recomendações do agent steering. Aplica limites de tamanho, remove arquivos obsoletos, resume documentos verbosos e organiza links entre arquivos.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Realize uma auditoria completa da documentação do projeto e execute as seguintes tarefas:\n\n1. **Atualizar documentação existente**:\n   - Revisar todos os arquivos .md em /docs\n   - Atualizar informações desatualizadas\n   - Aplicar regras do agent steering (file-organization-rules.md)\n   - Garantir consistência de formatação e estilo\n\n2. **Aplicar limites de tamanho**:\n   - Identificar arquivos .md com mais de 500 linhas\n   - Dividir arquivos grandes em módulos menores e coesos\n   - Criar arquivos índice (README.md) para navegação\n   - Manter compatibilidade com links existentes\n\n3. **Remover arquivos obsoletos**:\n   - Identificar documentação totalmente obsoleta ou irrelevante\n   - Verificar se há referências antes de remover\n   - Criar backup ou mover para pasta /docs/archive se necessário\n   - Atualizar links quebrados\n\n4. **Resumir arquivos verbosos**:\n   - Identificar documentação excessivamente detalhada\n   - Criar versões resumidas mantendo informações essenciais\n   - Mover detalhes técnicos para seções específicas\n   - Adicionar TL;DR (resumo executivo) no início\n\n5. **Organizar e criar links**:\n   - Criar estrutura hierárquica clara em /docs\n   - Adicionar links entre documentos relacionados\n   - Criar índice principal atualizado (docs/README.md)\n   - Adicionar breadcrumbs e navegação\n   - Garantir que informações relacionadas estejam conectadas\n\n**Critérios de qualidade**:\n- Obedecer regras do agent steering definidas no diretório .kiro\\steering\n- Máximo 500 linhas por arquivo .md\n- Linguagem clara e objetiva\n- Exemplos práticos quando aplicável\n- Links funcionais entre documentos\n- Estrutura de pastas lógica e intuitiva\n- Índices atualizados\n\n**Relatório final**:\nAo concluir, forneça um relatório com:\n- Arquivos atualizados\n- Arquivos divididos (antes/depois)\n- Arquivos removidos ou arquivados\n- Arquivos resumidos\n- Nova estrutura de organização\n- Links criados/atualizados"
+  },
+  "workspaceFolderName": "revio-nfe-dashboard",
+  "shortName": "doc-maintenance-hook"
+}

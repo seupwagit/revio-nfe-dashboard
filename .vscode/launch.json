@@ -1,180 +1,115 @@
 {
-  // Configuração de Debug - VS Code
-  // Perfil padrão: 🚀 Full Stack Debug
-  //
-  // Para debugar:
-  // 1. Pressione F5 (inicia automaticamente o Full Stack Debug)
-  // 2. Ou use Ctrl+Shift+D e selecione o perfil desejado
-  //
-  // Perfis disponíveis:
-  // - 🚀 Full Stack Debug (PADRÃO): Frontend + Backend + MongoDB
-  // - 🚀 Launch Chrome: Apenas frontend no Chrome
-  // - 🌐 Launch Edge: Apenas frontend no Edge
-  // - 🔗 Attach to Chrome: Conecta a uma instância Chrome existente
-  // - 🐛 Debug Cache: Debug com foco no sistema de cache
-  // - 🧪 Debug Tests: Debug de testes unitários
-
   "version": "0.2.0",
   "configurations": [
-    
-    
     {
-      "name": "🚀 Launch Chrome (Dev)",
-      "type": "chrome",
+      "name": "🖥️ Debug Backend",
+      "type": "node",
       "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}",
-      "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "sourceMapPathOverrides": {
-        "/@fs/*": "${webRoot}/*",
-        "/src/frontend/*": "${webRoot}/src/frontend/*",
-        "/*": "${webRoot}/*"
-      },
+      "program": "${workspaceFolder}/apps/backend/src/index.ts",
+      "cwd": "${workspaceFolder}",
       "runtimeArgs": [
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process",
-        "--remote-debugging-port=9222"
+        "--import",
+        "tsx/esm"
       ],
-      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
-      "preLaunchTask": "npm: dev",
-      "serverReadyAction": {
-        "pattern": "Local:\\s+(https?://\\S+)",
-        "uriFormat": "%s",
-        "action": "debugWithChrome"
-      }
+      "env": {
+        "NODE_ENV": "development",
+        "BACKOFFICE_PORT": "4001",
+        "PORT": "4001"
+      },
+      "envFile": "${workspaceFolder}/.env",
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal",
+      "preLaunchTask": "🪟 Clean Backend Build Only"
     },
     {
-      "name": "🔗 Attach to Chrome",
-      "type": "chrome",
-      "request": "attach",
-      "port": 9222,
-      "webRoot": "${workspaceFolder}",
-      "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "sourceMapPathOverrides": {
-        "/@fs/*": "${webRoot}/*",
-        "/src/frontend/*": "${webRoot}/src/frontend/*",
-        "/*": "${webRoot}/*"
-      },
-      "urlFilter": "http://localhost:3000/*"
-    },
-    {
-      "name": "🌐 Launch Edge (Dev)",
-      "type": "msedge",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}",
-      "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "sourceMapPathOverrides": {
-        "/@fs/*": "${webRoot}/*",
-        "/src/frontend/*": "${webRoot}/src/frontend/*",
-        "/*": "${webRoot}/*"
-      },
-      "runtimeArgs": [
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process"
-      ],
-      "userDataDir": "${workspaceFolder}/.vscode/edge-debug-profile"
-    },
-    {
-      "name": "🐛 Debug Cache (Chrome)",
+      "name": "🌐 Debug Frontend",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}",
+      "url": "http://localhost:4000",
+      "webRoot": "${workspaceFolder}/apps/frontend/src",
       "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "sourceMapPathOverrides": {
-        "/@fs/*": "${webRoot}/*",
-        "/src/frontend/*": "${webRoot}/src/frontend/*",
-        "/*": "${webRoot}/*"
-      },
-      "runtimeArgs": [
-        "--disable-web-security",
-        "--remote-debugging-port=9222",
-        "--auto-open-devtools-for-tabs"
-      ],
-      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-cache",
-      "trace": true
+      "timeout": 30000,
+      "preLaunchTask": "🪟 Start Frontend (Windows Native)"
     },
     {
       "name": "🧪 Debug Tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": ["run"],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "name": "🔧 Backend (Node.js)",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["tsx", "--inspect=9229", "src/backend/index.ts"],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
+      "program": "${workspaceFolder}/node_modules/.bin/vitest",
+      "args": [
+        "run",
+        "--reporter=verbose"
       ],
+      "cwd": "${workspaceFolder}",
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "test"
       },
-      "outputCapture": "std"
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal"
     },
     {
-      "name": "🔌 Attach Backend",
+      "name": "🔍 Attach to Backend",
       "type": "node",
       "request": "attach",
       "port": 9229,
+      "address": "localhost",
+      "localRoot": "${workspaceFolder}/apps/backend",
       "restart": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}"
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "🌐 Start Frontend Dev Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@fiscal/frontend", "dev"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "VITE_PORT": "4000",
+        "BACKOFFICE_PORT": "4001"
+      },
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*VITE.*$",
+          "endsPattern": "^.*Local:.*http://localhost:4000.*$|^.*ready.*$"
+        }
+      }
     }
   ],
   "compounds": [
     {
-      "name": "🚀 Full Stack Debug",
-      "configurations": ["🔧 Backend (Node.js)", "🚀 Launch Chrome (Dev)"],
-      "stopAll": true,
-      "presentation": {
-        "hidden": false,
-        "group": "1-main",
-        "order": 1
-      }
+      "name": "🚀 Debug Full Stack",
+      "configurations": [
+        "🌐 Start Frontend Dev Server",
+        "🖥️ Debug Backend"
+      ],
+      "stopAll": true
     },
     {
-      "name": "🚀 Full Stack Debug (Edge + Backend)",
-      "configurations": ["🔧 Backend (Node.js)", "🌐 Launch Edge (Dev)"],
-      "stopAll": true,
-      "presentation": {
-        "hidden": false,
-        "group": "1-main",
-        "order": 2
-      }
-    },
-    {
-      "name": "🔌 Attach Full Stack",
-      "configurations": ["🔌 Attach Backend", "🔗 Attach to Chrome"],
-      "stopAll": true,
-      "presentation": {
-        "hidden": false,
-        "group": "2-attach",
-        "order": 1
-      }
+      "name": "🌐 Debug Frontend Only",
+      "configurations": [
+        "🌐 Start Frontend Dev Server",
+        "🌐 Debug Frontend"
+      ],
+      "stopAll": true
     }
   ]
 }

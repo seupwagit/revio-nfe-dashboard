@@ -1,0 +1,71 @@
+# Project Configuration Validation Workflow
+name: Project Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly validation on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  validate-project:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Enable pnpm
+      run: corepack enable
+      
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run project validation
+      run: |
+        chmod +x scripts/validate-project-config.sh
+        ./scripts/validate-project-config.sh --detailed --json --output validation-report.json
+        
+    - name: Upload validation report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: validation-report
+        path: validation-report.json
+        
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('validation-report.json')) {
+            const report = JSON.parse(fs.readFileSync('validation-report.json', 'utf8'));
+            const status = report.overall_status === 'PASSED' ? '✅' : '❌';
+            const comment = `## ${status} Project Validation Results
+            
+            **Overall Status**: ${report.overall_status}
+            
+            ### Summary
+            - **Type Check**: ${report.summary.type_check.passed} passed, ${report.summary.type_check.failed} failed
+            - **Lint**: ${report.summary.lint.passed} passed, ${report.summary.lint.failed} failed
+            - **Security**: ${report.summary.security.vulnerabilities} vulnerabilities
+            - **Dependencies**: ${report.summary.dependencies.outdated} outdated packages
+            
+            *Validation completed at: ${report.timestamp}*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }

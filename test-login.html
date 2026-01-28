@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test Login API</h1>
+        <p>Este teste verifica se a API de login está funcionando corretamente.</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="apiUrl">API Base URL:</label>
+                <input type="text" id="apiUrl" value="http://localhost:4001" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" value="divino@grupochama.com.br" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="123456789" required>
+            </div>
+            
+            <button type="submit" id="loginBtn">🚀 Test Login</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const resultDiv = document.getElementById('result');
+        const loginBtn = document.getElementById('loginBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const apiUrl = document.getElementById('apiUrl').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Testing...';
+            
+            resultDiv.innerHTML = '';
+            
+            try {
+                showResult('🔄 Testing API connection...', 'info');
+                
+                const loginUrl = `${apiUrl}/api/auth/login`;
+                
+                showResult(`📡 Making request to: ${loginUrl}`, 'info');
+                
+                const response = await fetch(loginUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const responseData = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ LOGIN SUCCESS!\n\nStatus: ${response.status}\n\nResponse Structure:\n${JSON.stringify({
+                        success: responseData.success,
+                        hasData: !!responseData.data,
+                        hasToken: !!(responseData.data && responseData.data.token),
+                        hasUser: !!(responseData.data && responseData.data.user),
+                        userFields: responseData.data && responseData.data.user ? Object.keys(responseData.data.user) : []
+                    }, null, 2)}\n\nUser Info:\n${responseData.data && responseData.data.user ? JSON.stringify({
+                        usrCodigo: responseData.data.user.usrCodigo,
+                        usrNome: responseData.data.user.usrNome,
+                        usrLogin: responseData.data.user.usrLogin,
+                        bancoDeDados: responseData.data.user.bancoDeDados,
+                        isAdmin: responseData.data.user.isAdmin
+                    }, null, 2) : 'No user data'}`, 'success');
+                } else {
+                    showResult(`❌ LOGIN FAILED!\n\nStatus: ${response.status}\n\nError Response:\n${JSON.stringify(responseData, null, 2)}`, 'error');
+                }
+                
+            } catch (error) {
+                let errorMessage = `💥 REQUEST ERROR: ${error.message}`;
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += '\n\n🔌 Connection Error - Possible causes:';
+                    errorMessage += '\n• Backend not running on port 4001';
+                    errorMessage += '\n• CORS issues';
+                    errorMessage += '\n• Network connectivity problems';
+                    errorMessage += '\n\n💡 Try: pnpm --filter @fiscal/backend dev';
+                }
+                
+                showResult(errorMessage, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🚀 Test Login';
+            }
+        });
+        
+        function showResult(message, type) {
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        // Test API availability on page load
+        window.addEventListener('load', async () => {
+            const apiUrl = document.getElementById('apiUrl').value;
+            try {
+                showResult('🔄 Checking API availability...', 'info');
+                const response = await fetch(`${apiUrl}/api/health`);
+                if (response.ok) {
+                    showResult('✅ API is available! Ready to test login.', 'success');
+                } else {
+                    showResult(`⚠️ API responded with status ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ API not available: ${error.message}\n\n💡 Make sure backend is running: pnpm --filter @fiscal/backend dev`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

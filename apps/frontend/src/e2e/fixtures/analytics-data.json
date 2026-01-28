@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "totalCount": 1250,
+      "totalValue": 2500000.50,
+      "averageValue": 2000.40
+    },
+    "statusBreakdown": {
+      "autorizada": 1100,
+      "cancelada": 100,
+      "processando": 50
+    },
+    "volumeOverTime": [
+      { "date": "2024-01-01", "count": 45, "value": 90000 },
+      { "date": "2024-01-02", "count": 52, "value": 104000 },
+      { "date": "2024-01-03", "count": 38, "value": 76000 }
+    ],
+    "topEmitters": [
+      { "name": "Empresa A", "count": 150, "value": 300000 },
+      { "name": "Empresa B", "count": 120, "value": 240000 },
+      { "name": "Empresa C", "count": 100, "value": 200000 }
+    ]
+  },
+  "metadata": {
+    "collection": "tbl_nfe_100",
+    "period": "30d",
+    "lastUpdate": "2024-01-26T10:00:00Z"
+  }
+}

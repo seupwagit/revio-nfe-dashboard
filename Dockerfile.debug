@@ -1,0 +1,40 @@
+# Dockerfile para Debug - Otimizado para desenvolvimento
+FROM node:20-alpine
+
+# Instalar ferramentas de debug
+RUN apk add --no-cache \
+    git \
+    openssh-client \
+    curl \
+    bash
+
+# Habilitar corepack para pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Configurar diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de configuração do workspace
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json ./
+
+# Copiar package.json de todos os workspaces
+COPY apps/*/package.json ./apps/*/
+COPY packages/*/package.json ./packages/*/
+
+# Limpar cache e instalar dependências
+RUN pnpm config set store-dir /pnpm-store
+RUN pnpm store prune || true
+RUN pnpm install --no-frozen-lockfile --ignore-scripts
+
+# Copiar código fonte
+COPY . .
+
+# Executar scripts pós-instalação se necessário
+RUN pnpm rebuild || true
+
+# Expor portas para debug
+EXPOSE 3000 3001 9229 9230
+
+# Comando padrão para desenvolvimento
+CMD ["pnpm", "dev"]

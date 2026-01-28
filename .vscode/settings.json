@@ -1,34 +1,65 @@
 {
-  // Debug Settings
-  "debug.internalConsoleOptions": "neverOpen",
-  "debug.openDebug": "openOnDebugBreak",
-  "debug.showInStatusBar": "always",
-  "debug.toolBarLocation": "docked",
-
-  // Terminal Settings
-  "terminal.integrated.defaultProfile.windows": "Command Prompt",
-
-  // TypeScript Settings
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-
-  // Editor Settings
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "args": ["-NoExit", "-Command", "& {Set-Location -Path '${workspaceFolder}'}"]
+    },
+    "WSL Ubuntu": {
+      "path": "wsl.exe",
+      "args": ["-d", "Ubuntu"],
+      "icon": "terminal-ubuntu"
+    }
   },
-
-  // Files to exclude from search
+  "docker.dockerPath": "wsl",
+  "docker.dockerComposePath": "wsl",
+  "docker.environment": {
+    "WSL_UTF8": "1"
+  },
+  "files.eol": "\n",
+  "files.encoding": "utf8",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "eslint.workingDirectories": [
+    "apps/frontend",
+    "apps/backend",
+    "packages/shared"
+  ],
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
-    "**/.vscode/chrome-debug-profile": true,
-    "**/.vscode/edge-debug-profile": true
+    "**/build": true,
+    "**/.git": true,
+    "**/temp": true,
+    "**/.pnpm-store": true
   },
-
-  // Files to exclude from file explorer
-  "files.exclude": {
-    "**/.vscode/chrome-debug-profile": true,
-    "**/.vscode/edge-debug-profile": true
-  }
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.git/**": true,
+    "**/temp/**": true,
+    "**/.pnpm-store/**": true
+  },
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 20,
+  "debug.internalConsoleOptions": "openOnSessionStart",
+  "debug.terminal.clearBeforeReusing": true,
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.focusWindowOnBreak": true,
+  "debug.openDebug": "openOnDebugBreak",
+  "terminal.integrated.showExitAlert": false,
+  "terminal.integrated.confirmOnExit": "never",
+  "terminal.integrated.persistentSessionReviveProcess": "onExit",
+  "task.autoDetect": "on",
+  "task.showDecorations": true,
+  "task.problemMatchers.neverPrompt": true,
+  "task.quickOpen.history": 10,
+  "task.quickOpen.detail": true
 }

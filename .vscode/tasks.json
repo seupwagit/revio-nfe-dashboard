@@ -2,150 +2,324 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "npm: dev",
+      "label": "🪟 Start Backend (Windows Native)",
       "type": "shell",
-      "command": "npm",
-      "args": ["run", "dev"],
-      "isBackground": true,
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🚀 INICIANDO BACKEND' -ForegroundColor Cyan; Write-Host '===================' -ForegroundColor Cyan; Write-Host '📋 Verificando dependências...' -ForegroundColor Yellow; if (!(Test-Path 'node_modules')) { Write-Host '❌ Dependências não instaladas. Instalando...' -ForegroundColor Red; pnpm install; Write-Host '✅ Dependências instaladas' -ForegroundColor Green } else { Write-Host '✅ Dependências OK' -ForegroundColor Green }; Write-Host '📋 Verificando workspace backend...' -ForegroundColor Yellow; $backendCheck = pnpm --filter '@fiscal/backend' --version 2>$null; if ($LASTEXITCODE -ne 0) { Write-Host '❌ Workspace @fiscal/backend não encontrado' -ForegroundColor Red; Write-Host '💡 Execute: 🪟 Fix Backend Module Issues' -ForegroundColor Yellow; exit 1 } else { Write-Host '✅ Workspace backend OK' -ForegroundColor Green }; Write-Host '🔨 Verificando build...' -ForegroundColor Yellow; if (!(Test-Path 'apps/backend/dist')) { Write-Host '📦 Compilando TypeScript...' -ForegroundColor Yellow; pnpm --filter '@fiscal/backend' build; Write-Host '✅ Build concluído' -ForegroundColor Green } else { Write-Host '✅ Build OK' -ForegroundColor Green }; Write-Host '🚀 Iniciando backend...' -ForegroundColor Green; pnpm --filter '@fiscal/backend' dev"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": {
-        "owner": "vite",
         "pattern": {
-          "regexp": "."
+          "regexp": "^(.*):(\\d+):(\\d+)\\s+-\\s+(error|warning|info)\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "VITE",
-          "endsPattern": "Local:.*http://localhost"
+          "beginsPattern": "^.*starting.*$|^.*Iniciando backend.*$",
+          "endsPattern": "^.*ready.*$|^.*listening.*$|^.*Server running.*$|^.*Backoffice Server rodando.*$"
         }
       },
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "focus": false,
-        "group": "fullstack"
-      }
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "NODE_ENV": "development",
+          "PORT": "${env:BACKOFFICE_PORT}",
+          "FORCE_COLOR": "1"
+        }
+      },
+      "isBackground": true
     },
     {
-      "label": "Start Backend (Backoffice)",
+      "label": "🪟 Start Frontend (Windows Native)",
       "type": "shell",
-      "command": "npx",
-      "args": ["tsx", "--inspect=9229", "src/backend/index.ts"],
-      "isBackground": true,
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🌐 INICIANDO FRONTEND' -ForegroundColor Cyan; Write-Host '=====================' -ForegroundColor Cyan; Write-Host '📋 Verificando dependências...' -ForegroundColor Yellow; if (!(Test-Path 'node_modules')) { Write-Host '❌ Dependências não instaladas. Instalando...' -ForegroundColor Red; pnpm install; Write-Host '✅ Dependências instaladas' -ForegroundColor Green } else { Write-Host '✅ Dependências OK' -ForegroundColor Green }; Write-Host '📋 Verificando workspace frontend...' -ForegroundColor Yellow; $frontendCheck = pnpm --filter '@fiscal/frontend' --version 2>$null; if ($LASTEXITCODE -ne 0) { Write-Host '❌ Workspace @fiscal/frontend não encontrado' -ForegroundColor Red; Write-Host '💡 Verifique se apps/frontend/package.json existe' -ForegroundColor Yellow; exit 1 } else { Write-Host '✅ Workspace frontend OK' -ForegroundColor Green }; Write-Host '🌐 Iniciando frontend...' -ForegroundColor Green; pnpm --filter '@fiscal/frontend' dev"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": {
-        "owner": "typescript",
         "pattern": {
-          "regexp": "."
+          "regexp": "^(.*):(\\d+):(\\d+)\\s+-\\s+(error|warning|info)\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "Iniciando",
-          "endsPattern": "Backoffice Server rodando"
+          "beginsPattern": "^.*VITE.*$|^.*Iniciando frontend.*$",
+          "endsPattern": "^.*Local:.*$|^.*ready.*$|^.*dev server running.*$"
         }
       },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "NODE_ENV": "development",
+          "PORT": "${env:VITE_PORT}",
+          "FORCE_COLOR": "1"
+        }
+      },
+      "isBackground": true
+    },
+    {
+      "label": "🪟 Stop All Windows Processes",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "$processes = Get-Process -Name 'node', 'pnpm' -ErrorAction SilentlyContinue; if ($processes) { $processes | Stop-Process -Force; Write-Host 'Processos Node.js/pnpm finalizados' -ForegroundColor Green } else { Write-Host 'Nenhum processo Node.js/pnpm encontrado' -ForegroundColor Yellow }"
+      ],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "dedicated",
         "focus": false,
-        "group": "fullstack"
-      }
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
     },
     {
-      "label": "🚀 Start Full Stack",
-      "dependsOn": ["npm: dev", "Start Backend (Backoffice)"],
-      "problemMatcher": [],
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "group": "fullstack"
-      }
-    },
-    {
-      "label": "npm: build",
-      "type": "npm",
-      "script": "build",
-      "problemMatcher": [],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Debug: Check Cache",
+      "label": "pnpm:install",
       "type": "shell",
-      "command": "npm run debug:cache",
-      "problemMatcher": [],
+      "command": "pnpm",
+      "args": ["install"],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
-      }
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
     },
     {
-      "label": "Debug: Full Cache Report",
+      "label": "pnpm:build",
       "type": "shell",
-      "command": "npm run debug:cache:full",
-      "problemMatcher": [],
+      "command": "pnpm",
+      "args": ["build"],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
-      }
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": ["$tsc"]
     },
     {
-      "label": "Debug: Clear Cache",
+      "label": "pnpm:type-check",
       "type": "shell",
-      "command": "npm run debug:cache:clear",
-      "problemMatcher": [],
+      "command": "pnpm",
+      "args": ["type-check"],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
-      }
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": ["$tsc"]
     },
     {
-      "label": "🔌 Test MongoDB Connection",
+      "label": "🪟 Check Windows Debug Status",
       "type": "shell",
-      "command": "npm run test-mongodb",
-      "problemMatcher": [],
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/Test-Windows-Debug-Tasks.ps1"
+      ],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
+        "focus": true,
         "panel": "new",
-        "focus": true
+        "showReuseMessage": false,
+        "clear": true
       },
-      "group": "test"
+      "problemMatcher": []
     },
     {
-      "label": "📊 MongoDB: Check Collections",
+      "label": "🪟 Kill Specific Port Process",
       "type": "shell",
-      "command": "echo 'Use MCP MongoDB tools to check collections'",
-      "problemMatcher": [],
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "$port = Read-Host 'Digite a porta para finalizar processos'; $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue; if ($connections) { $connections | ForEach-Object { $processId = $_.OwningProcess; try { Stop-Process -Id $processId -Force; Write-Host \"Processo $processId na porta $port finalizado\" -ForegroundColor Green } catch { Write-Host \"Erro ao finalizar processo $processId\" -ForegroundColor Red } } } else { Write-Host \"Nenhum processo encontrado na porta $port\" -ForegroundColor Yellow }"
+      ],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🪟 Show Environment Variables",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🔍 VARIÁVEIS DE AMBIENTE' -ForegroundColor Cyan; Write-Host '========================' -ForegroundColor Cyan; if (Test-Path '.env') { Write-Host '📋 Variáveis do arquivo .env:' -ForegroundColor Yellow; Get-Content '.env' | Where-Object { $_ -match '^[^#].*=' } | ForEach-Object { Write-Host \"   $_\" -ForegroundColor White } } else { Write-Host '❌ Arquivo .env não encontrado' -ForegroundColor Red }; Write-Host ''; Write-Host '📋 Variáveis de ambiente do sistema:' -ForegroundColor Yellow; @('VITE_PORT', 'BACKOFFICE_PORT', 'NODE_ENV', 'PORT') | ForEach-Object { $value = [Environment]::GetEnvironmentVariable($_); if ($value) { Write-Host \"   $_ = $value\" -ForegroundColor Green } else { Write-Host \"   $_ = (não definida)\" -ForegroundColor Gray } }"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🪟 Install Dependencies (Windows Native)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '📦 INSTALAÇÃO DE DEPENDÊNCIAS' -ForegroundColor Cyan; Write-Host '=============================' -ForegroundColor Cyan; Write-Host '📋 Verificando Node.js...' -ForegroundColor Yellow; try { $nodeVersion = node --version; Write-Host \"✅ Node.js: $nodeVersion\" -ForegroundColor Green } catch { Write-Host '❌ Node.js não encontrado. Instale Node.js 20+' -ForegroundColor Red; exit 1 }; Write-Host '📋 Verificando pnpm...' -ForegroundColor Yellow; try { $pnpmVersion = pnpm --version; Write-Host \"✅ pnpm: v$pnpmVersion\" -ForegroundColor Green } catch { Write-Host '❌ pnpm não encontrado. Instalando...' -ForegroundColor Yellow; npm install -g pnpm; Write-Host '✅ pnpm instalado' -ForegroundColor Green }; Write-Host '📋 Verificando dependências...' -ForegroundColor Yellow; if (!(Test-Path 'node_modules')) { Write-Host '📦 Instalando dependências do projeto...' -ForegroundColor Yellow; pnpm install; Write-Host '✅ Dependências instaladas' -ForegroundColor Green } else { Write-Host '📋 Verificando se dependências estão atualizadas...' -ForegroundColor Yellow; $outdated = pnpm outdated 2>$null; if ($LASTEXITCODE -ne 0) { Write-Host '📦 Atualizando dependências...' -ForegroundColor Yellow; pnpm install; Write-Host '✅ Dependências atualizadas' -ForegroundColor Green } else { Write-Host '✅ Dependências já estão instaladas e atualizadas' -ForegroundColor Green } }; Write-Host '📋 Verificando workspaces...' -ForegroundColor Yellow; $workspaces = pnpm list --recursive --depth=0 2>$null; if ($LASTEXITCODE -eq 0) { Write-Host '✅ Workspaces configurados corretamente' -ForegroundColor Green } else { Write-Host '⚠️ Problemas com workspaces detectados' -ForegroundColor Yellow }; Write-Host '🎯 Instalação concluída!' -ForegroundColor Green"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
       }
     },
     {
-      "type": "npm",
-      "script": "install",
-      "problemMatcher": [],
-      "label": "npm: install",
-      "detail": "install dependencies from package"
-    },
-    {
-      "label": "Kill Port 3000",
+      "label": "🪟 Fix Backend Module Issues",
       "type": "shell",
-      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F",
-      "problemMatcher": [],
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🔧 CORRIGINDO PROBLEMAS DE MÓDULOS' -ForegroundColor Cyan; Write-Host '=================================' -ForegroundColor Cyan; Write-Host '📋 Limpando cache e node_modules...' -ForegroundColor Yellow; Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force apps/backend/node_modules -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force apps/frontend/node_modules -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force packages/shared/node_modules -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force packages/shared/dist -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force apps/backend/dist -ErrorAction SilentlyContinue; Write-Host '📦 Reinstalando dependências...' -ForegroundColor Yellow; pnpm install; Write-Host '🔨 Compilando shared...' -ForegroundColor Yellow; pnpm --filter @fiscal/shared build; Write-Host '🔨 Compilando backend...' -ForegroundColor Yellow; pnpm --filter @fiscal/backend build; Write-Host '🧪 Testando workspaces...' -ForegroundColor Yellow; $sharedTest = pnpm --filter '@fiscal/shared' --version 2>$null; if ($LASTEXITCODE -eq 0) { Write-Host '✅ Shared workspace OK' -ForegroundColor Green } else { Write-Host '❌ Shared workspace com problemas' -ForegroundColor Red }; $backendTest = pnpm --filter '@fiscal/backend' --version 2>$null; if ($LASTEXITCODE -eq 0) { Write-Host '✅ Backend workspace OK' -ForegroundColor Green } else { Write-Host '❌ Backend workspace com problemas' -ForegroundColor Red }; Write-Host '🎯 Correção concluída!' -ForegroundColor Green"
+      ],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
       }
     },
     {
-      "label": "Kill Port 3000",
+      "label": "🪟 Pre-Debug Check",
       "type": "shell",
-      "command": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :3000') DO taskkill /PID %P /F",
-      "problemMatcher": [],
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🔍 PRÉ-DEBUG CHECK' -ForegroundColor Cyan; Write-Host '==================' -ForegroundColor Cyan; $errors = @(); Write-Host '📋 Verificando Node.js...' -ForegroundColor Yellow; try { $nodeVersion = node --version; Write-Host \"✅ Node.js: $nodeVersion\" -ForegroundColor Green } catch { Write-Host '❌ Node.js não encontrado' -ForegroundColor Red; $errors += 'Node.js não instalado' }; Write-Host '📋 Verificando pnpm...' -ForegroundColor Yellow; try { $pnpmVersion = pnpm --version; Write-Host \"✅ pnpm: v$pnpmVersion\" -ForegroundColor Green } catch { Write-Host '❌ pnpm não encontrado' -ForegroundColor Red; $errors += 'pnpm não instalado' }; Write-Host '📋 Verificando dependências...' -ForegroundColor Yellow; if (Test-Path 'node_modules') { Write-Host '✅ node_modules existe' -ForegroundColor Green; $workspaces = pnpm list --recursive --depth=0 2>$null; if ($LASTEXITCODE -eq 0) { Write-Host '✅ Workspaces OK' -ForegroundColor Green } else { Write-Host '⚠️ Problemas com workspaces' -ForegroundColor Yellow; $errors += 'Workspaces com problemas' } } else { Write-Host '❌ node_modules não encontrado' -ForegroundColor Red; $errors += 'Dependências não instaladas' }; Write-Host '📋 Verificando arquivo .env...' -ForegroundColor Yellow; if (Test-Path '.env') { Write-Host '✅ .env existe' -ForegroundColor Green } else { Write-Host '❌ .env não encontrado' -ForegroundColor Red; $errors += 'Arquivo .env não encontrado' }; Write-Host '📋 Verificando portas...' -ForegroundColor Yellow; $ports = @(4005, 4010, 9229); $portsInUse = @(); foreach ($port in $ports) { $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue; if ($connection) { $portsInUse += $port } }; if ($portsInUse.Count -eq 0) { Write-Host '✅ Todas as portas livres' -ForegroundColor Green } else { Write-Host \"⚠️ Portas em uso: $($portsInUse -join ', ')\" -ForegroundColor Yellow }; Write-Host ''; if ($errors.Count -eq 0) { Write-Host '🎯 TUDO OK - Pronto para debug!' -ForegroundColor Green } else { Write-Host '❌ PROBLEMAS ENCONTRADOS:' -ForegroundColor Red; $errors | ForEach-Object { Write-Host \"   - $_\" -ForegroundColor Red }; Write-Host ''; Write-Host '💡 Execute: Ctrl+Shift+P → Tasks: Run Task → 🪟 Install Dependencies' -ForegroundColor Yellow }"
+      ],
+      "group": "build",
       "presentation": {
+        "echo": true,
         "reveal": "always",
-        "panel": "new"
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "🪟 Test pnpm Workspaces",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "list",
+        "--recursive",
+        "--depth=0"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "🪟 Clean Backend Build Only",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🧹 LIMPANDO BUILD DO BACKEND' -ForegroundColor Cyan; if (Test-Path 'apps/backend/dist') { Remove-Item -Recurse -Force apps/backend/dist; Write-Host '✅ Pasta apps/backend/dist removida' -ForegroundColor Green } else { Write-Host '✅ Nenhuma build anterior encontrada' -ForegroundColor Green }"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
       }
     }
   ]
