@@ -5,13 +5,28 @@
  * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
-import { Request, Response } from 'express';
+/**
+ * Interfaces locais para evitar dependência direta do express no pacote shared
+ */
+export interface GenericRequest {
+  ip?: string;
+  method?: string;
+  path?: string;
+  [key: string]: any;
+}
+
+export interface GenericResponse {
+  status: (code: number) => GenericResponse;
+  send: (body: any) => GenericResponse;
+  json: (body: any) => GenericResponse;
+  [key: string]: any;
+}
 
 export interface RateLimiterConfig {
   windowMs: number;
   maxRequests: number;
-  keyGenerator?: (req: Request) => string;
-  handler?: (req: Request, res: Response) => void;
+  keyGenerator?: (req: GenericRequest) => string;
+  handler?: (req: GenericRequest, res: GenericResponse) => void;
   skipSuccessfulRequests?: boolean;
   skipFailedRequests?: boolean;
 }
