@@ -17,7 +17,7 @@ COPY apps/frontend/package.json ./apps/frontend/
 COPY packages/shared/package.json ./packages/shared/
 
 # Instalar dependências (incluindo devDeps para build)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copiar código fonte
 COPY . .
@@ -27,8 +27,8 @@ COPY . .
 # 2. Build do frontend (gera os estáticos)
 # 3. Build do backend
 RUN pnpm --filter @fiscal/shared build && \
-    pnpm --filter @fiscal/frontend build && \
-    pnpm --filter @fiscal/backend build
+  pnpm --filter @fiscal/frontend build && \
+  pnpm --filter @fiscal/backend build
 
 # --- Stage 2: Production Runtime ---
 FROM node:20-alpine AS runtime
@@ -50,7 +50,7 @@ COPY apps/frontend/package.json ./apps/frontend/
 COPY packages/shared/package.json ./packages/shared/
 
 # Instalar apenas dependências de produção
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --no-frozen-lockfile --prod
 
 # Copiar as distros construídas
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
