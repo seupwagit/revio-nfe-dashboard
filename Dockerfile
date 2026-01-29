@@ -7,6 +7,9 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
+# Pular instalação do binário pesado do Cypress no CI/CD
+ENV CYPRESS_INSTALL_BINARY=0
+
 # --- Stage 1: Build Dependencies ---
 FROM base AS builder
 
