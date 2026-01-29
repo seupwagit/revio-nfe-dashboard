@@ -2,7 +2,8 @@
 FROM node:20-alpine AS base
 
 # Dependências de sistema
-RUN apk add --no-cache git curl bash
+# Dependências de sistema (git p/ build, openssl/libc6 p/ Prisma no alpine)
+RUN apk add --no-cache git curl bash openssl libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
@@ -36,7 +37,7 @@ RUN pnpm --filter @fiscal/shared build && \
 # --- Stage 2: Production Runtime ---
 FROM node:20-alpine AS runtime
 
-RUN apk add --no-cache curl bash
+RUN apk add --no-cache curl bash openssl libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app

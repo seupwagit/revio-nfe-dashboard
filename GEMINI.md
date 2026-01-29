@@ -4,6 +4,8 @@ Este arquivo define os padrões obrigatórios e o comportamento esperado do agen
 
 ## 🔴 CRITICAL: AGENT & STEERING PROTOCOL
 
+**LANGUAGE**: Sempre responda em português brasileiro (pt-br)
+
 > **OBRIGATÓRIO:** Antes de qualquer implementação ou refatoração, você DEVE ler e aplicar as regras em `@[.kiro/steering]`.
 
 ### 1. Carregamento de Regras Modulares
