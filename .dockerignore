@@ -1,0 +1,84 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+
+# deps
+**/node_modules
+
+# builds
+**/dist
+**/build
+**/.turbo
+**/.vite
+**/.cache
+
+# logs
+**/*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.production.example
+!.env.test
+# IDE
+.vscode
+.kiro
+.DS_Store
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Tests (mantém arquivos .test.ts para build passar, mas remove E2E pesado)
+coverage
+.nyc_output
+cypress
+**/__tests__/e2e
+**/__tests__/future-e2e
+**/src/e2e
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+backup_*
+bkp_*
+
+# Scripts de desenvolvimento
+scripts/auto-monitor.mjs
+scripts/kill-ports.bat
+iniciar-*.bat
+testar-*.bat
+# Agents
+.agent
+
+# Debug
+.vscode/chrome-debug-profile
+.vscode/edge-debug-profile
+
+# Temporary
+tmp
+temp
+*.tmp
+
+

@@ -83,7 +83,7 @@ coverage/
 test-output.pdf
 
 # Docker
-.dockerignore
+# .dockerignore removido do ignore para permitir deploy otimizado
 
 # Monorepo specific
 .pnpm-store/
