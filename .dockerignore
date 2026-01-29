@@ -39,12 +39,11 @@ yarn-error.log
 .gitignore
 .gitattributes
 
-# Tests (mantém arquivos .test.ts para build passar, mas remove E2E pesado)
+# Tests (mantém arquivos .test.ts para build passar, mas remove E2E pesado e unitários do contexto)
 coverage
 .nyc_output
 cypress
-**/__tests__/e2e
-**/__tests__/future-e2e
+**/__tests__
 **/src/e2e
 
 # Documentation
