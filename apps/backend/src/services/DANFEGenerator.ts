@@ -7,9 +7,9 @@ import { databaseRouter } from './DatabaseRouter';
 let nfeDanfePdf: any;
 let nfeXmlToPdf: any;
 
-// Load libraries using createRequire for CommonJS compatibility
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+// O CommonJS resolve imports nativos através do require global.
+// O TS em modo CommonJS permite o uso de 'import' para módulos ESM/CJS,
+// mas para bibliotecas dinâmicas ou com fallback, o require pode ser mais estável.
 
 try {
   nfeDanfePdf = require('nfe-danfe-pdf');

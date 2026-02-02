@@ -9,12 +9,12 @@
 
 import { DocumentStatus } from '@fiscal/shared/types/document-status';
 import { DocumentStatusResponse } from '@fiscal/shared/types/document-status-response';
-import { LoadingStep } from '@fiscal/shared/types/loading-step';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import * as fc from 'fast-check';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DANFELoadingIndicator, { useDANFELoadingState } from '../../../components/DANFELoadingIndicator';
+import { LoadingStep } from '../../../types/danfe-loading';
 
 // Mock httpService
 vi.mock('../../../services/httpService', () => ({

@@ -14,12 +14,8 @@ import { connectMongoDB, disconnectMongoDB } from './database/mongodb'
 import { connectPrisma, disconnectPrisma, getPrismaClient } from './database/prisma'
 import { resilienceInitializer } from './services/ResilienceInitializer'
 
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-// Get __dirname equivalent in ES modules
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+// No CommonJS, __dirname já está disponível globalmente.
+// Em ambiente de desenvolvimento TS (tsx), pode ser necessário garantir compatibilidade.
 
 import ErrorHandler from './middleware/ErrorHandler'
 import { nfeGroupingInfoMiddleware } from './middleware/nfeGroupingMiddleware'
@@ -89,6 +85,7 @@ const allowedOrigins = [
   'http://localhost:3002',
   'http://localhost:4000',  // Frontend port (VITE_PORT)
   'http://localhost:5173',
+  'https://appdox.revio.digital',
   'https://nf-dashboard-homologacao.sistemasflow.com.br'
 ]
 

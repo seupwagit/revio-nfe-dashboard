@@ -2,7 +2,6 @@
   "name": "@fiscal/shared",
   "version": "1.0.0",
   "description": "Shared types, utilities, and constants for the fiscal system",
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
