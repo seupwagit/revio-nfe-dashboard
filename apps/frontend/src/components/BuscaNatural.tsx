@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Search, Sparkles, HelpCircle, X, AlertCircle, Mic, MicOff } from 'lucide-react'
+import { AlertCircle, HelpCircle, Mic, MicOff, Search, Sparkles, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface BuscaNaturalProps {
   onSearch: (filtros: any) => void
@@ -73,8 +73,9 @@ export default function BuscaNatural({ onSearch, onClear }: BuscaNaturalProps) {
     'entrada': { campo: 'tipoOperacao', descricao: 'Notas de entrada', exemplo: 'operação entrada' },
     'saida': { campo: 'tipoOperacao', descricao: 'Notas de saída', exemplo: 'operação saída' },
     'natureza': { campo: 'naturezaOperacao', descricao: 'Natureza da operação', exemplo: 'natureza venda' },
-    'protocolada': { campo: 'protocolada', descricao: 'Se a nota foi protocolada', exemplo: 'protocolada sim' },
-    'protocolo': { campo: 'protocolada', descricao: 'Se a nota foi protocolada', exemplo: 'protocolada sim' },
+    'autorizada': { campo: 'protocolada', descricao: 'Se a nota foi autorizada', exemplo: 'autorizada sim' },
+    'protocolada': { campo: 'protocolada', descricao: 'Se a nota foi autorizada', exemplo: 'autorizada sim' },
+    'protocolo': { campo: 'protocolada', descricao: 'Se a nota foi autorizada', exemplo: 'autorizada sim' },
     'manifestacao': { campo: 'statusManifestacao', descricao: 'Status da manifestação', exemplo: 'manifestação confirmada' },
     'icms': { campo: 'totais.valorICMS', descricao: 'Valor do ICMS', exemplo: 'icms maior que 500' },
     'ipi': { campo: 'totais.valorIPI', descricao: 'Valor do IPI', exemplo: 'ipi acima de 100' },
@@ -231,12 +232,12 @@ export default function BuscaNatural({ onSearch, onClear }: BuscaNaturalProps) {
     }
 
     // 3. Protocolada (sim/não)
-    if (textoLower.includes('protocolada sim') || textoLower.includes('protocoladas')) {
+    if (textoLower.includes('autorizada sim') || textoLower.includes('protocolada sim') || textoLower.includes('protocoladas')) {
       filtros.protocolada = 'sim'
-      explicacao += 'Protocolada: Sim. '
-    } else if (textoLower.includes('protocolada não') || textoLower.includes('protocolada nao') || textoLower.includes('não protocolada')) {
+      explicacao += 'Autorizada: Sim. '
+    } else if (textoLower.includes('autorizada não') || textoLower.includes('protocolada não') || textoLower.includes('protocolada nao') || textoLower.includes('não protocolada') || textoLower.includes('não autorizada')) {
       filtros.protocolada = 'não'
-      explicacao += 'Protocolada: Não. '
+      explicacao += 'Autorizada: Não. '
     }
 
     // 4. Status Manifestação
@@ -350,7 +351,7 @@ export default function BuscaNatural({ onSearch, onClear }: BuscaNaturalProps) {
     // Busca simples por palavra-chave (ex: "areia", "petrobras", "adoro s.a.")
     // IMPORTANTE: Só fazer busca de empresa se o texto ainda tiver conteúdo após remover datas
     const textoLimpoFinal = textoLower.trim()
-    if (!emitente && !destinatario && textoLimpoFinal.length >= 3 && !textoLower.match(/\b(entrada|saida|saídas|entradas|valor|icms|ipi|pis|cofins|frete|serie|modelo|cnpj|numero|nota|uf|municipio|dias|mes|ano|status|cancelada|autorizada|protocolada)\b/i)) {
+    if (!emitente && !destinatario && textoLower.trim().length >= 3 && !textoLower.match(/\b(entrada|saida|saídas|entradas|valor|icms|ipi|pis|cofins|frete|serie|modelo|cnpj|numero|nota|uf|municipio|dias|mes|ano|status|cancelada|autorizada|protocolada)\b/i)) {
       // Se não tem palavras-chave conhecidas E ainda tem texto, assume que é busca por nome de empresa
       // Usar campo especial "empresa" para buscar em emitente OU destinatário
       filtros.empresa = textoLimpoFinal
@@ -642,7 +643,7 @@ export default function BuscaNatural({ onSearch, onClear }: BuscaNaturalProps) {
                   <li>• operação entrada/saída</li>
                   <li>• natureza venda/compra</li>
                   <li>• canceladas/autorizadas</li>
-                  <li>• protocolada sim/não</li>
+                  <li>• autorizada sim/não</li>
                   <li>• manifestação confirmada</li>
                 </ul>
               </div>

@@ -1,4 +1,6 @@
 // Tipo base para todos os documentos fiscais
+import { FilterItem } from '@fiscal/shared';
+
 export interface DocumentoFiscal {
   id: string
   numero: string
@@ -175,6 +177,13 @@ export interface DashboardStats {
   valorTotal: number
   valorTotalEntradas: number
   valorTotalSaidas: number
+  qtdEntradas: number
+  qtdSaidas: number
+  maiorNota: number
+  menorNota: number
+  notasHoje: number
+  notasUltimos7Dias: number
+  notasUltimos30Dias: number
   totalICMS: number
   totalIPI: number
   totalPIS: number
@@ -196,6 +205,7 @@ export interface Filtros {
   page?: number
   pageSize?: number
   collection?: string
+  dynamicFilters?: FilterItem[]
 }
 
 export interface ApiResponse {

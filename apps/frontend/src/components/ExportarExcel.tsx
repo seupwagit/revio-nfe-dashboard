@@ -51,7 +51,7 @@ export default function ExportarExcel({ dados, nomeArquivo = 'exportacao' }: Exp
         row['Valor Total'] = item.valorTotal || 0
         row['Status'] = item.status || ''
         row['Tipo'] = item.tipo || ''
-        row['Protocolada'] = item.protocolada || ''
+        row['Autorizada'] = item.protocolada || ''
         row['Origem'] = item.origem || ''
         
         // Operação

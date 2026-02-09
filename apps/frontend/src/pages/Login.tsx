@@ -4,9 +4,12 @@
  * Interface de autenticação do usuário
  */
 
-import { AlertCircle, FileText, Loader2, Lock, User } from 'lucide-react'
+import { AlertCircle, Loader2, Lock, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import logoReduzido from '../assets/logo-reduzido-revio-200x199.png'
+import PasswordRecoveryModal from '../components/PasswordRecoveryModal'
+import TermsModal from '../components/TermsModal'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
@@ -14,6 +17,9 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false)
+  
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
   
   const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
@@ -63,8 +69,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Logo e Título */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-revio-primary to-revio-secondary rounded-2xl shadow-revio mb-4">
-            <FileText className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-revio mb-4 overflow-hidden border border-revio-gray-100 p-2">
+            <img src={logoReduzido} alt="Revio Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-revio-primary to-revio-secondary bg-clip-text text-transparent">
             SpedRevio
@@ -121,9 +127,18 @@ export default function Login() {
 
             {/* Campo Senha */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-revio-gray-700 mb-2">
-                Senha
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-revio-gray-700">
+                  Senha
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsRecoveryModalOpen(true)}
+                  className="text-xs font-semibold text-revio-primary hover:text-revio-dark transition-colors"
+                >
+                  Esqueceu senha?
+                </button>
+              </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-revio-gray-400" />
@@ -160,15 +175,33 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Informações Adicionais */}
-          <div className="mt-8 pt-6 border-t border-revio-gray-200">
-            <div className="text-center">
-              <p className="text-xs text-revio-gray-500">
-                Sistema de autenticação seguro com criptografia JWT
-              </p>
-            </div>
+          {/* Link de Termos de Uso */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-revio-gray-500">
+              Ao continuar você aceita os{' '}
+              <button
+                type="button"
+                onClick={() => setIsTermsModalOpen(true)}
+                className="text-revio-primary hover:underline font-semibold"
+              >
+                termos de uso e privacidade
+              </button>
+            </p>
           </div>
+
         </div>
+
+        {/* Modal de Recuperação de Senha */}
+        <PasswordRecoveryModal 
+          isOpen={isRecoveryModalOpen} 
+          onClose={() => setIsRecoveryModalOpen(false)} 
+        />
+
+        {/* Modal de Termos de Uso */}
+        <TermsModal 
+          isOpen={isTermsModalOpen} 
+          onClose={() => setIsTermsModalOpen(false)} 
+        />
 
         {/* Footer */}
         <div className="text-center mt-8">

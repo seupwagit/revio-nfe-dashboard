@@ -8,96 +8,57 @@ import StreamingProgress from '../components/StreamingProgress'
 import { useNF } from '../contexts/NFContext'
 
 export default function Dashboard() {
-  const { stats, loading, progress, currentPage, totalPages, collection, setCollection, notas } = useNF()
+  const { stats, loading, progress, currentPage, totalPages, collection, setCollection, notas, recarregar, filtros } = useNF()
   
-  // Calcular indicadores fiscais avançados
+  // Garantir que as estatísticas sejam carregadas ao entrar no Dashboard
+  // ou quando os filtros mudarem enquanto estivermos no Dashboard
+  useMemo(() => {
+    recarregar({ addStats: true })
+  }, [filtros, collection])
+  
+  // Consolidar indicadores usando EXCLUSIVAMENTE os stats do backend (Agregação MongoDB)
   const indicadoresFiscais = useMemo(() => {
-    if (!notas || notas.length === 0) {
-      return {
-        valorTotalEntradas: 0, valorTotalSaidas: 0, saldoOperacional: 0,
-        totalICMS: 0, totalIPI: 0, totalPIS: 0, totalCOFINS: 0, cargaTributaria: 0,
-        ticketMedio: 0, maiorNota: 0, menorNota: 0,
-        qtdEntradas: 0, qtdSaidas: 0,
-        notasHoje: 0, notasUltimos7Dias: 0, notasUltimos30Dias: 0,
-        taxaAutorizacao: 0, taxaCancelamento: 0, notasPendentes: 0,
-        valorFrete: 0, valorDesconto: 0, valorSeguro: 0,
-        pesoTotal: 0, volumeTotal: 0, qtdViagens: 0,
-        qtdCupons: 0, ticketMedioCupom: 0
-      }
-    }
-    
-    const hoje = new Date()
-    const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const trintaDiasAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000)
-    
-    let valorEntradas = 0, valorSaidas = 0, totalICMS = 0, totalIPI = 0, totalPIS = 0, totalCOFINS = 0
-    let qtdEntradas = 0, qtdSaidas = 0, notasHoje = 0, notasUltimos7Dias = 0, notasUltimos30Dias = 0
-    let valorFrete = 0, valorDesconto = 0, valorSeguro = 0, pesoTotal = 0, volumeTotal = 0
-    let valores: number[] = []
-    
-    notas.forEach(nota => {
-      const valor = nota.valorTotal || 0
-      valores.push(valor)
-      
-      if (nota.tipoOperacao === '0') { valorEntradas += valor; qtdEntradas++ }
-      else if (nota.tipoOperacao === '1') { valorSaidas += valor; qtdSaidas++ }
-      
-      if (nota.totais) {
-        totalICMS += nota.totais.valorICMS || 0
-        totalIPI += nota.totais.valorIPI || 0
-        totalPIS += nota.totais.valorPIS || 0
-        totalCOFINS += nota.totais.valorCOFINS || 0
-        valorFrete += nota.totais.valorFrete || 0
-        valorDesconto += nota.totais.valorDesconto || 0
-        valorSeguro += nota.totais.valorSeguro || 0
-      }
-      
-      if (nota.carga) {
-        pesoTotal += nota.carga.peso || 0
-        volumeTotal += nota.carga.volume || 0
-      }
-      
-      const dataEmissao = new Date(nota.dataEmissao)
-      if (dataEmissao.toDateString() === hoje.toDateString()) notasHoje++
-      if (dataEmissao >= seteDiasAtras) notasUltimos7Dias++
-      if (dataEmissao >= trintaDiasAtras) notasUltimos30Dias++
-    })
-    
-    const valorTotal = stats.valorTotal || 0
-    const totalNotas = stats.totalNotas || 0
-    const totalImpostos = totalICMS + totalIPI + totalPIS + totalCOFINS
-    
-    // Consolidar indicadores combinando iteração local com stats do backend para precisão total
+    const valorTotal = Number(stats.valorTotal || 0);
+    const totalNotas = Number(stats.totalNotas || 0);
+    const notasAutorizadas = Number(stats.notasAutorizadas || 0);
+    const notasCanceladas = Number(stats.notasCanceladas || 0);
+    const totalICMS = Number(stats.totalICMS || 0);
+    const totalIPI = Number(stats.totalIPI || 0);
+    const totalPIS = Number(stats.totalPIS || 0);
+    const totalCOFINS = Number(stats.totalCOFINS || 0);
+
     return {
-      valorTotalEntradas: stats.valorTotalEntradas || valorEntradas,
-      valorTotalSaidas: stats.valorTotalSaidas || valorSaidas,
-      saldoOperacional: (stats.valorTotalSaidas || valorSaidas) - (stats.valorTotalEntradas || valorEntradas),
-      totalICMS: stats.totalICMS || totalICMS,
-      totalIPI: stats.totalIPI || totalIPI,
-      totalPIS: stats.totalPIS || totalPIS,
-      totalCOFINS: stats.totalCOFINS || totalCOFINS,
-      cargaTributaria: (stats.valorTotal || 0) > 0 
-        ? ((stats.totalICMS + stats.totalIPI + stats.totalPIS + stats.totalCOFINS) / stats.valorTotal) * 100 
-        : (valorTotal > 0 ? (totalImpostos / valorTotal) * 100 : 0),
-      ticketMedio: totalNotas > 0 ? (stats.valorTotal || valorTotal) / totalNotas : 0,
-      maiorNota: valores.length > 0 ? Math.max(...valores) : 0,
-      menorNota: valores.length > 0 ? Math.min(...valores) : 0,
-      qtdEntradas: stats.valorTotalEntradas ? qtdEntradas : qtdEntradas, // Mantemos local por enquanto se stats não tiver contagem separada
-      qtdSaidas: stats.valorTotalSaidas ? qtdSaidas : qtdSaidas,
-      notasHoje, notasUltimos7Dias, notasUltimos30Dias,
-      taxaAutorizacao: totalNotas > 0 ? (stats.notasAutorizadas / totalNotas) * 100 : 0,
-      taxaCancelamento: totalNotas > 0 ? (stats.notasCanceladas / totalNotas) * 100 : 0,
-      notasPendentes: totalNotas - stats.notasAutorizadas - stats.notasCanceladas,
-      valorFrete: stats.valorFrete || valorFrete,
-      valorDesconto: stats.valorDesconto || valorDesconto,
-      valorSeguro: stats.valorSeguro || valorSeguro,
-      pesoTotal: pesoTotal,
-      volumeTotal: volumeTotal,
-      qtdViagens: notas.filter(n => n.rodoviario).length,
+      valorTotalEntradas: Number(stats.valorTotalEntradas || 0),
+      valorTotalSaidas: Number(stats.valorTotalSaidas || 0),
+      saldoOperacional: Number(stats.valorTotalSaidas || 0) - Number(stats.valorTotalEntradas || 0),
+      totalICMS,
+      totalIPI,
+      totalPIS,
+      totalCOFINS,
+      cargaTributaria: valorTotal > 0 
+        ? ((totalICMS + totalIPI + totalPIS + totalCOFINS) / valorTotal) * 100 
+        : 0,
+      ticketMedio: totalNotas > 0 ? valorTotal / totalNotas : 0,
+      maiorNota: Number(stats.maiorNota || 0),
+      menorNota: Number(stats.menorNota || 0),
+      qtdEntradas: Number(stats.qtdEntradas || 0),
+      qtdSaidas: Number(stats.qtdSaidas || 0),
+      notasHoje: Number(stats.notasHoje || 0),
+      notasUltimos7Dias: Number(stats.notasUltimos7Dias || 0),
+      notasUltimos30Dias: Number(stats.notasUltimos30Dias || 0),
+      taxaAutorizacao: totalNotas > 0 ? (notasAutorizadas / totalNotas) * 100 : 0,
+      taxaCancelamento: totalNotas > 0 ? (notasCanceladas / totalNotas) * 100 : 0,
+      notasPendentes: totalNotas - notasAutorizadas - notasCanceladas,
+      valorFrete: Number(stats.valorFrete || 0),
+      valorDesconto: Number(stats.valorDesconto || 0),
+      valorSeguro: Number(stats.valorSeguro || 0),
+      pesoTotal: 0, 
+      volumeTotal: 0,
+      qtdViagens: (notas || []).filter(n => n.rodoviario).length, 
       qtdCupons: collection === 'tbl_cfe_100' ? totalNotas : 0,
-      ticketMedioCupom: collection === 'tbl_cfe_100' && totalNotas > 0 ? (stats.valorTotal || valorTotal) / totalNotas : 0
+      ticketMedioCupom: collection === 'tbl_cfe_100' && totalNotas > 0 ? valorTotal / totalNotas : 0
     }
-  }, [notas, stats, collection])
+  }, [stats, collection, notas?.length])
 
   if (loading) return <LoadingSpinner />
 
@@ -172,7 +133,7 @@ export default function Dashboard() {
                   <span className="font-bold text-blue-600">{formatCurrency(indicadoresFiscais.valorTotalEntradas)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-revio-gray-600">Saídas ({indicadoresFiscais.qtdSaidas})</span>
+                  <span className="text-sm text-revio-gray-600">Transferência e Outros ({indicadoresFiscais.qtdSaidas})</span>
                   <span className="font-bold text-green-600">{formatCurrency(indicadoresFiscais.valorTotalSaidas)}</span>
                 </div>
                 <div className="pt-2 border-t border-revio-gray-200">
@@ -182,16 +143,13 @@ export default function Dashboard() {
                       {formatCurrency(indicadoresFiscais.saldoOperacional)}
                     </span>
                   </div>
-                  <p className="text-xs text-revio-gray-500 mt-1">
-                    {indicadoresFiscais.saldoOperacional >= 0 ? '✓ Saldo positivo' : '⚠ Saldo negativo'}
-                  </p>
                 </div>
               </div>
             </div>
 
             <div className="card p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-revio-gray-800">Carga Tributária</h3>
+                <h3 className="font-bold text-revio-gray-800">Tributos</h3>
                 <DollarSign className="h-5 w-5 text-revio-primary" />
               </div>
               <div className="space-y-3">
@@ -208,13 +166,6 @@ export default function Dashboard() {
                   <span className="font-semibold text-revio-gray-800">{formatCurrency(indicadoresFiscais.totalPIS + indicadoresFiscais.totalCOFINS)}</span>
                 </div>
                 <div className="pt-2 border-t border-revio-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-revio-gray-700">% sobre Faturamento</span>
-                    <span className="font-bold text-orange-600">{formatPercent(indicadoresFiscais.cargaTributaria)}</span>
-                  </div>
-                  <p className="text-xs text-revio-gray-500 mt-1">
-                    {indicadoresFiscais.cargaTributaria > 15 ? '⚠ Carga alta' : '✓ Carga normal'}
-                  </p>
                 </div>
               </div>
             </div>
@@ -419,7 +370,7 @@ export default function Dashboard() {
                   <span className="font-semibold text-revio-gray-800">{formatCurrency(indicadoresFiscais.totalPIS + indicadoresFiscais.totalCOFINS)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-revio-gray-600">Carga Tributária</span>
+                  <span className="text-sm text-revio-gray-600">Tributos</span>
                   <span className="font-bold text-orange-600">{formatPercent(indicadoresFiscais.cargaTributaria)}</span>
                 </div>
                 <div className="pt-2 border-t border-revio-gray-200">
@@ -558,42 +509,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Alertas e Recomendações */}
-      <div className="card p-5 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-        <h3 className="text-lg font-bold text-orange-800 mb-4 flex items-center">
-          <AlertTriangle className="h-5 w-5 mr-2" />
-          Insights e Recomendações
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <p className="text-sm text-orange-700">
-              <strong>💡 Carga Tributária:</strong> {formatPercent(indicadoresFiscais.cargaTributaria)} do faturamento
-              {indicadoresFiscais.cargaTributaria > 15 && ' - Considere revisão de regime tributário'}
-            </p>
-            <p className="text-sm text-orange-700">
-              <strong>📊 Performance:</strong> Taxa de autorização de {formatPercent(indicadoresFiscais.taxaAutorizacao)}
-              {indicadoresFiscais.taxaAutorizacao < 95 && ' - Revisar processos de emissão'}
-            </p>
-          </div>
-          <div className="space-y-2">
-            {collection === 'tbl_nfe_100' && indicadoresFiscais.saldoOperacional < 0 && (
-              <p className="text-sm text-orange-700">
-                <strong>⚠️ Atenção:</strong> Saldo operacional negativo - Entradas superiores às saídas
-              </p>
-            )}
-            {indicadoresFiscais.notasPendentes > 0 && (
-              <p className="text-sm text-orange-700">
-                <strong>📋 Pendências:</strong> {indicadoresFiscais.notasPendentes} documentos aguardando processamento
-              </p>
-            )}
-            {indicadoresFiscais.taxaCancelamento > 5 && (
-              <p className="text-sm text-orange-700">
-                <strong>🔄 Cancelamentos:</strong> Taxa de {formatPercent(indicadoresFiscais.taxaCancelamento)} - Acima do ideal
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

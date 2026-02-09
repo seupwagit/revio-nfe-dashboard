@@ -1,8 +1,9 @@
-import { Building2, Calendar, FileText, Filter, Receipt, Truck, X } from 'lucide-react'
+import { Building2, Calendar, FileText, Filter, Info, Receipt, Truck, X } from 'lucide-react'
 import { useState } from 'react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import PeriodPresets from '../components/PeriodPresets'
 import StreamingProgress from '../components/StreamingProgress'
-import { useNF } from '../contexts/NFContext'
+import { getDefaultEndDate, getDefaultStartDate, useNF } from '../contexts/NFContext'
 import GridCFeSimples from './GridCFeSimples'
 import GridCTeSimples from './GridCTeSimples'
 import GridNFeSimples from './GridNFeSimples'
@@ -74,15 +75,6 @@ export default function DocumentosFiscais() {
     })
   }
 
-  function getDefaultStartDate(): string {
-    const date = new Date()
-    date.setFullYear(date.getFullYear() - 1)  // Último ano, não último mês
-    return date.toISOString().split('T')[0]
-  }
-
-  function getDefaultEndDate(): string {
-    return new Date().toISOString().split('T')[0]
-  }
 
   return (
     <div className="space-y-6">
@@ -124,6 +116,17 @@ export default function DocumentosFiscais() {
           <h2 className="text-xl font-bold text-revio-gray-800 flex items-center gap-2">
             <Filter className="h-5 w-5" />
             Filtros de Consulta
+            <div className="relative group ml-1">
+              <div className="p-1 hover:bg-revio-light rounded-full cursor-help transition-colors">
+                <Info className="h-4 w-4 text-revio-primary" />
+              </div>
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 p-3 bg-revio-gray-800 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="font-bold mb-1">💡 Dica de Consulta</div>
+                Use os filtros de data para consultar períodos específicos. 
+                Os filtros de CNPJ são opcionais e podem ser usados para buscar documentos de empresas específicas.
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-revio-gray-800 rotate-45"></div>
+              </div>
+            </div>
           </h2>
           <button
             onClick={() => setMostrarFiltros(!mostrarFiltros)}
@@ -140,86 +143,21 @@ export default function DocumentosFiscais() {
               <label className="block text-sm font-semibold text-revio-gray-700 mb-2">
                 Períodos Rápidos
               </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setDate(inicio.getDate() - 7)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  7 dias
-                </button>
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setDate(inicio.getDate() - 15)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-100 text-indigo-700 hover:bg-indigo-200 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  15 dias
-                </button>
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setDate(inicio.getDate() - 30)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-purple-100 text-purple-700 hover:bg-purple-200 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  30 dias
-                </button>
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setDate(inicio.getDate() - 60)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-pink-100 text-pink-700 hover:bg-pink-200 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  60 dias
-                </button>
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setDate(inicio.getDate() - 90)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-orange-100 text-orange-700 hover:bg-orange-200 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  90 dias
-                </button>
-                <button
-                  onClick={() => {
-                    const fim = new Date()
-                    const inicio = new Date()
-                    inicio.setFullYear(inicio.getFullYear() - 1)
-                    setDataInicio(inicio.toISOString().split('T')[0])
-                    setDataFim(fim.toISOString().split('T')[0])
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all bg-green-100 text-green-700 hover:bg-green-200 border-2 border-green-300 flex items-center gap-1.5"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  Último ano
-                </button>
-              </div>
+              <PeriodPresets 
+                currentStartDate={dataInicio}
+                currentEndDate={dataFim}
+                onSelectPeriod={(days) => {
+                  const fim = new Date()
+                  const inicio = new Date()
+                  if (days === 365) {
+                    inicio.setFullYear(fim.getFullYear() - 1)
+                  } else {
+                    inicio.setDate(fim.getDate() - days)
+                  }
+                  setDataInicio(inicio.toISOString().split('T')[0])
+                  setDataFim(fim.toISOString().split('T')[0])
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -311,13 +249,6 @@ export default function DocumentosFiscais() {
               </button>
             </div>
 
-            {/* Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                <strong>💡 Dica:</strong> Use os filtros de data para consultar períodos específicos. 
-                Os filtros de CNPJ são opcionais e podem ser usados para buscar documentos de empresas específicas.
-              </p>
-            </div>
           </div>
         )}
       </div>

@@ -1,15 +1,15 @@
-import { useState } from 'react'
 import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  flexRender,
-  ColumnDef,
-  ColumnFiltersState,
+    ColumnDef,
+    ColumnFiltersState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
 } from '@tanstack/react-table'
 import { Filter, Lock, Unlock } from 'lucide-react'
+import { useState } from 'react'
 
 interface GridAvancadaProps<T> {
   data: T[]

@@ -1,18 +1,7 @@
-import { useState, useEffect } from 'react'
-import { useNF } from '../contexts/NFContext'
-import { Calendar, Search, X, Info } from 'lucide-react'
+import { Calendar, Info, Search, X } from 'lucide-react'
+import { useState } from 'react'
+import { getDefaultEndDate, getDefaultStartDate, useNF } from '../contexts/NFContext'
 import PeriodPresets from './PeriodPresets'
-
-// Funções para datas padrão (ÚLTIMO ANO - igual ao Analytics)
-const getDefaultStartDate = () => {
-  const date = new Date()
-  date.setFullYear(date.getFullYear() - 1)  // Último ano, não último mês
-  return date.toISOString().split('T')[0]
-}
-
-const getDefaultEndDate = () => {
-  return new Date().toISOString().split('T')[0]
-}
 
 export default function FiltroNotas() {
   const { filtros, setFiltros } = useNF()
@@ -22,16 +11,6 @@ export default function FiltroNotas() {
   const [dataFim, setDataFim] = useState(filtros.dataFim || getDefaultEndDate())
   const [cnpjEmit, setCnpjEmit] = useState(filtros.cnpjEmit || '')
   const [cnpjDest, setCnpjDest] = useState(filtros.cnpjDest || '')
-
-  // Aplica filtros padrão ao carregar
-  useEffect(() => {
-    if (!filtros.dataInicio && !filtros.dataFim) {
-      setFiltros({
-        dataInicio: getDefaultStartDate(),
-        dataFim: getDefaultEndDate()
-      })
-    }
-  }, [])
 
   const aplicarFiltros = () => {
     setFiltros({
@@ -74,12 +53,6 @@ export default function FiltroNotas() {
     
     setDataInicio(dtIni)
     setDataFim(dtFim)
-    
-    setFiltros({
-      ...filtros,
-      dataInicio: dtIni,
-      dataFim: dtFim
-    })
   }
 
   return (
@@ -100,7 +73,11 @@ export default function FiltroNotas() {
         <label className="block text-xs font-medium text-gray-700 mb-2">
           Períodos Rápidos
         </label>
-        <PeriodPresets onSelectPeriod={handlePeriodPreset} />
+        <PeriodPresets 
+          onSelectPeriod={handlePeriodPreset} 
+          currentStartDate={dataInicio}
+          currentEndDate={dataFim}
+        />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

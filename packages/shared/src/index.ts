@@ -29,6 +29,7 @@ export * from './schemas/user.schema';
 
 // Types
 export * from './types/document-status-response.interface';
+export * from './types/filtering/filter-operation.interface';
 export * from './types/manifestation';
 export * from './types/nfe-grouping/normalization-result.interface';
 export * from './types/paginated-response.interface';

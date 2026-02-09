@@ -1,6 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
-import { ArrowUpDown } from 'lucide-react'
-import { useMemo } from 'react'
+import { ArrowUpDown, Eye } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import DANFEViewer from '../components/DANFEViewer'
 import ExportarExcel from '../components/ExportarExcel'
 import FloatingDownloadButton from '../components/FloatingDownloadButton'
 import GridPaginada from '../components/GridPaginada'
@@ -11,7 +12,38 @@ import { useNF } from '../contexts/NFContext'
 const columnHelper = createColumnHelper<any>()
 
 export default function GridCFeSimples() {
-  const { notas, loading, usandoCache } = useNF()
+  const { notas, loading, isUpdating, usandoCache } = useNF()
+  
+  // State for DANFE viewer
+  const [danfeViewer, setDanfeViewer] = useState<{
+    isOpen: boolean;
+    documentId: string;
+    documentData: any;
+  }>({
+    isOpen: false,
+    documentId: '',
+    documentData: null
+  })
+
+  // Handle DANFE viewer open
+  const handleVisualizarClick = (rowData: any) => {
+    const documentId = rowData.id || rowData._id;
+    console.log(`[GridCFeSimples] Opening document viewer for: ${documentId}`)
+    setDanfeViewer({
+      isOpen: true,
+      documentId,
+      documentData: rowData
+    })
+  }
+
+  // Handle DANFE viewer close
+  const handleDanfeClose = () => {
+    setDanfeViewer({
+      isOpen: false,
+      documentId: '',
+      documentData: null
+    })
+  }
 
   const columns = useMemo(() => [
     // Coluna de Seleção
@@ -33,6 +65,36 @@ export default function GridCFeSimples() {
         )
       },
       size: 50,
+      enableSorting: false
+    }),
+
+    // Coluna de Ações
+    columnHelper.display({
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => {
+        const documentId = row.original.id || row.original._id
+        const hasValidId = documentId && typeof documentId === 'string' && documentId.trim().length > 0
+        
+        return (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handleVisualizarClick(row.original)}
+              disabled={!hasValidId}
+              className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md transition-colors ${
+                hasValidId
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
+              title={hasValidId ? 'Visualizar Documento' : 'ID do documento não disponível'}
+            >
+              <Eye className="w-3 h-3 mr-1" />
+              Visualizar
+            </button>
+          </div>
+        )
+      },
+      size: 100,
       enableSorting: false
     }),
     
@@ -92,9 +154,12 @@ export default function GridCFeSimples() {
           'processando': 'bg-yellow-100 text-yellow-800',
           'cancelada': 'bg-red-100 text-red-800'
         }
+        const translatedVal = val === 'autorizada' ? 'Autorizada' : 
+                               val === 'cancelada' ? 'Cancelada' : 
+                               val === 'processando' ? 'Processando' : val
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${colors[val as string] || 'bg-gray-100 text-gray-800'}`}>
-            {val || '-'}
+            {translatedVal || '-'}
           </span>
         )
       },
@@ -116,6 +181,7 @@ export default function GridCFeSimples() {
           </span>
         )
       },
+      filterFn: 'numberFilter' as any,
       size: 130
     }),
     columnHelper.accessor('totais.valorICMS', {
@@ -181,7 +247,7 @@ export default function GridCFeSimples() {
       },
       size: 120
     }),
-  ], [])
+  ], [handleVisualizarClick])
 
   if (loading) {
     return (
@@ -207,9 +273,9 @@ export default function GridCFeSimples() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-revio-gray-800">Grid CF-e (Cupom Fiscal Eletrônico)</h2>
+          <h2 className="text-2xl font-bold text-revio-gray-800">Grid CF-e</h2>
           <p className="text-sm text-revio-gray-600 mt-1">
             {notas.length.toLocaleString('pt-BR')} {notas.length === 1 ? 'cupom encontrado' : 'cupons encontrados'}
             {usandoCache && (
@@ -219,7 +285,16 @@ export default function GridCFeSimples() {
             )}
           </p>
         </div>
-        <ExportarExcel dados={notas} nomeArquivo="cupons-fiscais-cfe" />
+        
+        <div className="flex flex-col sm:flex-row items-end gap-3 w-full md:w-auto">
+          {isUpdating && (
+            <div className="flex items-center gap-2 text-revio-primary animate-pulse mr-4">
+              <LoadingSpinner size="sm" showText={false} />
+              <span className="text-xs font-semibold">Atualizando...</span>
+            </div>
+          )}
+          <ExportarExcel dados={notas} nomeArquivo="cupons-fiscais-cfe" />
+        </div>
       </div>
 
       {/* Botão de Download Flutuante - Sempre visível no topo */}
@@ -232,7 +307,17 @@ export default function GridCFeSimples() {
       <GridPaginada
         data={notas}
         columns={columns}
-        pageSize={1000}
+        pageSize={50}
+        hideBusca={true}
+        data-testid="grid-cfe"
+      />
+
+      {/* Document Viewer Modal */}
+      <DANFEViewer
+        isOpen={danfeViewer.isOpen}
+        documentId={danfeViewer.documentId}
+        documentData={danfeViewer.documentData}
+        onClose={handleDanfeClose}
       />
     </div>
   )

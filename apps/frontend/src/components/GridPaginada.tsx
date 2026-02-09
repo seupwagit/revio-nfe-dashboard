@@ -1,3 +1,4 @@
+import { FilterItem } from '@fiscal/shared'
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -12,6 +13,7 @@ import {
 } from '@tanstack/react-table'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, Lock, Unlock } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useNF } from '../contexts/NFContext'
 import BuscaNatural from './BuscaNatural'
 
 // Função de filtro customizada para datas no formato brasileiro
@@ -98,6 +100,7 @@ export default function GridPaginada({ data, columns, pageSize = 50, hideBusca =
   const [mostrarFiltrosCabecalho, setMostrarFiltrosCabecalho] = useState(false)
   const [dadosFiltrados, setDadosFiltrados] = useState(data)
   const [usandoBuscaNatural, setUsandoBuscaNatural] = useState(false)
+  const { filtros, setFiltros } = useNF()
 
   // Atualizar dados filtrados quando data mudar
   useEffect(() => {
@@ -105,6 +108,47 @@ export default function GridPaginada({ data, columns, pageSize = 50, hideBusca =
       setDadosFiltrados(data)
     }
   }, [data, usandoBuscaNatural])
+
+  // Sincronizar filtros de coluna com o contexto para filtragem no servidor
+  useEffect(() => {
+    // Implementar debounce para evitar requisições a cada tecla
+    const handler = setTimeout(() => {
+      const dynamicFilters: FilterItem[] = columnFilters.map(f => {
+        let operator: any = 'contains';
+        let value = f.value;
+
+        if (typeof value === 'string') {
+          if (value.startsWith('>')) {
+            operator = 'gte';
+            value = value.substring(1).trim();
+          } else if (value.startsWith('<')) {
+            operator = 'lte';
+            value = value.substring(1).trim();
+          }
+        }
+
+        return {
+          field: f.id,
+          operator,
+          value
+        };
+      });
+
+      // Só atualiza se houver mudança real nos filtros dinâmicos para evitar loop
+      const currentFiltersStr = JSON.stringify(dynamicFilters);
+      const existingFiltersStr = JSON.stringify(filtros.dynamicFilters || []);
+
+      if (currentFiltersStr !== existingFiltersStr) {
+        console.log('🔄 Sincronizando filtros de coluna com o servidor (debounced):', dynamicFilters);
+        setFiltros({
+          ...filtros,
+          dynamicFilters
+        });
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(handler);
+  }, [columnFilters]);
 
   const handleBuscaNatural = (filtros: any) => {
     setUsandoBuscaNatural(true)
@@ -567,9 +611,9 @@ export default function GridPaginada({ data, columns, pageSize = 50, hideBusca =
                             title={isFixed ? 'Descongelar coluna' : 'Congelar coluna'}
                           >
                             {isFixed ? (
-                              <Unlock className="w-3 h-3" />
-                            ) : (
                               <Lock className="w-3 h-3" />
+                            ) : (
+                              <Unlock className="w-3 h-3" />
                             )}
                           </button>
                         </div>

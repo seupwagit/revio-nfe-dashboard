@@ -5,9 +5,11 @@
  * Usa FiscalDocumentsService com roteamento automático
  */
 
+import { FilterItem } from '@fiscal/shared'
 import { Response, Router } from 'express'
 import { AuthenticatedRequest } from '../middleware/AuthMiddleware'
 import { fiscalDocumentsService } from '../services/FiscalDocumentsService'
+import { MongoFilterParser } from '../utils/MongoFilterParser'
 
 const router = Router()
 
@@ -25,12 +27,13 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       size = '100',
       cnpjEmit,
       cnpjDest,
-      status
+      status,
+      filters: filtersRaw
     } = req.query
 
     // Limitar o tamanho máximo para evitar sobrecarga (500 error)
     const requestedSize = parseInt(size as string)
-    const maxAllowedSize = 5000 
+    const maxAllowedSize = Number(process.env.MAX_BACKEND_PAGE_SIZE) || 5000 
     const finalSize = Math.min(requestedSize, maxAllowedSize)
 
     console.log('[DOCUMENTS] 📄 Requisição recebida:', { 
@@ -42,15 +45,35 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       bancoDeDados: req.userDatabase
     })
 
+    // Converter datas de string para o tipo Date do MongoDB
+    const filter: any = {}
+    if (dtIni || dtFin) {
+      filter.DT_DOC = {}
+      if (dtIni) filter.DT_DOC.$gte = new Date(dtIni as string)
+      if (dtFin) {
+        // Garantir que englobe o dia inteiro (até 23:59:59)
+        const dFin = new Date(dtFin as string)
+        dFin.setHours(23, 59, 59, 999)
+        filter.DT_DOC.$lte = dFin
+      }
+    }
+
+    const finalFilter = {
+      ...filter,
+      ...(cnpjEmit && { CNPJ_EMIT: cnpjEmit }),
+      ...(cnpjDest && { CNPJ_DEST: cnpjDest }),
+      ...(status && { STATUS: status }),
+      ...(filtersRaw && MongoFilterParser.parse(JSON.parse(filtersRaw as string) as FilterItem[]))
+    }
+
+    console.log('[DOCUMENTS] 🔍 Filtro construído para busca:', JSON.stringify(finalFilter, (key, value) => 
+      value instanceof Date ? value.toISOString() : value
+    ))
+
     // Usar FiscalDocumentsService com roteamento automático
     const documents = await fiscalDocumentsService.fetchDocuments({
       collection: collection as string,
-      filter: {
-        ...(dtIni && dtFin && { DT_DOC: { $gte: dtIni, $lte: dtFin } }),
-        ...(cnpjEmit && { CNPJ_EMIT: cnpjEmit }),
-        ...(cnpjDest && { CNPJ_DEST: cnpjDest }),
-        ...(status && { STATUS: status })
-      },
+      filter: finalFilter,
       sort: { DT_DOC: -1 },
       limit: finalSize,
       skip: (parseInt(page as string) - 1) * finalSize
@@ -94,7 +117,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 // GET /api/documents/count
 router.get('/count', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { collection, dtIni, dtFin, cnpjEmit, cnpjDest, status } = req.query
+    const { collection, dtIni, dtFin, cnpjEmit, cnpjDest, status, filters: filtersRaw } = req.query
     
     console.log('[DOCUMENTS] 🔢 Requisição de count recebida:', { 
       collection, 
@@ -102,15 +125,34 @@ router.get('/count', async (req: AuthenticatedRequest, res: Response) => {
       bancoDeDados: req.userDatabase
     })
 
+    // Converter datas de string para o tipo Date do MongoDB
+    const filter: any = {}
+    if (dtIni || dtFin) {
+      filter.DT_DOC = {}
+      if (dtIni) filter.DT_DOC.$gte = new Date(dtIni as string)
+      if (dtFin) {
+        const dFin = new Date(dtFin as string)
+        dFin.setHours(23, 59, 59, 999)
+        filter.DT_DOC.$lte = dFin
+      }
+    }
+
+    const finalFilter = {
+      ...filter,
+      ...(cnpjEmit && { CNPJ_EMIT: cnpjEmit }),
+      ...(cnpjDest && { CNPJ_DEST: cnpjDest }),
+      ...(status && { STATUS: status }),
+      ...(filtersRaw && MongoFilterParser.parse(JSON.parse(filtersRaw as string) as FilterItem[]))
+    }
+
+    console.log('[DOCUMENTS] 🔍 Filtro construído para contagem:', JSON.stringify(finalFilter, (key, value) => 
+      value instanceof Date ? value.toISOString() : value
+    ))
+
     // Usar FiscalDocumentsService com roteamento automático
     const response = await fiscalDocumentsService.fetchCount({
       collection: collection as string,
-      filter: {
-        ...(dtIni && dtFin && { DT_DOC: { $gte: dtIni, $lte: dtFin } }),
-        ...(cnpjEmit && { CNPJ_EMIT: cnpjEmit }),
-        ...(cnpjDest && { CNPJ_DEST: cnpjDest }),
-        ...(status && { STATUS: status })
-      }
+      filter: finalFilter
     })
 
     res.json({
@@ -141,7 +183,7 @@ router.get('/count', async (req: AuthenticatedRequest, res: Response) => {
 // GET /api/documents/stats
 router.get('/stats', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { collection, dtIni, dtFin } = req.query
+    const { collection, dtIni, dtFin, cnpjEmit, cnpjDest, status, filters: filtersRaw } = req.query
     
     console.log('[DOCUMENTS] 📊 Requisição de stats recebida:', { 
       collection, 
@@ -149,12 +191,34 @@ router.get('/stats', async (req: AuthenticatedRequest, res: Response) => {
       bancoDeDados: req.userDatabase
     })
 
+    // Converter datas de string para o tipo Date do MongoDB
+    const filter: any = {}
+    if (dtIni || dtFin) {
+      filter.DT_DOC = {}
+      if (dtIni) filter.DT_DOC.$gte = new Date(dtIni as string)
+      if (dtFin) {
+        const dFin = new Date(dtFin as string)
+        dFin.setHours(23, 59, 59, 999)
+        filter.DT_DOC.$lte = dFin
+      }
+    }
+
+    const finalFilter = {
+      ...filter,
+      ...(cnpjEmit && { CNPJ_EMIT: cnpjEmit }),
+      ...(cnpjDest && { CNPJ_DEST: cnpjDest }),
+      ...(status && { STATUS: status }),
+      ...(filtersRaw && MongoFilterParser.parse(JSON.parse(filtersRaw as string) as FilterItem[]))
+    }
+
+    console.log('[DOCUMENTS] 🔍 Filtro construído para stats:', JSON.stringify(finalFilter, (key, value) => 
+      value instanceof Date ? value.toISOString() : value
+    ))
+
     // Usar FiscalDocumentsService com roteamento automático
     const stats = await fiscalDocumentsService.fetchDashboardStats({
       collection: collection as string,
-      filter: {
-        ...(dtIni && dtFin && { DT_DOC: { $gte: dtIni, $lte: dtFin } })
-      }
+      filter: finalFilter
     })
 
     res.json({

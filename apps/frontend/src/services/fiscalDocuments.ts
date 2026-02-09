@@ -7,6 +7,7 @@
  * @module fiscalDocuments
  */
 
+import { FilterItem } from '@fiscal/shared';
 import { DashboardStats, DocumentoFiscal } from '../types';
 import { httpService } from './httpService';
 
@@ -22,6 +23,7 @@ export interface FetchOptions {
   collection?: string;
   page?: number;
   pageSize?: number;
+  dynamicFilters?: FilterItem[];
 }
 
 /**
@@ -63,11 +65,14 @@ export class FiscalDocumentsService {
     
     // Map frontend parameter names to backend expected names
     if (dataInicio) params.append('dtIni', dataInicio);
-    if (dataFim) params.append('dtFim', dataFim);
+    if (dataFim) params.append('dtFin', dataFim);
     if (cnpjEmit) params.append('cnpjEmit', cnpjEmit);
     if (cnpjDest) params.append('cnpjDest', cnpjDest);
     if (status) params.append('status', status);
     if (collection) params.append('collection', collection);
+    if (options.dynamicFilters && options.dynamicFilters.length > 0) {
+      params.append('filters', JSON.stringify(options.dynamicFilters));
+    }
     params.append('page', page.toString());
     params.append('size', pageSize.toString()); // Backend expects 'size', not 'pageSize'
 
@@ -122,11 +127,14 @@ export class FiscalDocumentsService {
     
     // Map frontend parameter names to backend expected names
     if (dataInicio) params.append('dtIni', dataInicio);
-    if (dataFim) params.append('dtFim', dataFim);
+    if (dataFim) params.append('dtFin', dataFim);
     if (cnpjEmit) params.append('cnpjEmit', cnpjEmit);
     if (cnpjDest) params.append('cnpjDest', cnpjDest);
     if (status) params.append('status', status);
     if (collection) params.append('collection', collection);
+    if (options.dynamicFilters && options.dynamicFilters.length > 0) {
+      params.append('filters', JSON.stringify(options.dynamicFilters));
+    }
 
     const url = `/api/documents/count?${params.toString()}`;
     console.log('🔢 DEBUG: Fazendo requisição de count para:', url);
@@ -155,6 +163,9 @@ export class FiscalDocumentsService {
     const {
       dataInicio,
       dataFim,
+      cnpjEmit,
+      cnpjDest,
+      status,
       collection = 'tbl_nfe_100'
     } = options;
 
@@ -162,8 +173,14 @@ export class FiscalDocumentsService {
     
     // Map frontend parameter names to backend expected names
     if (dataInicio) params.append('dtIni', dataInicio);
-    if (dataFim) params.append('dtFim', dataFim);
+    if (dataFim) params.append('dtFin', dataFim);
+    if (cnpjEmit) params.append('cnpjEmit', cnpjEmit);
+    if (cnpjDest) params.append('cnpjDest', cnpjDest);
+    if (status) params.append('status', status);
     if (collection) params.append('collection', collection);
+    if (options.dynamicFilters && options.dynamicFilters.length > 0) {
+      params.append('filters', JSON.stringify(options.dynamicFilters));
+    }
 
     const response = await httpService.get<any>(`/api/documents/stats?${params.toString()}`);
     

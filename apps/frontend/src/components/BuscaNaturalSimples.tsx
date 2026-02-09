@@ -1,7 +1,7 @@
+import { HelpCircle, Search, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
-import { Search, X, Sparkles, HelpCircle } from 'lucide-react'
-import { parseFieldQuery } from '../config/gridColumns'
 import { env } from '../config/env'
+import { parseFieldQuery } from '../config/gridColumns'
 
 interface BuscaNaturalSimplesProps {
   onSearch: (filtros: any) => void
@@ -81,7 +81,7 @@ IDENTIFICAÇÃO:
 DATAS E STATUS:
 - dataEmissao: Data de emissão (formato: YYYY-MM-DD)
 - status: Status ("autorizada", "cancelada", "processando", "denegada", "rejeitada")
-- protocolada: Se foi protocolada ("Sim", "Não")
+- protocolada: Se foi autorizada ("Sim", "Não")
 
 TIPO E OPERAÇÃO:
 - tipo: Tipo do documento (valores: "recebida", "emitida", "nfe", "cte", "cfe")
@@ -232,7 +232,7 @@ AGORA PROCESSE A CONSULTA E RETORNE APENAS O JSON:`
         if (filtros.tipoDoc) explicacoes.push(`Tipo Doc: "${filtros.tipoDoc}"`)
         if (filtros.tipoOperacao) explicacoes.push(`Operação: ${filtros.tipoOperacao === '0' ? 'Entrada' : 'Saída'}`)
         if (filtros.status) explicacoes.push(`Status: ${filtros.status}`)
-        if (filtros.protocolada) explicacoes.push(`Protocolada: ${filtros.protocolada}`)
+        if (filtros.protocolada) explicacoes.push(`Autorizada: ${filtros.protocolada}`)
         
         // Valores
         if (filtros.valorMin) explicacoes.push(`Valor > R$ ${filtros.valorMin.toLocaleString('pt-BR')}`)
@@ -313,7 +313,7 @@ AGORA PROCESSE A CONSULTA E RETORNE APENAS O JSON:`
         explicacao += `Status: ${fieldQuery.value}. `
       } else if (fieldQuery.field === 'protocolada') {
         filtros.protocolada = fieldQuery.value
-        explicacao += `Protocolada: ${fieldQuery.value}. `
+        explicacao += `Autorizada: ${fieldQuery.value}. `
       } else if (fieldQuery.field.includes('emitente.razaoSocial')) {
         filtros.emitente = fieldQuery.value
         explicacao += `Emitente: "${fieldQuery.value}". `
@@ -461,10 +461,10 @@ AGORA PROCESSE A CONSULTA E RETORNE APENAS O JSON:`
     // 8. Protocolada
     if (textoLower.includes('protocolada sim') || textoLower.includes('protocoladas')) {
       filtros.protocolada = 'Sim'
-      explicacao += 'Protocolada: Sim. '
+      explicacao += 'Autorizada: Sim. '
     } else if (textoLower.includes('protocolada não') || textoLower.includes('protocolada nao') || textoLower.includes('não protocolada')) {
       filtros.protocolada = 'Não'
-      explicacao += 'Protocolada: Não. '
+      explicacao += 'Autorizada: Não. '
     }
 
     // 9. Impostos
@@ -623,7 +623,7 @@ AGORA PROCESSE A CONSULTA E RETORNE APENAS O JSON:`
     { texto: 'icms maior que 500', desc: 'ICMS > R$ 500' },
     { texto: 'entrada sp acima de 5000', desc: 'Entrada + SP + Valor > R$ 5.000' },
     { texto: 'saída canceladas', desc: 'Saídas canceladas' },
-    { texto: 'protocolada sim', desc: 'Notas protocoladas' },
+    { texto: 'autorizada sim', desc: 'Notas autorizadas' },
     { texto: 'entre 1000 e 5000', desc: 'Valor entre R$ 1.000 e R$ 5.000' },
     { texto: 'menos de cinco mil', desc: 'Valor < R$ 5.000' },
     { texto: 'mais de cem mil', desc: 'Valor > R$ 100.000' },

@@ -18,6 +18,10 @@ $PROJECT_ROOT = Resolve-Path "$PSScriptRoot\.."
 
 Write-Host "Iniciando build e deploy unificado para $DOMAIN..." -ForegroundColor Cyan
 
+# 0. Limpeza Remota Inicial (Opcional, mas garante ambiente limpo)
+Write-Host "Executando limpeza remota (PM2 stop)..." -ForegroundColor Yellow
+ssh -p $SSH_PORT $REMOTE_TARGET "pm2 stop appdox-backend || true"
+
 # 1. Build Unificado na Raiz
 Write-Host "Executando build unificado (pnpm run build)..." -ForegroundColor Yellow
 Set-Location $PROJECT_ROOT

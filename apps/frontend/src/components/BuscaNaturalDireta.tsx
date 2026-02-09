@@ -1,5 +1,5 @@
+import { HelpCircle, Search, X } from 'lucide-react'
 import { useState } from 'react'
-import { Search, X, HelpCircle } from 'lucide-react'
 
 interface BuscaNaturalDiretaProps {
   onSearch: (filtros: any) => void
@@ -33,6 +33,7 @@ export default function BuscaNaturalDireta({ onSearch, onClear }: BuscaNaturalDi
     'tipo doc': { campo: 'tipoDoc', tipo: 'texto' },
     'tipo': { campo: 'tipoDoc', tipo: 'texto' },
     'status': { campo: 'status', tipo: 'texto' },
+    'autorizada': { campo: 'protocolada', tipo: 'texto' },
     'protocolada': { campo: 'protocolada', tipo: 'texto' },
     
     // Valores

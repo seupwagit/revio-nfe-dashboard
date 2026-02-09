@@ -1,25 +1,26 @@
 import { Calendar, DollarSign, FileText, Filter, RefreshCw, TrendingUp } from 'lucide-react'
 import { memo, useCallback, useEffect, useState } from 'react'
 import {
-    Area,
-    AreaChart,
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    Legend,
-    Line,
-    LineChart,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis, YAxis
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis, YAxis
 } from 'recharts'
 import LoadingSpinner from '../components/LoadingSpinner'
+import PeriodPresets from '../components/PeriodPresets'
 import { fetchAnalyticsAggregation, type AnalyticsData } from '../services/aggregation'
 
-type PeriodoType = '7d' | '30d' | '60d' | '90d' | '12m' | 'custom'
+type PeriodoType = '7d' | '15d' | '30d' | '60d' | '90d' | '12m' | 'custom'
 type CollectionType = 'tbl_nfe_100' | 'tbl_cfe_100' | 'tbl_cte_100'
 
 const COLORS = ['#0066CC', '#0052A3', '#00A3E0', '#00C9FF', '#7C3AED', '#EC4899']
@@ -96,9 +97,23 @@ const StatusNotasChart = memo(({ data }: any) => (
   <ResponsiveContainer width="100%" height={200}>
     <BarChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
+      <XAxis 
+        dataKey="name" 
+        tickFormatter={(val) => {
+          if (val === 'Protocolada') return 'Autorizada'
+          if (val === 'Não Protocolada') return 'Não Autorizada'
+          return val
+        }}
+      />
       <YAxis />
-      <Tooltip />
+      <Tooltip 
+        formatter={(value: any, _name: any, props: any) => {
+          const label = props.payload.name
+          const translatedLabel = label === 'Protocolada' ? 'Autorizada' : 
+                                 label === 'Não Protocolada' ? 'Não Autorizada' : label
+          return [value, translatedLabel]
+        }}
+      />
       <Bar dataKey="value" fill="#0066CC">
         {data.map((_: any, index: number) => (
           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -109,14 +124,13 @@ const StatusNotasChart = memo(({ data }: any) => (
 ))
 
 export default function Analytics() {
-  const [periodo, setPeriodo] = useState<PeriodoType>('30d')
+  const [periodo, setPeriodo] = useState<PeriodoType>('12m')
   const [collectionFiltro, setCollectionFiltro] = useState<CollectionType>('tbl_nfe_100')
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [isFirstLoad, setIsFirstLoad] = useState(true)
 
   // Carregar dados (usa API REST automaticamente via fallback)
   const carregarDados = useCallback(async () => {
@@ -131,6 +145,9 @@ export default function Analytics() {
       switch (periodo) {
         case '7d':
           inicio.setDate(hoje.getDate() - 7)
+          break
+        case '15d':
+          inicio.setDate(hoje.getDate() - 15)
           break
         case '30d':
           inicio.setDate(hoje.getDate() - 30)
@@ -150,7 +167,7 @@ export default function Analytics() {
             setError('Selecione as datas de início e fim para o período personalizado')
             return
           }
-          inicio = new Date(dataInicio)
+          inicio = new Date(dataInicio + 'T00:00:00') // Adicionar T00:00:00 para evitar problemas de timezone
           console.log('📅 [Analytics] Usando período personalizado:', { dataInicio, dataFim })
           break
       }
@@ -178,7 +195,6 @@ export default function Analytics() {
       })
       
        setAnalytics(data)
-      setIsFirstLoad(false)
     } catch (error) {
       console.error('❌ [Analytics] Erro ao carregar agregação:', error)
       setAnalytics(null)
@@ -202,25 +218,8 @@ export default function Analytics() {
     }
   }, [periodo, collectionFiltro, dataInicio, dataFim])
 
-  // Auto-carregar quando mudar filtros
-  useEffect(() => {
-    // Não recarregar no primeiro render (já carrega no useEffect inicial)
-    if (isFirstLoad) return
-    
-    // Para período custom, só carrega se tiver as duas datas
-    if (periodo === 'custom') {
-      if (dataInicio && dataFim) {
-        console.log('🔄 Carregando dados para período personalizado:', { dataInicio, dataFim })
-        carregarDados()
-      } else {
-        console.log('⏳ Aguardando seleção de datas para período personalizado')
-        setAnalytics(null) // Limpa dados enquanto aguarda
-      }
-    } else {
-      console.log('🔄 Carregando dados para período predefinido:', periodo)
-      carregarDados()
-    }
-  }, [periodo, collectionFiltro, dataInicio, dataFim, carregarDados, isFirstLoad])
+  // REMOVIDO: Auto-carregar quando mudar filtros (atendendo pedido do usuário)
+  // O carregamento agora é APENAS no botão "Aplicar Filtros" ou inicial
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -296,17 +295,50 @@ export default function Analytics() {
           <h2 className="text-lg font-bold text-revio-gray-800">Filtros</h2>
         </div>
 
+        <div className="mb-6">
+          <label className="block text-xs font-medium text-revio-gray-700 mb-2">
+            Períodos Rápidos
+          </label>
+          <PeriodPresets 
+            onSelectPeriod={(days) => {
+              // Mapeia dias para o tipo PeriodoType
+              if (days === 7) setPeriodo('7d')
+              else if (days === 15) setPeriodo('15d')
+              else if (days === 30) setPeriodo('30d')
+              else if (days === 60) setPeriodo('60d')
+              else if (days === 90) setPeriodo('90d')
+              else if (days === 365) setPeriodo('12m')
+              
+              setDataInicio('')
+              setDataFim('')
+            }}
+            // Para destaque visual, precisamos traduzir PeriodoType de volta para dias
+            currentStartDate={dataInicio || (() => {
+              const h = new Date()
+              const i = new Date()
+              if (periodo === '12m') i.setFullYear(h.getFullYear() - 1)
+              else if (periodo === '7d') i.setDate(h.getDate() - 7)
+              else if (periodo === '15d') i.setDate(h.getDate() - 15)
+              else if (periodo === '30d') i.setDate(h.getDate() - 30)
+              else if (periodo === '60d') i.setDate(h.getDate() - 60)
+              else if (periodo === '90d') i.setDate(h.getDate() - 90)
+              else return undefined
+              return i.toISOString().split('T')[0]
+            })()}
+            currentEndDate={dataFim || (periodo !== 'custom' ? new Date().toISOString().split('T')[0] : undefined)}
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Período */}
+          {/* Período Select */}
           <div>
             <label className="block text-sm font-semibold text-revio-gray-700 mb-2">
-              Período
+              Seleção de Período
             </label>
             <select
               value={periodo}
               onChange={(e) => {
                 const novoPeriodo = e.target.value as PeriodoType
-                console.log('📅 Período alterado:', novoPeriodo)
                 setPeriodo(novoPeriodo)
                 
                 // Se selecionou personalizado, definir datas padrão (últimos 30 dias)
@@ -315,17 +347,17 @@ export default function Analytics() {
                   const trintaDiasAtras = new Date()
                   trintaDiasAtras.setDate(hoje.getDate() - 30)
                   
-                  const dataInicioDefault = trintaDiasAtras.toISOString().split('T')[0]
-                  const dataFimDefault = hoje.toISOString().split('T')[0]
-                  
-                  console.log('📅 Definindo datas padrão:', { dataInicioDefault, dataFimDefault })
-                  setDataInicio(dataInicioDefault)
-                  setDataFim(dataFimDefault)
+                  setDataInicio(trintaDiasAtras.toISOString().split('T')[0])
+                  setDataFim(hoje.toISOString().split('T')[0])
+                } else if (novoPeriodo !== 'custom') {
+                  setDataInicio('')
+                  setDataFim('')
                 }
               }}
               className="w-full px-4 py-2 border border-revio-gray-300 rounded-lg focus:ring-2 focus:ring-revio-primary"
             >
               <option value="7d">Últimos 7 dias</option>
+              <option value="15d">Últimos 15 dias</option>
               <option value="30d">Últimos 30 dias</option>
               <option value="60d">Últimos 60 dias</option>
               <option value="90d">Últimos 90 dias</option>
@@ -388,36 +420,36 @@ export default function Analytics() {
           )}
         </div>
 
-        {/* Botão Aplicar (apenas para custom) */}
-        {periodo === 'custom' && (
-          <div className="mt-4">
-            <div className="flex gap-3 mb-3">
-              <button
-                onClick={carregarDados}
-                disabled={!dataInicio || !dataFim || loading}
-                className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Filter className="h-4 w-4" />
-                Aplicar Filtros
-              </button>
-              <button
-                onClick={() => {
-                  setDataInicio('')
-                  setDataFim('')
-                  setPeriodo('30d')
-                }}
-                className="btn-secondary flex items-center gap-2"
-              >
-                Limpar
-              </button>
-            </div>
-            {(!dataInicio || !dataFim) && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-800">
-                  💡 Selecione as datas de início e fim, depois clique em "Aplicar Filtros"
-                </p>
-              </div>
-            )}
+        {/* Botão Aplicar */}
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={carregarDados}
+            disabled={loading || (periodo === 'custom' && (!dataInicio || !dataFim))}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Aplicar Filtros
+          </button>
+          
+          {periodo === 'custom' && (
+            <button
+              onClick={() => {
+                setDataInicio('')
+                setDataFim('')
+                setPeriodo('30d')
+              }}
+              className="btn-secondary flex items-center gap-2"
+            >
+              Limpar Datas
+            </button>
+          )}
+        </div>
+
+        {periodo === 'custom' && (!dataInicio || !dataFim) && (
+          <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800">
+              💡 Selecione as datas de início e fim, depois clique em "Aplicar Filtros"
+            </p>
           </div>
         )}
       </div>
@@ -496,12 +528,6 @@ export default function Analytics() {
         <StatusNotasChart data={analytics.distribuicaoStatus} />
       </div>
 
-      {/* Indicador de modo otimizado */}
-      <div className="card p-4 bg-green-50 border border-green-200">
-        <p className="text-sm text-green-800">
-          ⚡ <strong>Modo Otimizado:</strong> Usando agregações MongoDB diretas para máxima performance
-        </p>
-      </div>
     </div>
   )
 }

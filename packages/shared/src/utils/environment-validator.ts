@@ -215,7 +215,7 @@ export class EnvironmentValidator {
   /**
    * Valida valor booleano
    */
-  private validateBooleanValue(key: string, value: string, config: ValidationConfig): boolean {
+  private validateBooleanValue(key: string, value: string, _config: ValidationConfig): boolean {
     const lowerValue = value.toLowerCase();
     
     if (['true', '1', 'yes', 'on'].includes(lowerValue)) {
@@ -235,7 +235,7 @@ export class EnvironmentValidator {
   /**
    * Valida valor array (separado por vírgula)
    */
-  private validateArrayValue(key: string, value: string, config: ValidationConfig): string[] {
+  private validateArrayValue(_key: string, value: string, _config: ValidationConfig): string[] {
     return value
       .split(',')
       .map(item => item.trim())
@@ -304,7 +304,7 @@ export class EnvironmentValidator {
   /**
    * Valida configuração de ordenação
    */
-  private validateOrderByConfig(orderBy: string, errors: string[], warnings: string[]): void {
+  private validateOrderByConfig(orderBy: string, errors: string[], _warnings: string[]): void {
     const orderParts = orderBy.split(',').map(part => part.trim());
     
     for (const part of orderParts) {

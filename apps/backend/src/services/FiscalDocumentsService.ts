@@ -73,7 +73,7 @@ export class FiscalDocumentsService {
       // Obter conexão MongoDB dinamicamente se não houver um cliente fixo setado no interceptador
       const mongoConnection = await databaseRouter.getTransparentMongoConnection();
       if (mongoConnection.db) {
-        this.queryInterceptor.setMongoClient(mongoConnection.getClient() as any);
+        this.queryInterceptor.setMongoClient((mongoConnection as any).getClient());
       }
 
       // Usar interceptador para aplicar agrupamento configurável
@@ -141,6 +141,31 @@ export class FiscalDocumentsService {
         throw new Error('Banco de dados não disponível na conexão MongoDB');
       }
 
+      // Se agrupamento estiver habilitado para esta coleção, precisamos contar os grupos
+      const isGroupingEnabled = this.queryInterceptor.shouldIntercept(collection);
+      
+      if (isGroupingEnabled) {
+        logger.debug(`${NFE_GROUPING_LOG_PREFIXES.SERVICE} 📊 Usando agregação para contagem de grupos`, { collection });
+        
+        const pipeline = [
+          { $match: filter },
+          // Chamar o interceptor para obter os estágios de agrupamento
+          ...this.queryInterceptor.getGroupingStages(collection, filter),
+          { $count: 'total' }
+        ];
+        
+        const result = await this.queryInterceptor.executeAggregation(collection, pipeline, mongoConnection.db);
+        const count = result[0]?.total || 0;
+        
+        logger.info(`${NFE_GROUPING_LOG_PREFIXES.SERVICE} ✅ Contagem de grupos concluída`, {
+          collection,
+          count,
+          processingTime: Date.now() - startTime
+        });
+        
+        return count;
+      }
+
       const coll = mongoConnection.db.collection(collection);
       const count = await coll.countDocuments(filter);
 
@@ -173,6 +198,8 @@ export class FiscalDocumentsService {
     valorTotal: number,
     valorTotalEntradas: number,
     valorTotalSaidas: number,
+    qtdEntradas: number,
+    qtdSaidas: number,
     totalICMS: number,
     totalIPI: number,
     totalPIS: number,
@@ -181,7 +208,12 @@ export class FiscalDocumentsService {
     valorSeguro: number,
     valorDesconto: number,
     notasAutorizadas: number,
-    notasCanceladas: number
+    notasCanceladas: number,
+    maiorNota: number,
+    menorNota: number,
+    notasHoje: number,
+    notasUltimos7Dias: number,
+    notasUltimos30Dias: number
   }> {
     const startTime = Date.now();
     
@@ -198,6 +230,7 @@ export class FiscalDocumentsService {
       const groupingStages = this.queryInterceptor.getGroupingStages(collection, filter);
       
       const pipeline = [
+        { $match: filter }, // Filtro explícito PRIMEIRO (Melhor prática de performance Mongo)
         ...groupingStages,
         { 
           $group: {
@@ -209,6 +242,12 @@ export class FiscalDocumentsService {
             },
             valorTotalSaidas: { 
               $sum: { $cond: [{ $eq: ['$IND_OPER', '1'] }, { $ifNull: ['$VL_DOC', 0] }, 0] } 
+            },
+            qtdEntradas: { 
+              $sum: { $cond: [{ $eq: ['$IND_OPER', '0'] }, 1, 0] } 
+            },
+            qtdSaidas: { 
+              $sum: { $cond: [{ $eq: ['$IND_OPER', '1'] }, 1, 0] } 
             },
             totalICMS: { $sum: { $ifNull: ['$VL_ICMS', 0] } },
             totalIPI: { $sum: { $ifNull: ['$VL_IPI', 0] } },
@@ -241,6 +280,32 @@ export class FiscalDocumentsService {
                   1, 0
                 ] 
               } 
+            },
+            maiorNota: { $max: { $ifNull: ['$VL_DOC', { $ifNull: ['$VALOR_TOTAL', 0] }] } },
+            menorNota: { $min: { $ifNull: ['$VL_DOC', { $ifNull: ['$VALOR_TOTAL', 0] }] } },
+            notasHoje: { 
+              $sum: { 
+                $cond: [
+                  { $gte: ['$DT_DOC', new Date(new Date().setHours(0,0,0,0))] }, 
+                  1, 0
+                ] 
+              } 
+            },
+            notasUltimos7Dias: { 
+              $sum: { 
+                $cond: [
+                  { $gte: ['$DT_DOC', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] }, 
+                  1, 0
+                ] 
+              } 
+            },
+            notasUltimos30Dias: { 
+              $sum: { 
+                $cond: [
+                  { $gte: ['$DT_DOC', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)] }, 
+                  1, 0
+                ] 
+              } 
             }
           }
         }
@@ -248,20 +313,30 @@ export class FiscalDocumentsService {
 
       const aggregationResult = await this.queryInterceptor.executeAggregation(collection, pipeline, mongoConnection.db);
 
-      const stats = aggregationResult[0] || {
-        totalNotas: 0,
-        valorTotal: 0,
-        valorTotalEntradas: 0,
-        valorTotalSaidas: 0,
-        totalICMS: 0,
-        totalIPI: 0,
-        totalPIS: 0,
-        totalCOFINS: 0,
-        valorFrete: 0,
-        valorSeguro: 0,
-        valorDesconto: 0,
-        notasAutorizadas: 0,
-        notasCanceladas: 0
+      // Usar fallback seguro para o objeto inteiro e para cada campo individualmente
+      const rawStats = aggregationResult[0] || {};
+      
+      const stats = {
+        totalNotas: Number(rawStats.totalNotas || 0),
+        valorTotal: Number(rawStats.valorTotal || 0),
+        valorTotalEntradas: Number(rawStats.valorTotalEntradas || 0),
+        valorTotalSaidas: Number(rawStats.valorTotalSaidas || 0),
+        totalICMS: Number(rawStats.totalICMS || 0),
+        totalIPI: Number(rawStats.totalIPI || 0),
+        totalPIS: Number(rawStats.totalPIS || 0),
+        totalCOFINS: Number(rawStats.totalCOFINS || 0),
+        valorFrete: Number(rawStats.valorFrete || 0),
+        valorSeguro: Number(rawStats.valorSeguro || 0),
+        valorDesconto: Number(rawStats.valorDesconto || 0),
+        notasAutorizadas: Number(rawStats.notasAutorizadas || 0),
+        notasCanceladas: Number(rawStats.notasCanceladas || 0),
+        qtdEntradas: Number(rawStats.qtdEntradas || 0),
+        qtdSaidas: Number(rawStats.qtdSaidas || 0),
+        maiorNota: Number(rawStats.maiorNota || 0),
+        menorNota: Number(rawStats.menorNota || 0),
+        notasHoje: Number(rawStats.notasHoje || 0),
+        notasUltimos7Dias: Number(rawStats.notasUltimos7Dias || 0),
+        notasUltimos30Dias: Number(rawStats.notasUltimos30Dias || 0)
       };
 
       const processingTime = Date.now() - startTime;
@@ -272,21 +347,7 @@ export class FiscalDocumentsService {
         processingTime
       });
       
-      return {
-        totalNotas: stats.totalNotas,
-        valorTotal: stats.valorTotal,
-        valorTotalEntradas: stats.valorTotalEntradas,
-        valorTotalSaidas: stats.valorTotalSaidas,
-        totalICMS: stats.totalICMS,
-        totalIPI: stats.totalIPI,
-        totalPIS: stats.totalPIS,
-        totalCOFINS: stats.totalCOFINS,
-        valorFrete: stats.valorFrete,
-        valorSeguro: stats.valorSeguro,
-        valorDesconto: stats.valorDesconto,
-        notasAutorizadas: stats.notasAutorizadas,
-        notasCanceladas: stats.notasCanceladas
-      };
+      return stats;
     } catch (error) {
       const processingTime = Date.now() - startTime;
       

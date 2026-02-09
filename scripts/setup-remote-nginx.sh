@@ -32,9 +32,16 @@ mkdir -p /var/log/pm2
 
 # 2. Extrair Bundle Unificado
 if [ -f "$BUNDLE_PACKAGE" ]; then
+    echo "🛑 Parando PM2 antes da limpeza..."
+    if command -v pm2 &> /dev/null; then
+        pm2 stop "appdox-backend" &> /dev/null || true
+    fi
+
+    echo "📦 Limpando diretório de destino (incluindo node_modules para limpeza completa) em $WEB_ROOT..."
+    # Remove tudo para garantir limpeza total conforme solicitado
+    rm -rf "${WEB_ROOT:?}"/*
+    
     echo "📦 Extraindo bundle unificado para $WEB_ROOT..."
-    # Limpar arquivos antigos para evitar resíduos, mas manter node_modules se possível para acelerar pnpm install
-    # Vamos apenas extrair por cima, o pnpm cuida das dependências
     tar -xzf "$BUNDLE_PACKAGE" -C "$WEB_ROOT"
     rm "$BUNDLE_PACKAGE"
 else
@@ -139,8 +146,8 @@ echo "🔄 Reiniciando backend com PM2 na porta $APP_PORT..."
 if command -v pm2 &> /dev/null; then
     pm2 delete "appdox-backend" &> /dev/null || true
     
-    # O backend dist está em apps/backend/dist/index.js
-    pm2 start "apps/backend/dist/index.js" \
+    # O backend dist está em apps/backend/dist/apps/backend/src/index.js (devido ao aninhamento do monorepo)
+    pm2 start "apps/backend/dist/apps/backend/src/index.js" \
         --name "appdox-backend" \
         --cwd "$WEB_ROOT" \
         --output "/var/log/pm2/appdox-backend-out.log" \

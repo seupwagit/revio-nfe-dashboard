@@ -141,29 +141,6 @@ export default function Layout() {
                 <span className="font-semibold">Dashboard</span>
               </Link>
 
-              <Link
-                to="/analytics"
-                onClick={() => setMenuAberto(false)}
-                className={`flex items-center px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                  isActive('/analytics')
-                    ? 'bg-gradient-to-r from-revio-primary to-revio-secondary text-white shadow-revio'
-                    : 'text-revio-gray-700 hover:bg-revio-light hover:text-revio-primary'
-                }`}
-              >
-                <div className={`p-2 rounded-lg mr-3 ${
-                  isActive('/analytics')
-                    ? 'bg-white/20'
-                    : 'bg-revio-light group-hover:bg-white'
-                }`}>
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-semibold">Analytics</span>
-                  <span className="text-xs opacity-70">MongoDB Direto</span>
-                </div>
-              </Link>
 
               <Link
                 to="/notas"
@@ -184,13 +161,6 @@ export default function Layout() {
                 <span className="font-semibold">Notas Fiscais</span>
               </Link>
 
-              {/* Info Card */}
-              <div className="mt-8 p-4 bg-gradient-to-br from-revio-primary to-revio-secondary rounded-xl text-white">
-                <h3 className="font-bold text-sm mb-2">💡 Dica</h3>
-                <p className="text-xs opacity-90">
-                  Use os filtros e o botão "Mostrar Filtros" para análises avançadas com filtros nos cabeçalhos e congelamento de colunas.
-                </p>
-              </div>
             </nav>
           </aside>
 
@@ -221,6 +191,9 @@ export default function Layout() {
 
       {/* RAH - Assistente IA */}
       {/* <RAHAssistant /> */}
+
+      {/* Notificações Globais de Download */}
+      <DownloadNotification />
 
       {/* Notificações Globais de Download */}
       <DownloadNotification />

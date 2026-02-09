@@ -3,10 +3,10 @@
  * Busca chunks em paralelo com callbacks de progresso detalhados
  */
 
-import { create } from './httpClient'
 import { env } from '../config/env'
 import { getCacheKey, getFromCache, saveToCache } from './analyticsCache'
 import { validarECorrigirCache, type CacheInconsistency } from './cacheValidator'
+import { create } from './httpClient'
 
 const api = create({
   baseURL: env.api.baseUrl,

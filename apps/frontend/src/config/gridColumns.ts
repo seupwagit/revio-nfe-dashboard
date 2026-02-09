@@ -53,9 +53,9 @@ export const gridColumns: ColumnMapping[] = [
     enumValues: ['autorizada', 'processando', 'cancelada', 'denegada', 'rejeitada']
   },
   {
-    label: 'Protocolada',
+    label: 'Autorizada',
     field: 'protocolada',
-    aliases: ['protocolada', 'protocolo'],
+    aliases: ['autorizada', 'protocolada', 'protocolo'],
     type: 'enum',
     enumValues: ['Sim', 'Não']
   },

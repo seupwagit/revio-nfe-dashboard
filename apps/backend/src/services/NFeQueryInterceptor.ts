@@ -239,9 +239,9 @@ export class NFeQueryInterceptor {
       orderingConfig
     };
 
-    const pipeline = this.buildAggregationPipeline(context, options);
+    const pipeline = this.buildAggregationPipeline(context, { ...options, skipMatch: true });
     
-    // Remove skip/limit se existirem, pois para stats queremos o total
+    // Remove skip/limit se existirem, pois para estágios de agrupamento queremos flexibilidade
     return pipeline.filter(stage => !stage.$skip && !stage.$limit);
   }
 
@@ -253,8 +253,8 @@ export class NFeQueryInterceptor {
     const isChvNfeGroup = context.groupingConfig.groupByFields.includes('CHV_NFE');
 
     try {
-      // 1. Aplicar filtros da consulta original
-      if (Object.keys(context.originalQuery).length > 0) {
+      // 1. Aplicar filtros da consulta original (pode ser pulado se o chamador quiser explicitamente)
+      if (!options.skipMatch && Object.keys(context.originalQuery).length > 0) {
         pipeline.push({ $match: context.originalQuery });
       }
 
@@ -508,7 +508,7 @@ export class NFeQueryInterceptor {
   /**
    * Verifica se deve interceptar consulta para esta coleção
    */
-  private shouldIntercept(collection: string): boolean {
+  public shouldIntercept(collection: string): boolean {
     return NFE_GROUPING_SUPPORTED_COLLECTIONS.includes(collection as any);
   }
 

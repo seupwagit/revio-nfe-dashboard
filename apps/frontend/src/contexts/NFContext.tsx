@@ -1,10 +1,23 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { env } from '../config/env'
 import { fiscalDocumentsService } from '../services/fiscalDocuments'
 import { DashboardStats, Filtros } from '../types'
 
 export type CollectionType = 'tbl_nfe_100' | 'tbl_cfe_100' | 'tbl_cte_100'
 
+// Funções para datas padrão (ÚLTIMO ANO - 365 dias)
+export const getDefaultStartDate = () => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 1)
+  return date.toISOString().split('T')[0]
+}
+
+export const getDefaultEndDate = () => {
+  return new Date().toISOString().split('T')[0]
+}
+
 interface NFContextType {
+
   notas: any[]
   stats: DashboardStats
   loading: boolean
@@ -16,9 +29,10 @@ interface NFContextType {
   totalRegistros: number
   collection: CollectionType
   usandoCache: boolean
+  isUpdating: boolean
   setFiltros: (filtros: Filtros) => void
   setCollection: (collection: CollectionType) => void
-  recarregar: () => void
+  recarregar: (opcoes?: { addStats?: boolean }) => void
 }
 
 const NFContext = createContext<NFContextType | undefined>(undefined)
@@ -29,18 +43,25 @@ const NFContext = createContext<NFContextType | undefined>(undefined)
 function calcularStats(dados: any[]): DashboardStats {
   const stats = {
     totalNotas: dados.length,
-    valorTotal: dados.reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
-    valorTotalEntradas: dados.filter(doc => doc.tipoOperacao === '0').reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
-    valorTotalSaidas: dados.filter(doc => doc.tipoOperacao === '1').reduce((sum, doc) => sum + (doc.valorTotal || 0), 0),
-    totalICMS: dados.reduce((sum, doc) => sum + (doc.totais?.valorICMS || 0), 0),
-    totalIPI: dados.reduce((sum, doc) => sum + (doc.totais?.valorIPI || 0), 0),
-    totalPIS: dados.reduce((sum, doc) => sum + (doc.totais?.valorPIS || 0), 0),
-    totalCOFINS: dados.reduce((sum, doc) => sum + (doc.totais?.valorCOFINS || 0), 0),
-    valorFrete: dados.reduce((sum, doc) => sum + (doc.totais?.valorFrete || 0), 0),
-    valorSeguro: dados.reduce((sum, doc) => sum + (doc.totais?.valorSeguro || 0), 0),
-    valorDesconto: dados.reduce((sum, doc) => sum + (doc.totais?.valorDesconto || 0), 0),
-    notasAutorizadas: dados.filter(doc => doc.status === 'autorizada').length,
-    notasCanceladas: dados.filter(doc => doc.status === 'cancelada').length
+    valorTotal: dados.reduce((sum, doc) => sum + (doc.valorTotal || doc.VL_DOC || 0), 0),
+    valorTotalEntradas: dados.filter(doc => (doc.tipoOperacao || doc.IND_OPER) === '0').reduce((sum, doc) => sum + (doc.valorTotal || doc.VL_DOC || 0), 0),
+    valorTotalSaidas: dados.filter(doc => (doc.tipoOperacao || doc.IND_OPER) === '1').reduce((sum, doc) => sum + (doc.valorTotal || doc.VL_DOC || 0), 0),
+    totalICMS: dados.reduce((sum, doc) => sum + (doc.totais?.valorICMS || doc.VL_ICMS || 0), 0),
+    totalIPI: dados.reduce((sum, doc) => sum + (doc.totais?.valorIPI || doc.VL_IPI || 0), 0),
+    totalPIS: dados.reduce((sum, doc) => sum + (doc.totais?.valorPIS || doc.VL_PIS || 0), 0),
+    totalCOFINS: dados.reduce((sum, doc) => sum + (doc.totais?.valorCOFINS || doc.VL_COFINS || 0), 0),
+    valorFrete: dados.reduce((sum, doc) => sum + (doc.totais?.valorFrete || doc.VL_FRT || 0), 0),
+    valorSeguro: dados.reduce((sum, doc) => sum + (doc.totais?.valorSeguro || doc.VL_SEG || 0), 0),
+    valorDesconto: dados.reduce((sum, doc) => sum + (doc.totais?.valorDesconto || doc.VL_DESC || 0), 0),
+    notasAutorizadas: dados.filter(doc => (doc.status || doc.STATUS) === 'autorizada').length,
+    notasCanceladas: dados.filter(doc => (doc.status || doc.STATUS) === 'cancelada').length,
+    qtdEntradas: dados.filter(doc => (doc.tipoOperacao || doc.IND_OPER) === '0').length,
+    qtdSaidas: dados.filter(doc => (doc.tipoOperacao || doc.IND_OPER) === '1').length,
+    maiorNota: dados.length > 0 ? Math.max(...dados.map(d => d.valorTotal || d.VL_DOC || 0)) : 0,
+    menorNota: dados.length > 0 ? Math.min(...dados.map(d => d.valorTotal || d.VL_DOC || 0)) : 0,
+    notasHoje: 0,
+    notasUltimos7Dias: 0,
+    notasUltimos30Dias: 0
   };
   return stats;
 }
@@ -61,20 +82,41 @@ export function NFProvider({ children }: { children: ReactNode }) {
     valorSeguro: 0,
     valorDesconto: 0,
     notasAutorizadas: 0,
-    notasCanceladas: 0
+    notasCanceladas: 0,
+    qtdEntradas: 0,
+    qtdSaidas: 0,
+    maiorNota: 0,
+    menorNota: 0,
+    notasHoje: 0,
+    notasUltimos7Dias: 0,
+    notasUltimos30Dias: 0
   })
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [error, setError] = useState<any>(null)
-  const [filtros, setFiltros] = useState<Filtros>({})
+  const [filtros, setFiltros] = useState<Filtros>({
+    dataInicio: getDefaultStartDate(),
+    dataFim: getDefaultEndDate()
+  })
   const [collection, setCollection] = useState<CollectionType>('tbl_nfe_100')
   const [usandoCache, setUsandoCache] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
-  const carregarDados = async () => {
+  const carregarDados = async (opcoes: { addStats?: boolean } = {}) => {
+    const { addStats = false } = opcoes
     const startTime = Date.now()
-    setLoading(true)
+    
+    // Se for uma atualização de filtros dinâmicos, não mostramos o loading global (que trava a UI)
+    const isDynamicRefresh = !!(filtros.dynamicFilters && filtros.dynamicFilters.length > 0)
+    
+    if (isDynamicRefresh) {
+      setIsUpdating(true)
+    } else {
+      setLoading(true)
+    }
+    
     setProgress(0)
     setCurrentPage(0)
     setTotalPages(0)
@@ -103,8 +145,9 @@ export function NFProvider({ children }: { children: ReactNode }) {
         dataFim: filtros.dataFim,
         cnpjEmit: filtros.cnpjEmit,
         cnpjDest: filtros.cnpjDest,
+        dynamicFilters: filtros.dynamicFilters,
         page: 1,
-        pageSize: 1000  // Limite reduzido para estabilidade
+        pageSize: env.defaults.dashboardPageSize  // Limite configurado via .env
       }, (current, total, data) => {
         // Callback de progresso
         const progressPercent = Math.round((current / total) * 100)
@@ -135,30 +178,40 @@ export function NFProvider({ children }: { children: ReactNode }) {
       console.log('🚀 DEBUG: Iniciando fetchCount...')
       const totalCount = await fiscalDocumentsService.fetchCount({
         collection,
+        dataInicio: filtros.dataInicio, // Adicionado dataInicio
         dataFim: filtros.dataFim,
         cnpjEmit: filtros.cnpjEmit,
-        cnpjDest: filtros.cnpjDest
+        cnpjDest: filtros.cnpjDest,
+        dynamicFilters: filtros.dynamicFilters
       })
       
       console.log('📊 DEBUG: Total count recebido:', totalCount)
       
-      // Busca estatísticas agregadas para o dashboard
-      console.log('📊 Buscando estatísticas agregadas...')
-      const dashboardStats = await fiscalDocumentsService.fetchStats({
-        collection,
-        dataInicio: filtros.dataInicio,
-        dataFim: filtros.dataFim,
-        cnpjEmit: filtros.cnpjEmit,
-        cnpjDest: filtros.cnpjDest,
-        status: filtros.status
-      })
+      // Busca estatísticas agregadas para o dashboard APENAS se solicitado
+      let dashboardStats = stats
+      if (addStats) {
+        console.log('📊 Buscando estatísticas agregadas...')
+        dashboardStats = await fiscalDocumentsService.fetchStats({
+          collection,
+          dataInicio: filtros.dataInicio,
+          dataFim: filtros.dataFim,
+          cnpjEmit: filtros.cnpjEmit,
+          cnpjDest: filtros.cnpjDest,
+          status: filtros.status,
+          dynamicFilters: filtros.dynamicFilters
+        })
+      } else {
+        console.log('⏭️ Ignorando busca de stats (otimização de grid)')
+        // Se não buscamos do backend, calculamos o básico dos dados já carregados para não ficar zerado
+        dashboardStats = calcularStats(dados)
+      }
       
       const loadTime = ((Date.now() - startTime) / 1000).toFixed(2)
       console.log(`✅ Recebidos ${dados.length} registros e estatísticas em ${loadTime}s`)
       
       setProgress(100)
       setCurrentPage(1)
-      setTotalPages(Math.ceil(totalCount / 1000) || 1)
+      setTotalPages(Math.ceil(totalCount / env.defaults.dashboardPageSize) || 1)
       setNotas(dados)
       setTotalRegistros(totalCount)
       setStats(dashboardStats)
@@ -193,11 +246,12 @@ export function NFProvider({ children }: { children: ReactNode }) {
       setProgress(0)
     } finally {
       setLoading(false)
+      setIsUpdating(false)
     }
   }
 
   useEffect(() => {
-    carregarDados()
+    carregarDados({ addStats: false })
   }, [filtros, collection])
 
   return (
@@ -213,9 +267,10 @@ export function NFProvider({ children }: { children: ReactNode }) {
       totalRegistros,
       collection,
       usandoCache,
+      isUpdating,
       setFiltros,
       setCollection,
-      recarregar: carregarDados 
+      recarregar: (opcoes) => carregarDados(opcoes) 
     }}>
       {children}
     </NFContext.Provider>

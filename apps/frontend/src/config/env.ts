@@ -13,7 +13,7 @@ export const env = {
     collection: import.meta.env.VITE_DB_COLLECTION || 'tbl_nfe_100',
   },
   defaults: {
-    pageSize: Number(import.meta.env.VITE_DEFAULT_PAGE_SIZE) || 500,
+    dashboardPageSize: Number(import.meta.env.VITE_DEFAULT_DASHBOARD_PAGE_SIZE) || 1000,
     page: Number(import.meta.env.VITE_DEFAULT_PAGE) || 1,
     maxDateRangeDays: Number(import.meta.env.VITE_MAX_DATE_RANGE_DAYS) || 365,
     analyticsPageSize: Number(import.meta.env.VITE_ANALYTICS_PAGE_SIZE) || 10000,

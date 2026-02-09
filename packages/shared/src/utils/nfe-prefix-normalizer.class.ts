@@ -85,7 +85,7 @@ export class NFePrefixNormalizer {
    * @param originalKey - Chave original para contexto de erro
    * @throws NFePrefixNormalizationError se a chave normalizada for inválida
    */
-  private validateNormalizedKey(normalizedKey: string, originalKey: string): void {
+  private validateNormalizedKey(_normalizedKey: string, originalKey: string): void {
     // Verificar se a chave original é apenas o prefixo "NFe"
     if (originalKey === this.nfePrefix) {
       throw new NFePrefixNormalizationError(

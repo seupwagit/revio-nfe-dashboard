@@ -14,7 +14,7 @@ import { useNF } from '../contexts/NFContext'
 const columnHelper = createColumnHelper<any>()
 
 export default function GridNFeSimples() {
-  const { notas, loading, usandoCache } = useNF()
+  const { notas, loading, isUpdating, usandoCache } = useNF()
   
   // State for DANFE viewer
   const [danfeViewer, setDanfeViewer] = useState<{
@@ -160,16 +160,20 @@ export default function GridNFeSimples() {
           'cancelada': 'bg-red-100 text-red-800',
           'denegada': 'bg-gray-100 text-gray-800'
         }
+        const translatedVal = val === 'autorizada' ? 'Autorizada' : 
+                               val === 'cancelada' ? 'Cancelada' : 
+                               val === 'processando' ? 'Processando' : 
+                               val === 'denegada' ? 'Denegada' : val
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${colors[val as string] || 'bg-gray-100 text-gray-800'}`}>
-            {val || '-'}
+            {translatedVal || '-'}
           </span>
         )
       },
       size: 120
     }),
     columnHelper.accessor('protocolada', {
-      header: 'Protocolada',
+      header: 'Autorizada',
       cell: info => {
         const val = info.getValue()
         return (
@@ -421,6 +425,12 @@ export default function GridNFeSimples() {
         </div>
         
         <div className="flex flex-col sm:flex-row items-end gap-3 w-full md:w-auto">
+          {isUpdating && (
+            <div className="flex items-center gap-2 text-revio-primary animate-pulse mr-4">
+              <LoadingSpinner size="sm" showText={false} />
+              <span className="text-xs font-semibold">Atualizando...</span>
+            </div>
+          )}
           <ManifestationTypeSelector
             selectedType={selectedManifestationType}
             onTypeChange={setSelectedManifestationType}

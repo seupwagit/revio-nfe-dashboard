@@ -542,11 +542,31 @@ function getDefaultEndDate(): string {
 }
 
 export function calcularStats(notas: any[]): DashboardStats {
+  const agora = new Date()
+  const hoje = agora.toISOString().split('T')[0]
+  
+  const seteDiasAtras = new Date()
+  seteDiasAtras.setDate(agora.getDate() - 7)
+  const seteDiasAtrasStr = seteDiasAtras.toISOString().split('T')[0]
+  
+  const trintaDiasAtras = new Date()
+  trintaDiasAtras.setDate(agora.getDate() - 30)
+  const trintaDiasAtrasStr = trintaDiasAtras.toISOString().split('T')[0]
+
+  const valores = notas.map(nf => nf.valorTotal || 0)
+
   return {
     totalNotas: notas.length,
-    valorTotal: notas.reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
+    valorTotal: valores.reduce((acc, v) => acc + v, 0),
     valorTotalEntradas: notas.filter(nf => nf.tipoOperacao === '0').reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
     valorTotalSaidas: notas.filter(nf => nf.tipoOperacao === '1').reduce((acc, nf) => acc + (nf.valorTotal || 0), 0),
+    qtdEntradas: notas.filter(nf => nf.tipoOperacao === '0').length,
+    qtdSaidas: notas.filter(nf => nf.tipoOperacao === '1').length,
+    maiorNota: valores.length > 0 ? Math.max(...valores) : 0,
+    menorNota: valores.length > 0 ? Math.min(...valores) : 0,
+    notasHoje: notas.filter(nf => nf.dataEmissao?.split('T')[0] === hoje).length,
+    notasUltimos7Dias: notas.filter(nf => nf.dataEmissao?.split('T')[0] >= seteDiasAtrasStr).length,
+    notasUltimos30Dias: notas.filter(nf => nf.dataEmissao?.split('T')[0] >= trintaDiasAtrasStr).length,
     totalICMS: notas.reduce((acc, nf) => acc + (nf.totais?.valorICMS || 0), 0),
     totalIPI: notas.reduce((acc, nf) => acc + (nf.totais?.valorIPI || 0), 0),
     totalPIS: notas.reduce((acc, nf) => acc + (nf.totais?.valorPIS || 0), 0),
