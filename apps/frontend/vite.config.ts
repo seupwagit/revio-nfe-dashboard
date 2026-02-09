@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  envDir: '../../',
   resolve: {
     alias: {
       '@fiscal/shared': path.resolve(__dirname, '../../packages/shared/src'),

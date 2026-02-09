@@ -29,8 +29,10 @@ import healthRoutes from './routes/health'
 import manifestationsRoutes from './routes/manifestations'
 import resilienceRoutes from './routes/resilience'
 
-// Carregar variáveis de ambiente
+// Carregar variáveis de ambiente (procurar na raiz do projeto/monorepo)
 dotenv.config()
+dotenv.config({ path: path.join(__dirname, '../../.env') })
+dotenv.config({ path: path.join(__dirname, '../../../.env') })
 
 const app = express()
 
