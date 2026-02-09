@@ -1,9 +1,9 @@
+import { FileText, Filter, RefreshCw, Search } from 'lucide-react'
 import { useState } from 'react'
-import { useNF } from '../contexts/NFContext'
-import { Search, Filter, RefreshCw, FileText } from 'lucide-react'
-import NotaCard from '../components/NotaCard'
-import LoadingSpinner from '../components/LoadingSpinner'
 import ContadorRegistros from '../components/ContadorRegistros'
+import LoadingSpinner from '../components/LoadingSpinner'
+import NotaCard from '../components/NotaCard'
+import { useNF } from '../contexts/NFContext'
 
 
 export default function NotasFiscais() {
@@ -44,7 +44,7 @@ export default function NotasFiscais() {
             loading={loading}
           />
           <button
-            onClick={recarregar}
+            onClick={() => recarregar()}
             disabled={loading}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
