@@ -99,34 +99,22 @@ export default function GridCFeSimples() {
     }),
     
     // Identificação
-    columnHelper.accessor('id', {
+    columnHelper.accessor('_id', {
       header: 'ID',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 250
     }),
-    columnHelper.accessor('chaveAcesso', {
+    columnHelper.accessor('CHV_CFe', {
       header: 'Chave CF-e',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 350
     }),
-    columnHelper.accessor('numero', {
+    columnHelper.accessor('NUM_DOC', {
       header: 'Número',
       cell: info => <span className="font-semibold">{info.getValue() || '-'}</span>,
       size: 100
     }),
-    columnHelper.accessor('numeroSAT', {
-      header: 'Número SAT',
-      cell: info => <span className="font-mono text-sm">{info.getValue() || '-'}</span>,
-      size: 120
-    }),
-    columnHelper.accessor('serie', {
-      header: 'Série',
-      cell: info => <span>{info.getValue() || '-'}</span>,
-      size: 80
-    }),
-    
-    // Datas e Status
-    columnHelper.accessor('dataEmissao', {
+    columnHelper.accessor('DT_DOC', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
           Data Emissão <ArrowUpDown className="inline w-4 h-4" />
@@ -137,37 +125,22 @@ export default function GridCFeSimples() {
         if (!date) return '-'
         try {
           const d = new Date(date)
-          return <span className="whitespace-nowrap">{isNaN(d.getTime()) ? date : d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR')}</span>
+          return <span className="whitespace-nowrap">{isNaN(d.getTime()) ? date : d.toLocaleDateString('pt-BR')}</span>
         } catch {
           return <span className="whitespace-nowrap">{date}</span>
         }
       },
       filterFn: 'dateFilter' as any,
-      size: 180
+      size: 150
     }),
-    columnHelper.accessor('status', {
-      header: 'Status',
-      cell: info => {
-        const val = info.getValue()
-        const colors: Record<string, string> = {
-          'autorizada': 'bg-green-100 text-green-800',
-          'processando': 'bg-yellow-100 text-yellow-800',
-          'cancelada': 'bg-red-100 text-red-800'
-        }
-        const translatedVal = val === 'autorizada' ? 'Autorizada' : 
-                               val === 'cancelada' ? 'Cancelada' : 
-                               val === 'processando' ? 'Processando' : val
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${colors[val as string] || 'bg-gray-100 text-gray-800'}`}>
-            {translatedVal || '-'}
-          </span>
-        )
-      },
-      size: 120
+    columnHelper.accessor('HR_EMI', {
+      header: 'Hora',
+      cell: info => <span>{info.getValue() || '-'}</span>,
+      size: 80
     }),
     
     // Valores
-    columnHelper.accessor('valorTotal', {
+    columnHelper.accessor('VL_DOC', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
           Valor Total <ArrowUpDown className="inline w-4 h-4" />
@@ -184,50 +157,51 @@ export default function GridCFeSimples() {
       filterFn: 'numberFilter' as any,
       size: 130
     }),
-    columnHelper.accessor('totais.valorICMS', {
+    columnHelper.accessor('VL_MERC', {
+      header: 'Valor Mercadoria',
+      cell: info => <span className="whitespace-nowrap">{typeof info.getValue() === 'number' ? info.getValue().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>,
+      size: 130
+    }),
+    columnHelper.accessor('VL_DESC', {
+      header: 'Desconto',
+      cell: info => <span className="whitespace-nowrap">{typeof info.getValue() === 'number' ? info.getValue().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>,
+      size: 110
+    }),
+    columnHelper.accessor('VL_ICMS', {
       header: 'ICMS',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
+      cell: info => <span className="whitespace-nowrap">{typeof info.getValue() === 'number' ? info.getValue().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>,
       size: 110
     }),
-    columnHelper.accessor('totais.valorPIS', {
+    columnHelper.accessor('VL_PIS', {
       header: 'PIS',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
+      cell: info => <span className="whitespace-nowrap">{typeof info.getValue() === 'number' ? info.getValue().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>,
       size: 110
     }),
-    columnHelper.accessor('totais.valorCOFINS', {
+    columnHelper.accessor('VL_COFINS', {
       header: 'COFINS',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
+      cell: info => <span className="whitespace-nowrap">{typeof info.getValue() === 'number' ? info.getValue().toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>,
       size: 110
     }),
     
     // Emitente
-    columnHelper.accessor('emitente.cnpj', {
+    columnHelper.accessor('CNPJ_EMIT', {
       header: 'CNPJ Emitente',
       cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('emitente.razaoSocial', {
-      header: 'Razão Social Emitente',
+    columnHelper.accessor('NOME_EMIT', {
+      header: 'Nome Emitente',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
+      size: 250
     }),
     
     // Destinatário
-    columnHelper.accessor('destinatario.cpfCnpj', {
-      header: 'CPF/CNPJ Destinatário',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
+    columnHelper.accessor('CNPJ_DEST', {
+      header: 'CNPJ Destinatário',
+      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || info.row.original.CPF_DEST || '-'}</span>,
       size: 160
     }),
-    columnHelper.accessor('destinatario.nome', {
+    columnHelper.accessor('NOME_DEST', {
       header: 'Nome Destinatário',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 250

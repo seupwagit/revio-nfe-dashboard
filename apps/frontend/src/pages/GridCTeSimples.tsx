@@ -99,39 +99,34 @@ export default function GridCTeSimples() {
     }),
     
     // Identificação
-    columnHelper.accessor('id', {
+    columnHelper.accessor('_id', {
       header: 'ID',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 250
     }),
-    columnHelper.accessor('chaveAcesso', {
+    columnHelper.accessor('CHV', {
       header: 'Chave CT-e',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 350
     }),
-    columnHelper.accessor('numero', {
+    columnHelper.accessor('NUM_CTE', {
       header: 'Número',
       cell: info => <span className="font-semibold">{info.getValue() || '-'}</span>,
       size: 100
     }),
-    columnHelper.accessor('serie', {
+    columnHelper.accessor('SER', {
       header: 'Série',
       cell: info => <span>{info.getValue() || '-'}</span>,
       size: 80
     }),
-    columnHelper.accessor('modelo', {
+    columnHelper.accessor('COD_MOD', {
       header: 'Modelo',
       cell: info => <span>{info.getValue() || '-'}</span>,
       size: 80
     }),
-    columnHelper.accessor('tipoServico', {
-      header: 'Tipo Serviço',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 120
-    }),
     
     // Datas e Status
-    columnHelper.accessor('dataEmissao', {
+    columnHelper.accessor('DT_DOC', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
           Data Emissão <ArrowUpDown className="inline w-4 h-4" />
@@ -150,32 +145,12 @@ export default function GridCTeSimples() {
       filterFn: 'dateFilter' as any,
       size: 180
     }),
-    columnHelper.accessor('status', {
-      header: 'Status',
-      cell: info => {
-        const val = info.getValue()
-        const colors: Record<string, string> = {
-          'autorizada': 'bg-green-100 text-green-800',
-          'processando': 'bg-yellow-100 text-yellow-800',
-          'cancelada': 'bg-red-100 text-red-800'
-        }
-        const translatedVal = val === 'autorizada' ? 'Autorizada' : 
-                               val === 'cancelada' ? 'Cancelada' : 
-                               val === 'processando' ? 'Processando' : val
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${colors[val as string] || 'bg-gray-100 text-gray-800'}`}>
-            {translatedVal || '-'}
-          </span>
-        )
-      },
-      size: 120
-    }),
     
     // Valores
-    columnHelper.accessor('valorTotal', {
+    columnHelper.accessor('VL_PREST_SERV', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
-          Valor Total <ArrowUpDown className="inline w-4 h-4" />
+          Valor Prestação <ArrowUpDown className="inline w-4 h-4" />
         </button>
       ),
       cell: info => {
@@ -189,61 +164,36 @@ export default function GridCTeSimples() {
       filterFn: 'numberFilter' as any,
       size: 130
     }),
-    columnHelper.accessor('valores.servico', {
-      header: 'Valor Serviço',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 130
-    }),
     
     // Emitente
-    columnHelper.accessor('emitente.cnpj', {
+    columnHelper.accessor('CNPJ_EMIT', {
       header: 'CNPJ Emitente',
       cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('emitente.razaoSocial', {
-      header: 'Razão Social Emitente',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
-    }),
-    
-    // Tomador
-    columnHelper.accessor('tomador.cnpj', {
-      header: 'CNPJ Tomador',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('tomador.razaoSocial', {
-      header: 'Razão Social Tomador',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
-    }),
-    
-    // Remetente
-    columnHelper.accessor('remetente.cnpj', {
-      header: 'CNPJ Remetente',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('remetente.razaoSocial', {
-      header: 'Razão Social Remetente',
+    columnHelper.accessor('NOME_EMIT', {
+      header: 'Nome Emitente',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
     }),
     
     // Destinatário
-    columnHelper.accessor('destinatario.cnpj', {
+    columnHelper.accessor('CNPJ_DEST', {
       header: 'CNPJ Destinatário',
       cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('destinatario.razaoSocial', {
-      header: 'Razão Social Destinatário',
+    columnHelper.accessor('NOME_DEST', {
+      header: 'Nome Destinatário',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
+    }),
+
+    // Vínculo
+    columnHelper.accessor('CHV_NFE', {
+      header: 'Chave NF-e Vinculada',
+      cell: info => <span className="font-mono text-xs whitespace-nowrap">{info.getValue() || '-'}</span>,
+      size: 350
     }),
   ], [handleVisualizarClick])
 

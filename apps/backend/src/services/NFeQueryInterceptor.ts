@@ -251,6 +251,7 @@ export class NFeQueryInterceptor {
   private buildAggregationPipeline(context: InterceptionContext, options: any = {}): any[] {
     const pipeline: any[] = [];
     const isChvNfeGroup = context.groupingConfig.groupByFields.includes('CHV_NFE');
+    const isNFeCollection = context.collection === 'tbl_nfe_100';
 
     try {
       // 1. Aplicar filtros da consulta original (pode ser pulado se o chamador quiser explicitamente)
@@ -258,7 +259,64 @@ export class NFeQueryInterceptor {
         pipeline.push({ $match: context.originalQuery });
       }
 
-      // 2. Aplicar ordenação PRÉ-agrupamento (define quem é o "primeiro" do grupo)
+      // 2. STATUS_MANIFESTACAO (Apenas para NF-e)
+      // Conforme especificação: join com tbl_proc_evento_nfe, CStat=135, TpEvento de manifestação
+      if (isNFeCollection) {
+        // Estágio para criar campo de join sem o prefixo "NFe"
+        pipeline.push({
+          $addFields: {
+            chvJoin: {
+              $cond: [
+                { $eq: [{ $substrBytes: ["$CHV_NFE", 0, 3] }, "NFe"] },
+                { $substrBytes: ["$CHV_NFE", 3, 44] },
+                "$CHV_NFE"
+              ]
+            }
+          }
+        });
+
+        // Lookup para buscar o último evento de manifestação autorizado
+        pipeline.push({
+          $lookup: {
+            from: "tbl_proc_evento_nfe",
+            let: { ch: "$chvJoin" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$ChNFe", "$$ch"] },
+                      { $eq: ["$CStat", 135] },
+                      { $in: ["$TpEvento", ["210200", "210210", "210220", "210240"]] }
+                    ]
+                  }
+                }
+              },
+              { $sort: { DhRegEvento: -1 } },
+              { $limit: 1 },
+              { $project: { DescEvento: 1, _id: 0 } }
+            ],
+            as: "manif"
+          }
+        });
+
+        // Extrair o resultado do lookup para a raiz como STATUS_MANIFESTACAO
+        pipeline.push({
+          $addFields: {
+            STATUS_MANIFESTACAO: {
+              $ifNull: [
+                { $arrayElemAt: ["$manif.DescEvento", 0] },
+                ""
+              ]
+            }
+          }
+        });
+
+        // Limpar campos auxiliares
+        pipeline.push({ $project: { manif: 0, chvJoin: 0 } });
+      }
+
+      // 3. Aplicar ordenação PRÉ-agrupamento (define quem é o "primeiro" do grupo)
       let sortStage: any;
       if (options.sort && Object.keys(options.sort).length > 0) {
         sortStage = { $sort: options.sort };

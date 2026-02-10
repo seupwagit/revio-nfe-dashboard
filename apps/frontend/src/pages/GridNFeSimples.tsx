@@ -104,34 +104,34 @@ export default function GridNFeSimples() {
     }),
     
     // Identificação
-    columnHelper.accessor('id', {
+    columnHelper.accessor('_id', {
       header: 'ID',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 250
     }),
-    columnHelper.accessor('chaveAcesso', {
+    columnHelper.accessor('CHV_NFE', {
       header: 'Chave de Acesso',
       cell: info => <span className="font-mono text-xs">{info.getValue() || '-'}</span>,
       size: 350
     }),
-    columnHelper.accessor('numero', {
+    columnHelper.accessor('NUM_DOC', {
       header: 'Número',
       cell: info => <span className="font-semibold">{info.getValue() || '-'}</span>,
       size: 100
     }),
-    columnHelper.accessor('serie', {
+    columnHelper.accessor('SER', {
       header: 'Série',
       cell: info => <span>{info.getValue() || '-'}</span>,
       size: 80
     }),
-    columnHelper.accessor('modelo', {
+    columnHelper.accessor('COD_MOD', {
       header: 'Modelo',
       cell: info => <span>{info.getValue() || '-'}</span>,
       size: 80
     }),
     
     // Datas e Status
-    columnHelper.accessor('dataEmissao', {
+    columnHelper.accessor('DT_DOC', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
           Data Emissão <ArrowUpDown className="inline w-4 h-4" />
@@ -150,37 +150,29 @@ export default function GridNFeSimples() {
       filterFn: 'dateFilter' as any,
       size: 180
     }),
-    columnHelper.accessor('status', {
-      header: 'Status',
+    columnHelper.accessor('DT_E_S', {
+      header: 'Data E/S',
       cell: info => {
-        const val = info.getValue()
-        const colors: Record<string, string> = {
-          'autorizada': 'bg-green-100 text-green-800',
-          'processando': 'bg-yellow-100 text-yellow-800',
-          'cancelada': 'bg-red-100 text-red-800',
-          'denegada': 'bg-gray-100 text-gray-800'
+        const date = info.getValue()
+        if (!date) return '-'
+        try {
+          const d = new Date(date)
+          return <span className="whitespace-nowrap">{isNaN(d.getTime()) ? date : d.toLocaleDateString('pt-BR')}</span>
+        } catch {
+          return <span>{date}</span>
         }
-        const translatedVal = val === 'autorizada' ? 'Autorizada' : 
-                               val === 'cancelada' ? 'Cancelada' : 
-                               val === 'processando' ? 'Processando' : 
-                               val === 'denegada' ? 'Denegada' : val
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${colors[val as string] || 'bg-gray-100 text-gray-800'}`}>
-            {translatedVal || '-'}
-          </span>
-        )
       },
       size: 120
     }),
-    columnHelper.accessor('protocolada', {
-      header: 'Autorizada',
+    columnHelper.accessor('PROTOCOLADA', {
+      header: 'Protocolada',
       cell: info => {
         const val = info.getValue()
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-            val === 'Sim' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            val === 'Sim' || val === true ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
           }`}>
-            {val || 'Não'}
+            {val === 'Sim' || val === true ? 'Sim' : 'Não'}
           </span>
         )
       },
@@ -188,12 +180,12 @@ export default function GridNFeSimples() {
     }),
     
     // Operação
-    columnHelper.accessor('tipo', {
+    columnHelper.accessor('TIPO', {
       header: 'Tipo Doc',
       cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
       size: 100
     }),
-    columnHelper.accessor('tipoOperacao', {
+    columnHelper.accessor('IND_OPER', {
       header: 'Operação',
       cell: info => {
         const val = info.getValue()
@@ -201,14 +193,19 @@ export default function GridNFeSimples() {
       },
       size: 100
     }),
-    columnHelper.accessor('naturezaOperacao', {
-      header: 'Natureza Operação',
+    columnHelper.accessor('ID_DEST', {
+      header: 'Destino',
       cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 200
+      size: 100
+    }),
+    columnHelper.accessor('FIN_NFE', {
+      header: 'Finalidade',
+      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
+      size: 120
     }),
     
-    // Valores
-    columnHelper.accessor('valorTotal', {
+    // Valores (Chaves Planas conforme doc)
+    columnHelper.accessor('VL_DOC', {
       header: ({ column }) => (
         <button onClick={() => column.toggleSorting()} className="whitespace-nowrap">
           Valor Total <ArrowUpDown className="inline w-4 h-4" />
@@ -225,7 +222,7 @@ export default function GridNFeSimples() {
       filterFn: 'numberFilter' as any,
       size: 130
     }),
-    columnHelper.accessor('totais.baseCalculo', {
+    columnHelper.accessor('VL_BC_ICMS', {
       header: 'Base Cálculo',
       cell: info => {
         const valor = info.getValue()
@@ -233,7 +230,7 @@ export default function GridNFeSimples() {
       },
       size: 120
     }),
-    columnHelper.accessor('totais.valorICMS', {
+    columnHelper.accessor('VL_ICMS', {
       header: 'ICMS',
       cell: info => {
         const valor = info.getValue()
@@ -241,7 +238,7 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorIPI', {
+    columnHelper.accessor('VL_IPI', {
       header: 'IPI',
       cell: info => {
         const valor = info.getValue()
@@ -249,7 +246,7 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorPIS', {
+    columnHelper.accessor('VL_PIS', {
       header: 'PIS',
       cell: info => {
         const valor = info.getValue()
@@ -257,7 +254,7 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorCOFINS', {
+    columnHelper.accessor('VL_COFINS', {
       header: 'COFINS',
       cell: info => {
         const valor = info.getValue()
@@ -265,7 +262,7 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorFrete', {
+    columnHelper.accessor('VL_FRT', {
       header: 'Frete',
       cell: info => {
         const valor = info.getValue()
@@ -273,7 +270,7 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorSeguro', {
+    columnHelper.accessor('VL_SEG', {
       header: 'Seguro',
       cell: info => {
         const valor = info.getValue()
@@ -281,16 +278,8 @@ export default function GridNFeSimples() {
       },
       size: 110
     }),
-    columnHelper.accessor('totais.valorDesconto', {
+    columnHelper.accessor('VL_DESC', {
       header: 'Desconto',
-      cell: info => {
-        const valor = info.getValue()
-        return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
-      },
-      size: 110
-    }),
-    columnHelper.accessor('totais.valorOutros', {
-      header: 'Outros',
       cell: info => {
         const valor = info.getValue()
         return <span className="whitespace-nowrap">{typeof valor === 'number' ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
@@ -299,91 +288,84 @@ export default function GridNFeSimples() {
     }),
     
     // Emitente
-    columnHelper.accessor('emitente.cnpj', {
+    columnHelper.accessor('CNPJ_EMIT', {
       header: 'CNPJ Emitente',
-      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
+      cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue() || info.row.original.CPF_EMIT || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('emitente.razaoSocial', {
-      header: 'Razão Social Emitente',
+    columnHelper.accessor('NOME_EMIT', {
+      header: 'Nome Emitente',
       cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
     }),
-    columnHelper.accessor('emitente.nomeFantasia', {
-      header: 'Nome Fantasia Emitente',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 250
-    }),
-    columnHelper.accessor('emitente.ie', {
+    columnHelper.accessor('IE', {
       header: 'IE Emitente',
       cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
       size: 130
     }),
-    columnHelper.accessor('emitente.endereco', {
-      header: 'Endereço Emitente',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 250
-    }),
-    columnHelper.accessor('emitente.municipio', {
-      header: 'Município Emitente',
+    columnHelper.accessor('TELEFONE', {
+      header: 'Telefone Emitente',
       cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('emitente.uf', {
-      header: 'UF Emitente',
+    columnHelper.accessor('UF_ORIGEM', {
+      header: 'UF Origem',
       cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
       size: 80
     }),
     
     // Destinatário
-    columnHelper.accessor(row => row.destinatario?.cnpj || row.destinatario?.cpfCnpj || '-', {
-      id: 'destinatario.documento',
+    columnHelper.accessor(row => row.CNPJ_DEST || row.CPF_DEST || '-', {
+      id: 'CNPJ_DEST',
       header: 'CPF/CNPJ Destinatário',
       cell: info => <span className="font-mono text-sm whitespace-nowrap">{info.getValue()}</span>,
       size: 160
     }),
-    columnHelper.accessor(row => row.destinatario?.razaoSocial || row.destinatario?.nome || '-', {
-      id: 'destinatario.nomeCompleto',
+    columnHelper.accessor('NOME_DEST', {
       header: 'Nome Destinatário',
-      cell: info => <span className="max-w-xs truncate block">{info.getValue()}</span>,
+      cell: info => <span className="max-w-xs truncate block">{info.getValue() || '-'}</span>,
       size: 300
     }),
-    columnHelper.accessor('destinatario.ie', {
-      header: 'IE Destinatário',
-      cell: info => <span className="text-sm whitespace-nowrap">{info.getValue() || '-'}</span>,
-      size: 130
-    }),
-    columnHelper.accessor('destinatario.endereco', {
-      header: 'Endereço Destinatário',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 250
-    }),
-    columnHelper.accessor('destinatario.municipio', {
-      header: 'Município Destinatário',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
-      size: 150
-    }),
-    columnHelper.accessor('destinatario.uf', {
-      header: 'UF Destinatário',
+    columnHelper.accessor('UF_DESTINO', {
+      header: 'UF Destino',
       cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
       size: 80
     }),
     
-    // Informações Adicionais
-    columnHelper.accessor('origem', {
-      header: 'Origem',
-      cell: info => <span className="text-xs max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 200
-    }),
-    columnHelper.accessor('statusManifestacao', {
+    // Informações Adicionais e Campo Calculado
+    columnHelper.accessor('STATUS_MANIFESTACAO', {
       header: 'Status Manifestação',
-      cell: info => <span className="text-sm">{info.getValue() || '-'}</span>,
+      cell: info => {
+        const val = info.getValue()
+        return (
+          <span className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+            val ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+          }`}>
+            {val || 'Sem Manifestação'}
+          </span>
+        )
+      },
+      size: 180
+    }),
+    columnHelper.accessor('VERSAO', {
+      header: 'Versão',
+      cell: info => <span className="text-xs">{info.getValue() || '-'}</span>,
+      size: 80
+    }),
+    columnHelper.accessor('CFOPS', {
+      header: 'CFOPs',
+      cell: info => <span className="text-xs">{Array.isArray(info.getValue()) ? info.getValue().join(', ') : info.getValue() || '-'}</span>,
       size: 150
     }),
-    columnHelper.accessor('informacoesAdicionais', {
-      header: 'Informações Adicionais',
-      cell: info => <span className="text-xs max-w-xs truncate block">{info.getValue() || '-'}</span>,
-      size: 300
+    columnHelper.accessor('ORIGEM', {
+      header: 'Origem XML',
+      cell: info => <span className="text-xs">{info.getValue() || '-'}</span>,
+      size: 100
+    }),
+    columnHelper.accessor('USR_LOGIN', {
+      header: 'Usuário',
+      cell: info => <span className="text-xs">{info.getValue() || '-'}</span>,
+      size: 120
     }),
   ], [handleVisualizarClick])
 
