@@ -81,7 +81,7 @@ bkp_temporario/
 coverage/
 .nyc_output
 test-output.pdf
-
+cypress/
 # Docker
 # .dockerignore removido do ignore para permitir deploy otimizado
 
